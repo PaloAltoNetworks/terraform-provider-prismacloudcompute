@@ -1,0 +1,175 @@
+package prismacloudcompute
+
+import (
+	"bytes"
+	"fmt"
+	"testing"
+
+	//pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+)
+
+func TestAccCollectionConfig(t *testing.T) {
+	fmt.Printf("\n\nStart TestAccCollectionConfig")
+	var o collection.Collection
+	name := fmt.Sprintf("tf%s", acctest.RandString(6))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCollectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCollectionNetwork(t *testing.T) {
+	var o collection.Collection
+	name := fmt.Sprintf("tf%s", acctest.RandString(6))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCollectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCollectionAuditEvent(t *testing.T) {
+	var o collection.Collection
+	name := fmt.Sprintf("tf%s", acctest.RandString(6))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCollectionDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+			{
+				Config: testAccCollectionConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckCollectionExists(n string, o *collection.Collection) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return fmt.Errorf("What is the name: %s", o.Name)
+
+		/*		rs, ok := s.RootModule().Resources[n]
+				if !ok {
+					return fmt.Errorf("Resource not found: %s", n)
+				}
+
+				if rs.Primary.Name == "" {
+					return fmt.Errorf("Object label Name is not set")
+				}
+
+				client := testAccProvider.Meta().(*pc.Client)
+				name := rs.Primary.Name
+				lo, err := collection.Get(client, name)
+				if err != nil {
+					return fmt.Errorf("Error in get: %s", err)
+				}
+				*o = lo*/
+
+		return nil
+	}
+}
+
+func testAccCheckCollectionAttributes(o *collection.Collection, name string, description string, color string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if o.Name != name {
+			return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)
+		} else {
+			fmt.Printf("\n\nName is %s", o.Name)
+		}
+
+		if o.Description != description {
+			return fmt.Errorf("Description is %s, expected %s", o.Description, description)
+		}
+
+		if o.Color != color {
+			return fmt.Errorf("Color type is %q, expected %q", o.Color, color)
+		}
+
+		return nil
+	}
+}
+
+func testAccCollectionDestroy(s *terraform.State) error {
+	//	client := testAccProvider.Meta().(*pc.Client)
+
+	for _, rs := range s.RootModule().Resources {
+		if rs.Type != "prismacloudcompute_collection" {
+			continue
+		}
+
+		/*		if rs.Primary.Name != "" {
+				name := rs.Primary.Name
+				if o, err := collections.Get(client, name); err == nil {
+					if !o.Deleted {
+						return fmt.Errorf("Object %q still exists", rs.Primary.Name)
+					}
+				}
+			}*/
+		return nil
+	}
+
+	return nil
+}
+
+func testAccCollectionConfig(name string) string {
+	var buf bytes.Buffer
+	buf.Grow(500)
+
+	buf.WriteString(fmt.Sprintf(`
+resource "prismacloudcompute_collections" "test" {
+    name = %q
+}`, name))
+
+	return buf.String()
+}
