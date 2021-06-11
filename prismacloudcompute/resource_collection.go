@@ -1,7 +1,6 @@
 package prismacloudcompute
 
 import (
-	//	"encoding/json"
 	"log"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	//	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceCollection() *schema.Resource {
@@ -30,16 +28,9 @@ func resourceCollection() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			/*			"collections": {
-						Type:        schema.TypeList,
-						Required:    true,
-						Description: "Collections",
-						MinItems:    1,
-						Elem: &schema.Resource{
-							Schema: map[string]*schema.Schema{*/
 			"accountids": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Account IDs",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -47,7 +38,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"appids": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "App IDs",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -55,7 +46,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"clusters": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Clusters",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -63,7 +54,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"coderepos": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Code repositories",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -71,12 +62,12 @@ func resourceCollection() *schema.Resource {
 			},
 			"color": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Color",
 			},
 			"containers": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Containers",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -84,12 +75,12 @@ func resourceCollection() *schema.Resource {
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Description",
 			},
 			"functions": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Serverless functions",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -97,7 +88,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"hosts": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Hosts",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -105,7 +96,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"images": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Images",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -113,7 +104,7 @@ func resourceCollection() *schema.Resource {
 			},
 			"labels": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Labels",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -121,17 +112,17 @@ func resourceCollection() *schema.Resource {
 			},
 			"modified": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Last modified date",
 			},
 			"name": {
 				Type:        schema.TypeString,
-				Computed:    true,
+				Required:    true,
 				Description: "Name",
 			},
 			"namespaces": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Namespaces",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -139,17 +130,17 @@ func resourceCollection() *schema.Resource {
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Owner",
 			},
 			"prisma": {
-				Type:        schema.TypeString,
-				Required:    true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 				Description: "Prisma",
 			},
 			"system": {
-				Type:        schema.TypeString,
-				Required:    true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 				Description: "System",
 			},
 			//					},
@@ -160,25 +151,56 @@ func resourceCollection() *schema.Resource {
 }
 
 func parseCollection(d *schema.ResourceData, id string) collection.Collection {
-	//	rspec := d.Get("collections").([]interface{})[0].(map[string]interface{})
 	ans := collection.Collection{
-		Name:        d.Get("name").(string),
-		AccountIDs:  d.Get("accountIDs").([]string),
-		AppIDs:      d.Get("appIDs").([]string),
-		Clusters:    d.Get("clusters").([]string),
-		CodeRepos:   d.Get("codeRepos").([]string),
-		Color:       d.Get("color").(string),
-		Containers:  d.Get("containers").([]string),
-		Description: d.Get("description").(string),
-		Functions:   d.Get("functions").([]string),
-		Hosts:       d.Get("hosts").([]string),
-		Images:      d.Get("images").([]string),
-		Labels:      d.Get("labels").([]string),
-		Modified:    d.Get("modified").(string),
-		Namespaces:  d.Get("namespaces").([]string),
-		Owner:       d.Get("owner").(string),
-		Prisma:      d.Get("prisma").(bool),
-		System:      d.Get("system").(bool),
+		Name: d.Get("name").(string),
+	}
+	if d.Get("accountIDs") != nil && len(d.Get("accountIDs").([]interface{})) > 0 {
+		ans.AccountIDs = d.Get("accountIDs").([]interface{})[0].([]string)
+	}
+	if d.Get("appIDs") != nil && len(d.Get("appIDs").([]interface{})) > 0 {
+		ans.AppIDs = d.Get("appIDs").([]interface{})[0].([]string)
+	}
+	if d.Get("clusters") != nil && len(d.Get("clusters").([]interface{})) > 0 {
+		ans.Clusters = d.Get("clusters").([]interface{})[0].([]string)
+	}
+	if d.Get("codeRepos") != nil && len(d.Get("codeRepos").([]interface{})) > 0 {
+		ans.CodeRepos = d.Get("codeRepos").([]interface{})[0].([]string)
+	}
+	if d.Get("color") != nil {
+		ans.Color = d.Get("color").(string)
+	}
+	if d.Get("containers") != nil && len(d.Get("containers").([]interface{})) > 0 {
+		ans.Containers = d.Get("containers").([]interface{})[0].([]string)
+	}
+	if d.Get("description") != nil {
+		ans.Description = d.Get("description").(string)
+	}
+	if d.Get("functions") != nil && len(d.Get("functions").([]interface{})) > 0 {
+		ans.Functions = d.Get("functions").([]interface{})[0].([]string)
+	}
+	if d.Get("hosts") != nil && len(d.Get("hosts").([]interface{})) > 0 {
+		ans.Hosts = d.Get("hosts").([]interface{})[0].([]string)
+	}
+	if d.Get("images") != nil && len(d.Get("images").([]interface{})) > 0 {
+		ans.Images = d.Get("images").([]interface{})[0].([]string)
+	}
+	if d.Get("labels") != nil && len(d.Get("labels").([]interface{})) > 0 {
+		ans.Labels = d.Get("labels").([]interface{})[0].([]string)
+	}
+	if d.Get("modified") != nil {
+		ans.Modified = d.Get("modified").(string)
+	}
+	if d.Get("namespaces") != nil && len(d.Get("namespaces").([]interface{})) > 0 {
+		ans.Namespaces = d.Get("namespaces").([]interface{})[0].([]string)
+	}
+	if d.Get("owner") != nil {
+		ans.Owner = d.Get("owner").(string)
+	}
+	if d.Get("prisma") != nil {
+		ans.Prisma = d.Get("prisma").(interface{}).(bool)
+	}
+	if d.Get("system") != nil {
+		ans.System = d.Get("system").(interface{}).(bool)
 	}
 
 	return ans
@@ -229,44 +251,35 @@ func createCollection(d *schema.ResourceData, meta interface{}) error {
 	obj := parseCollection(d, "")
 
 	if err := collection.Create(client, obj); err != nil {
+		log.Printf("Failed to create collection: %s\n", err)
 		return err
 	}
 
-	/*	PollApiUntilSuccess(func() error {
-			_, err := collection.Identify(client, obj.Name)
-			return err
-		})
+	PollApiUntilSuccess(func() error {
+		_, err := collection.Get(client, obj.Name)
+		log.Printf("Failed to get collection %s: %s\n", obj.Name, err)
+		return err
+	})
 
-		id, err := collection.Identify(client, obj.Name)
-		if err != nil {
-			return err
-		}
-
-		PollApiUntilSuccess(func() error {
-			_, err := collection.Get(client, obj.Name)
-			return err
-		})
-
-		d.SetId(id)
-	*/
+	d.SetId(obj.Name)
 	return readCollection(d, meta)
 }
 
 func readCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pc.Client)
 	obj := parseCollection(d, "")
-	//	id := d.Id()
+	id := d.Id()
 
-	obj, err := collection.Get(client, obj.Name)
+	obj, err := collection.Get(client, id)
 	if err != nil {
 		if err == pc.ObjectNotFoundError {
-			//			d.SetName("")
+			d.SetId("")
 			return nil
 		}
 		return err
 	}
 
-	//	saveCollection(d, obj)
+	saveCollection(d, obj)
 
 	return nil
 }

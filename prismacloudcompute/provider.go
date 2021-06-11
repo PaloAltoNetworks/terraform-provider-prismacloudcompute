@@ -62,7 +62,7 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Skip SSL certificate verification",
-				DefaultFunc: schema.EnvDefaultFunc("PRISMACLOUDCOMPUTE_SKIP_SSL_CERT_VERIFICATION", nil),
+				Default:     true,
 			},
 			"logging": {
 				Type: schema.TypeMap,

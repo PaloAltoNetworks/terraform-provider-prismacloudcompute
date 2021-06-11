@@ -1,29 +1,23 @@
 package prismacloudcompute
 
 import (
-	//	"bytes"
 	"fmt"
 	"os"
-	//	"strconv"
-	//	"strings"
 	"testing"
 
 	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	//	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 const (
-	PrismacloudcomputeJsonConfigFileEnvVar = "creds.json"
+	PrismacloudcomputeJsonConfigFileEnvVar = "../creds.json"
 )
 
 var (
-	testAccProviders map[string]terraform.ResourceProvider
-	testAccProvider  *schema.Provider
-	//	originalEnterpriseSettings         *enterprise.Config
-	//	cloudAccounts                      map[string][]string
+	testAccProviders                   map[string]terraform.ResourceProvider
+	testAccProvider                    *schema.Provider
 	sessionTimeoutOrig, sessionTimeout int
 )
 
