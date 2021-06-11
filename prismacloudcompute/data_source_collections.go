@@ -3,7 +3,6 @@ package prismacloudcompute
 import (
 	"bytes"
 	"encoding/base64"
-	//	"fmt"
 	"log"
 
 	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"

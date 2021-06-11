@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	//pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
@@ -99,22 +99,22 @@ func testAccCheckCollectionExists(n string, o *collection.Collection) resource.T
 	return func(s *terraform.State) error {
 		return fmt.Errorf("What is the name: %s", o.Name)
 
-		/*		rs, ok := s.RootModule().Resources[n]
-				if !ok {
-					return fmt.Errorf("Resource not found: %s", n)
-				}
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", n)
+		}
 
-				if rs.Primary.Name == "" {
-					return fmt.Errorf("Object label Name is not set")
-				}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Object label Name is not set")
+		}
 
-				client := testAccProvider.Meta().(*pc.Client)
-				name := rs.Primary.Name
-				lo, err := collection.Get(client, name)
-				if err != nil {
-					return fmt.Errorf("Error in get: %s", err)
-				}
-				*o = lo*/
+		client := testAccProvider.Meta().(*pc.Client)
+		name := rs.Primary.ID
+		lo, err := collection.Get(client, name)
+		if err != nil {
+			return fmt.Errorf("Error in get: %s", err)
+		}
+		*o = lo
 
 		return nil
 	}
@@ -141,21 +141,20 @@ func testAccCheckCollectionAttributes(o *collection.Collection, name string, des
 }
 
 func testAccCollectionDestroy(s *terraform.State) error {
-	//	client := testAccProvider.Meta().(*pc.Client)
+	client := testAccProvider.Meta().(*pc.Client)
 
 	for _, rs := range s.RootModule().Resources {
+
 		if rs.Type != "prismacloudcompute_collection" {
 			continue
 		}
 
-		/*		if rs.Primary.Name != "" {
-				name := rs.Primary.Name
-				if o, err := collections.Get(client, name); err == nil {
-					if !o.Deleted {
-						return fmt.Errorf("Object %q still exists", rs.Primary.Name)
-					}
-				}
-			}*/
+		if rs.Primary.ID != "" {
+			name := rs.Primary.ID
+			if err := collection.Delete(client, name); err == nil {
+				return fmt.Errorf("Object %q still exists", name)
+			}
+		}
 		return nil
 	}
 
