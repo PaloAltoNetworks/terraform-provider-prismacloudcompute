@@ -1,0 +1,7 @@
+{
+	"url":"localhost",
+	"username":"MY_USERNAME",
+	"password":"MY_PASSWORD",
+	"port":8083,
+	"skip_ssl_cert_verification":true
+}
