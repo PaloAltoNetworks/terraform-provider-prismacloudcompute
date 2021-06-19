@@ -11,12 +11,35 @@ provider "prismacloudcompute" {
   json_config_file = "creds.json"
 }
 
-resource "prismacloudcompute_collection" "example" {
+/*resource "prismacloudcompute_collection" "example1" {
     name = "New Collection"
     color = "#FF0000"
+}*/
+
+resource "prismacloudcompute_policiesruntimecontainer" "example2" {
+    learningdisabled = true
+    rules {
+        name = "my-rule"
+	collections = [{
+		name = "All"
+	}]
+        processes = {
+            effect = "alert"
+        }
+        network = {
+            effect = "alert"
+        }
+        dns = {
+            effect = "alert"
+        }
+        filesystem = {
+            effect = "alert"
+        }
+    }
 }
 
-/*resource "prismacloudcompute_policiesruntimecontainer" "example" {
+/*
+resource "prismacloudcompute_policiesvulnerabilityimages" "example" {
     name = "My Policy"
     policy_type = "network"
     rule {
@@ -28,4 +51,5 @@ resource "prismacloudcompute_collection" "example" {
         }
         rule_type = "Network"
     }
-}*/
+}
+*/
