@@ -57,47 +57,49 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 							Description: "List of collections. Used to scope the rule.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+
+									// Output.
 									"accountids": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of account IDs.",
+										Required:    true,
+										Description: "Account IDs",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"appids": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of application IDs.",
+										Required:    true,
+										Description: "App IDs",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"clusters": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of Kubernetes cluster names.",
+										Required:    true,
+										Description: "Clusters",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"coderepos": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of code repositories.",
+										Required:    true,
+										Description: "Code repositories",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 									"color": {
 										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Color code for a collection.",
+										Required:    true,
+										Description: "Color",
 									},
 									"containers": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of containers.",
+										Required:    true,
+										Description: "Containers",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -457,112 +459,112 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 											},
 										},
 									},
-									"notes": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "notes",
-									},
-									"owner": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "owner",
-									},
-									"previousname": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "previousName",
-									},
+								},
+							},
+						},
+						"notes": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "notes",
+						},
+						"owner": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "owner",
+						},
+						"previousname": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "previousName",
+						},
+						"processes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "List of processes.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
 									"processes": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of processes.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"processes": {
+												"blacklist": {
 													Type:        schema.TypeList,
-													Optional:    true,
-													Description: "List of processes.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"blacklist": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "blacklist",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-															"blockallbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "blockAllBinaries",
-															},
-															"checkcryptominers": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkCryptoMiners",
-															},
-															"checklateralmovement": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkLateralMovement",
-															},
-															"checknewbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkNewBinaries",
-															},
-															"checkparentchild": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkParentChild",
-															},
-															"checksuidbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkSuidBinaries",
-															},
-															"effect": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "effect",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-															"skipmodified": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "skipModified",
-															},
-															"skipreverseshell": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "skipReverseShell",
-															},
-															"whitelist": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "blacklist",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-														},
+													Required:    true,
+													Description: "blacklist",
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"blockallbinaries": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "blockAllBinaries",
+												},
+												"checkcryptominers": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "checkCryptoMiners",
+												},
+												"checklateralmovement": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "checkLateralMovement",
+												},
+												"checknewbinaries": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "checkNewBinaries",
+												},
+												"checkparentchild": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "checkParentChild",
+												},
+												"checksuidbinaries": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "checkSuidBinaries",
+												},
+												"effect": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: "effect",
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+												"skipmodified": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "skipModified",
+												},
+												"skipreverseshell": {
+													Type:        schema.TypeBool,
+													Required:    true,
+													Description: "skipReverseShell",
+												},
+												"whitelist": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: "blacklist",
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
 													},
 												},
 											},
 										},
 									},
-									"wildfireanalysis": {
-										Type:        schema.TypeList,
-										Required:    true,
-										Description: "wildFireAnalysis",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 								},
+							},
+						},
+						"wildfireanalysis": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: "wildFireAnalysis",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
 							},
 						},
 					},

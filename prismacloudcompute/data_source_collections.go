@@ -20,7 +20,7 @@ func dataSourceCollections() *schema.Resource {
 			// Output.
 			"accountids": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Account IDs",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -28,7 +28,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"appids": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "App IDs",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -36,7 +36,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"clusters": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Clusters",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -44,7 +44,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"coderepos": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Code repositories",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -52,12 +52,12 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"color": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Color",
 			},
 			"containers": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Containers",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -65,12 +65,12 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Description",
 			},
 			"functions": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Serverless functions",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -78,7 +78,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"hosts": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Hosts",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -86,7 +86,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"images": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Images",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -94,7 +94,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"labels": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Labels",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -102,7 +102,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"modified": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Last modified date",
 			},
 			"name": {
@@ -112,7 +112,7 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"namespaces": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Description: "Namespaces",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -120,17 +120,17 @@ func dataSourceCollections() *schema.Resource {
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				Description: "Owner",
 			},
 			"prisma": {
-				Type:        schema.TypeString,
-				Required:    true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 				Description: "Prisma",
 			},
 			"system": {
-				Type:        schema.TypeString,
-				Required:    true,
+				Type:        schema.TypeBool,
+				Optional:    true,
 				Description: "System",
 			},
 		},

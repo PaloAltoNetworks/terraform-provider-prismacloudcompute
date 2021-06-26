@@ -143,9 +143,6 @@ func resourceCollection() *schema.Resource {
 				Optional:    true,
 				Description: "System",
 			},
-			//					},
-			//				},
-			//			},
 		},
 	}
 }

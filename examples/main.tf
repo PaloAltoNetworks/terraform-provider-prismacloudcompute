@@ -16,13 +16,13 @@ provider "prismacloudcompute" {
     color = "#FF0000"
 }*/
 
-resource "prismacloudcompute_policiesruntimecontainer" "example2" {
+/*resource "prismacloudcompute_policiesruntimecontainer" "example2" {
     learningdisabled = true
     rules {
         name = "my-rule"
-	collections = [{
+	collections {
 		name = "All"
-	}]
+	}
         processes = {
             effect = "alert"
         }
@@ -35,21 +35,16 @@ resource "prismacloudcompute_policiesruntimecontainer" "example2" {
         filesystem = {
             effect = "alert"
         }
+        wildfireanalysis = "alert"
     }
-}
+}*/
 
-/*
-resource "prismacloudcompute_policiesvulnerabilityimages" "example" {
-    name = "My Policy"
-    policy_type = "network"
-    rule {
-        name = "my rule"
-        criteria = "savedSearchId"
-        parameters = {
-            "savedSearch": "true",
-            "withIac": "false",
-        }
-        rule_type = "Network"
+resource "prismacloudcompute_policiesvulnerabilityimages" "example3" {
+    policytype = "containerVulnerability"
+    rules {
+        name = "my-rule"
+	collections {
+		name = "All"
+	}
     }
 }
-*/
