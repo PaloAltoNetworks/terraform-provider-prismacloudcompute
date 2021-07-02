@@ -31,7 +31,7 @@ func resourceCollection() *schema.Resource {
 			"accountids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Account IDs",
+				Description: "List of account IDs.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -39,7 +39,7 @@ func resourceCollection() *schema.Resource {
 			"appids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "App IDs",
+				Description: "List of application IDs.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -47,7 +47,7 @@ func resourceCollection() *schema.Resource {
 			"clusters": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Clusters",
+				Description: "List of Kubernetes cluster names.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -55,7 +55,7 @@ func resourceCollection() *schema.Resource {
 			"coderepos": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Code repositories",
+				Description: "List of code repositories.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -63,12 +63,12 @@ func resourceCollection() *schema.Resource {
 			"color": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Color",
+				Description: "A hex color code for a collection",
 			},
 			"containers": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Containers",
+				Description: "List of containers.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -76,12 +76,12 @@ func resourceCollection() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Description",
+				Description: "A free-form text description of the collection.",
 			},
 			"functions": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Serverless functions",
+				Description: "List of functions.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -89,7 +89,7 @@ func resourceCollection() *schema.Resource {
 			"hosts": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Hosts",
+				Description: "List of hosts.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -97,7 +97,7 @@ func resourceCollection() *schema.Resource {
 			"images": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Images",
+				Description: "List of images.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -105,7 +105,7 @@ func resourceCollection() *schema.Resource {
 			"labels": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Labels",
+				Description: "List of labels.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -113,17 +113,17 @@ func resourceCollection() *schema.Resource {
 			"modified": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Last modified date",
+				Description: "Date/time when the collection was last modified.",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Name",
+				Description: "Unique collection name.",
 			},
 			"namespaces": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Namespaces",
+				Description: "List of Kubernetes namespaces.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -131,17 +131,17 @@ func resourceCollection() *schema.Resource {
 			"owner": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "Owner",
+				Description: "User who created or last modified the collection.",
 			},
 			"prisma": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Prisma",
+				Description: "If set to 'true', this collection originates from Prisma Cloud.",
 			},
 			"system": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "System",
+				Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
 			},
 		},
 	}
