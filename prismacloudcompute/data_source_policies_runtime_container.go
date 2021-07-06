@@ -28,23 +28,23 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 			"_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "ID of the policy set",
+				Description: "ID of the policy set.",
 			},
 			"learningdisabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Determines if learning is enabled or not",
+				Description: "If set to 'true', automatic behavioural learning is enabled.",
 			},
 			"rules": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of policy rules",
+				Description: "List of rules in the policy.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"advancedprotection": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "Indicates whether advanced protection (e.g., custom or premium feeds for container, added whitelist rules for serverless) is enabled (true) or not (false).",
+							Description: "If set to 'true', enables advanced protection (e.g., custom or premium feeds for container, added whitelist rules for serverless).",
 						},
 						"cloudmetadataenforcement": {
 							Type:        schema.TypeBool,
@@ -57,9 +57,11 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 							Description: "List of collections. Used to scope the rule.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+
+									// Output.
 									"accountids": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "List of account IDs.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -67,7 +69,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									},
 									"appids": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "List of application IDs.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -75,7 +77,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									},
 									"clusters": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "List of Kubernetes cluster names.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -83,7 +85,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									},
 									"coderepos": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "List of code repositories.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -91,12 +93,12 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									},
 									"color": {
 										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Color code for a collection.",
+										Required:    true,
+										Description: "Hex color code for a collection.",
 									},
 									"containers": {
 										Type:        schema.TypeList,
-										Optional:    true,
+										Required:    true,
 										Description: "List of containers.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -105,12 +107,12 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"description": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Description",
+										Description: "A free-form text description of the collection.",
 									},
 									"functions": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Serverless functions",
+										Description: "List of functions.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -118,7 +120,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"hosts": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Hosts",
+										Description: "List of hosts.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -126,7 +128,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"images": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Images",
+										Description: "List of images.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -134,7 +136,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"labels": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Labels",
+										Description: "List of labels.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -142,17 +144,17 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"modified": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Last modified date",
+										Description: "Date/time when the collection was last modified.",
 									},
 									"name": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Name",
+										Description: "Unique collection name.",
 									},
 									"namespaces": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "Namespaces",
+										Description: "List of Kubernetes namespaces.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -160,17 +162,17 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"owner": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Owner",
+										Description: "User who created or last modified the collection.",
 									},
 									"prisma": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "Prisma",
+										Description: "If set to 'true' this collection originates from Prisma Cloud.",
 									},
 									"system": {
 										Type:        schema.TypeString,
 										Required:    true,
-										Description: "System",
+										Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
 									},
 								},
 							},
@@ -178,18 +180,18 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 						"customrules": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of custom rules.",
+							Description: "List of custom runtime rules.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"_id": {
 										Type:        schema.TypeInt,
 										Required:    true,
-										Description: "Rule ID",
+										Description: "Custom rule ID.",
 									},
 									"action": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of actions.",
+										Description: "The action to perform if the custom rule applies. Can be set to 'audit' or 'incident'.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -197,7 +199,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"effect": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of effects.",
+										Description: "The effect that will be used for a custom rule. Can be set to 'block', 'prevent', 'alert', 'allow', 'ban', or 'disable'.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -208,18 +210,18 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 						"disabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "disabled",
+							Description: "If set to 'true', the rule is currently disabled.",
 						},
 						"dns": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of dns.",
+							Description: "The DNS runtime rule",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"blacklist": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklist items.",
+										Description: "Deny-list of domain names (e.g., www.bad-url.com, *.bad-url.com).",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -227,7 +229,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"effect": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklist items.",
+										Description: "The effect used in the runtime rule. Can be set to 'block', 'prevent', 'alert', 'disable'.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -235,7 +237,7 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"whitelist": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklist items.",
+										Description: "List of allowed domain names (e.g., *.gmail.com, *.s3.amazon.com).",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -246,18 +248,18 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 						"filesystem": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of filesystems.",
+							Description: "Represents restrictions or suppression for filesystem changes.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"backdoorfiles": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "backdoorFiles",
+										Description: "If set to 'true', monitors files that can create or persist backdoors (SSH or admin account config files).",
 									},
 									"blacklist": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklist items.",
+										Description: "List of denied file system paths.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -265,12 +267,12 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"checknewfiles": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "checkNewFiles",
+										Description: "If set to 'true', detects changes to binaries and certificates.",
 									},
 									"effect": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of effects.",
+										Description: "The effect that will be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -278,17 +280,17 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"skipencryptedbinaries": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "skipEncryptedBinaries",
+										Description: "If set to 'true', the encrypted binaries check should be skipped.",
 									},
 									"suspiciouselfheaders": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "suspiciousELFHeaders",
+										Description: "If set to 'true', enables malware detection based on suspicious ELF headers.",
 									},
 									"whitelist": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of whitelist.",
+										Description: "List of allowed file system paths.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -299,33 +301,28 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 						"kubernetesenforcement": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "kubernetesEnforcement",
+							Description: "Detects containers that attempt to compromise the orchestrator.",
 						},
 						"modified": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "modified",
+							Description: "Date/time when the rule was last modified.",
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "name",
+							Description: "Name of the rule.",
 						},
 						"network": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of networks.",
+							Description: "Represents the restrictions or suppression for networking.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"backdoorfiles": {
-										Type:        schema.TypeBool,
-										Required:    true,
-										Description: "backdoorFiles",
-									},
 									"blacklistips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklistIPs.",
+										Description: "Deny-list of IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -333,13 +330,13 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"blacklistlisteningports": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklistListeningPorts.",
+										Description: "Deny-list of listening ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Required:    true,
-													Description: "deny",
+													Description: "If set to 'true' the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
@@ -357,13 +354,13 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"blacklistoutboundports": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of blacklistOutboundPorts.",
+										Description: "Deny-listed outbound ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Required:    true,
-													Description: "deny",
+													Description: "If set to 'true' the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
@@ -381,12 +378,12 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"detectportscan": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "detectPortScan",
+										Description: "If set to 'true' port scanning detection is enabled.",
 									},
 									"effect": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of effects.",
+										Description: "The effect that will be used in the runtime rule. Vaules: ['block', 'prevent', 'alert', 'disable'].",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -394,17 +391,17 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"skipmodifiedproc": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "skipModifiedProc",
+										Description: "If set to 'true', Prisma Cloud can detect malicious networking activity from modified processes.",
 									},
 									"skiprawsockets": {
 										Type:        schema.TypeBool,
 										Required:    true,
-										Description: "skipRawSockets",
+										Description: "If set to 'true', raw socket detection will be skipped.",
 									},
 									"whitelistips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of whitelistIPs.",
+										Description: "Allow-listed IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -412,13 +409,13 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"whitelistlisteningports": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of whitelistListeningPorts.",
+										Description: "Allow-listed listening ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Required:    true,
-													Description: "deny",
+													Description: "If set to 'true', the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
@@ -436,13 +433,13 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 									"whitelistoutboundports": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of whitelistOutboundPorts.",
+										Description: "Allow-listed outbound ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Required:    true,
-													Description: "deny",
+													Description: "If set to 'true', the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
@@ -457,112 +454,103 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 											},
 										},
 									},
-									"notes": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "notes",
-									},
-									"owner": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "owner",
-									},
-									"previousname": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "previousName",
-									},
-									"processes": {
+								},
+							},
+						},
+						"notes": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "A free-form text description of the collection.",
+						},
+						"owner": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "User who created or last modified the rule.",
+						},
+						"previousname": {
+							Type:        schema.TypeString,
+							Required:    true,
+							Description: "Previous name of the rule. Required for rule renaming.",
+						},
+						"processes": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: "Represents restrictions or suppression for running processes.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"blacklist": {
 										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of processes.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"processes": {
-													Type:        schema.TypeList,
-													Optional:    true,
-													Description: "List of processes.",
-													Elem: &schema.Resource{
-														Schema: map[string]*schema.Schema{
-															"blacklist": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "blacklist",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-															"blockallbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "blockAllBinaries",
-															},
-															"checkcryptominers": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkCryptoMiners",
-															},
-															"checklateralmovement": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkLateralMovement",
-															},
-															"checknewbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkNewBinaries",
-															},
-															"checkparentchild": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkParentChild",
-															},
-															"checksuidbinaries": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "checkSuidBinaries",
-															},
-															"effect": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "effect",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-															"skipmodified": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "skipModified",
-															},
-															"skipreverseshell": {
-																Type:        schema.TypeBool,
-																Required:    true,
-																Description: "skipReverseShell",
-															},
-															"whitelist": {
-																Type:        schema.TypeList,
-																Required:    true,
-																Description: "blacklist",
-																Elem: &schema.Schema{
-																	Type: schema.TypeString,
-																},
-															},
-														},
-													},
-												},
-											},
+										Required:    true,
+										Description: "List of processes to deny.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
 										},
 									},
-									"wildfireanalysis": {
+									"blockallbinaries": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "If set to 'true', all processes are blocked except the main process.",
+									},
+									"checkcryptominers": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "Detect crypto miners.",
+									},
+									"checklateralmovement": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "If set to 'true', enables dectection of processes that can be used for lateral movement exploits.",
+									},
+									"checknewbinaries": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "If set to 'true', binaries which don't belong to the original image are allowed to run.",
+									},
+									"checkparentchild": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "If set to 'true', enables checking for parent child relationship when comparing spawned processes in the model.",
+									},
+									"checksuidbinaries": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "If set to 'true', enables check for process elevating privileges (SUID bit).",
+									},
+									"effect": {
 										Type:        schema.TypeList,
 										Required:    true,
-										Description: "wildFireAnalysis",
+										Description: "The effect that will be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"skipmodified": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "Indicates whether to trigger audits/incidents when a modified proc is spawned.",
+									},
+									"skipreverseshell": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: "Indicates whether reverse shell detection is disabled.",
+									},
+									"whitelist": {
+										Type:        schema.TypeList,
+										Required:    true,
+										Description: "List of processes to allow.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
 								},
+							},
+						},
+						"wildfireanalysis": {
+							Type:        schema.TypeList,
+							Required:    true,
+							Description: "The effect that will be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
 							},
 						},
 					},

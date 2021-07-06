@@ -8,10 +8,23 @@ This provider is for the Palo Alto Networks Prisma Cloud platform.
 
 ## Example Provider Usage
 
+This code snippet shows how to call the `json` config file:
+
 ```hcl
-# Configure the prismacloudcompute provider
 provider "prismacloudcompute" {
-    json_config_file = ".prismacloudcompute_auth.json"
+  json_config_file = "creds.json"
+}
+```
+
+Here's what the `creds.json` file might look like:
+
+```json
+{
+	"url":"localhost",
+	"username":"MY_USERNAME",
+	"password":"MY_PASSWORD",
+	"port":8083,
+	"skip_ssl_cert_verification":true
 }
 ```
 

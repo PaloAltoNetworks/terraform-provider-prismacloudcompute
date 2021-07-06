@@ -20,118 +20,118 @@ func dataSourceCollections() *schema.Resource {
 			// Output.
 			"accountids": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Account IDs",
+				Optional:    true,
+				Description: "List of account IDs.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"appids": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "App IDs",
+				Optional:    true,
+				Description: "List of application IDs.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"clusters": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Clusters",
+				Optional:    true,
+				Description: "List of Kubernetes cluster names.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"coderepos": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Code repositories",
+				Optional:    true,
+				Description: "List of code repositories.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"color": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Color",
+				Optional:    true,
+				Description: "A hex color code for a collection.",
 			},
 			"containers": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Containers",
+				Optional:    true,
+				Description: "List of containers.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"description": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Description",
+				Optional:    true,
+				Description: "A free-form text description of the collection.",
 			},
 			"functions": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Serverless functions",
+				Optional:    true,
+				Description: "List of functions.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"hosts": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Hosts",
+				Optional:    true,
+				Description: "List of hosts.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"images": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Images",
+				Optional:    true,
+				Description: "List of images.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"labels": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Labels",
+				Optional:    true,
+				Description: "List of labels.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"modified": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Last modified date",
+				Optional:    true,
+				Description: "Date/time when the collection was last modified.",
 			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "Name",
+				Description: "Unique collection name.",
 			},
 			"namespaces": {
 				Type:        schema.TypeList,
-				Required:    true,
-				Description: "Namespaces",
+				Optional:    true,
+				Description: "List of Kubernetes namespaces.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
 			"owner": {
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Owner",
+				Optional:    true,
+				Description: "User who created or last modified the collection.",
 			},
 			"prisma": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Prisma",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "If set to 'true', this collection originates from Prisma Cloud.",
 			},
 			"system": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "System",
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise (false) a real user.",
 			},
 		},
 	}
