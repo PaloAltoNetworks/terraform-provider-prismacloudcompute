@@ -152,43 +152,43 @@ func parseCollection(d *schema.ResourceData, id string) collection.Collection {
 		Name: d.Get("name").(string),
 	}
 	if d.Get("accountIDs") != nil && len(d.Get("accountIDs").([]interface{})) > 0 {
-		ans.AccountIDs = d.Get("accountIDs").([]interface{})[0].([]string)
-	}
+		ans.AccountIDs = parseStringArray(d.Get("accountIDs").([]interface{}))
+    }
 	if d.Get("appIDs") != nil && len(d.Get("appIDs").([]interface{})) > 0 {
-		ans.AppIDs = d.Get("appIDs").([]interface{})[0].([]string)
+		ans.AppIDs = parseStringArray(d.Get("appIDs").([]interface{}))
 	}
 	if d.Get("clusters") != nil && len(d.Get("clusters").([]interface{})) > 0 {
-		ans.Clusters = d.Get("clusters").([]interface{})[0].([]string)
+		ans.Clusters = parseStringArray(d.Get("clusters").([]interface{}))
 	}
 	if d.Get("codeRepos") != nil && len(d.Get("codeRepos").([]interface{})) > 0 {
-		ans.CodeRepos = d.Get("codeRepos").([]interface{})[0].([]string)
+		ans.CodeRepos = parseStringArray(d.Get("codeRepos").([]interface{}))
 	}
 	if d.Get("color") != nil {
 		ans.Color = d.Get("color").(string)
 	}
 	if d.Get("containers") != nil && len(d.Get("containers").([]interface{})) > 0 {
-		ans.Containers = d.Get("containers").([]interface{})[0].([]string)
+		ans.Containers = parseStringArray(d.Get("containers").([]interface{}))
 	}
 	if d.Get("description") != nil {
 		ans.Description = d.Get("description").(string)
 	}
 	if d.Get("functions") != nil && len(d.Get("functions").([]interface{})) > 0 {
-		ans.Functions = d.Get("functions").([]interface{})[0].([]string)
+		ans.Functions = parseStringArray(d.Get("functions").([]interface{}))
 	}
 	if d.Get("hosts") != nil && len(d.Get("hosts").([]interface{})) > 0 {
-		ans.Hosts = d.Get("hosts").([]interface{})[0].([]string)
+		ans.Hosts = parseStringArray(d.Get("hosts").([]interface{}))
 	}
 	if d.Get("images") != nil && len(d.Get("images").([]interface{})) > 0 {
-		ans.Images = d.Get("images").([]interface{})[0].([]string)
+		ans.Images = parseStringArray(d.Get("images").([]interface{}))
 	}
 	if d.Get("labels") != nil && len(d.Get("labels").([]interface{})) > 0 {
-		ans.Labels = d.Get("labels").([]interface{})[0].([]string)
+		ans.Labels = parseStringArray(d.Get("labels").([]interface{}))
 	}
 	if d.Get("modified") != nil {
 		ans.Modified = d.Get("modified").(string)
 	}
 	if d.Get("namespaces") != nil && len(d.Get("namespaces").([]interface{})) > 0 {
-		ans.Namespaces = d.Get("namespaces").([]interface{})[0].([]string)
+		ans.Namespaces = parseStringArray(d.Get("namespaces").([]interface{}))
 	}
 	if d.Get("owner") != nil {
 		ans.Owner = d.Get("owner").(string)
@@ -306,4 +306,15 @@ func deleteCollection(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId("")
 	return nil
+}
+
+func parseStringArray(itemList []interface{}) []string {
+    listArray := make([]string, 0, len(itemList))
+    if len(itemList) > 0 {
+        for i := 0; i < len(itemList); i++ {
+            item := itemList[i].(map[string]interface{})
+            listArray = append(listArray, item)
+        }
+    }
+    return listArray
 }

@@ -574,14 +574,16 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 			custRules := item["customrules"].([]interface{})
 			rule.CustomRules = make([]policy.CustomRule, 0, len(custRules))
 			if len(custRules) > 0 {
-				custRuleItem := custRules[0].(map[string]interface{})
+                for i := 0; i < len(custRules); i++ {
+                    custRuleItem := custRules[i].(map[string]interface{})
 
-				custRule := policy.CustomRule{
-					Id:     custRuleItem["_id"].(int),
-					Action: custRuleItem["action"].([]string),
-					Effect: custRuleItem["effect"].(string),
-				}
-				rule.CustomRules = append(rule.CustomRules, custRule)
+                    custRule := policy.CustomRule{
+                        Id:     custRuleItem["_id"].(int),
+                        Action: custRuleItem["action"].([]string),
+                        Effect: custRuleItem["effect"].(string),
+                    }
+                    rule.CustomRules = append(rule.CustomRules, custRule)
+                }
 			}
 		}
 		if item["disabled"] != nil {
@@ -649,7 +651,9 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 				blacklistListenPorts := networkItem["blacklistListeningPorts"].([]interface{})
 				rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(blacklistListenPorts))
 				if len(blacklistListenPorts) > 0 {
-					rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[0]))
+                    for i := 0; i < len(blacklistListenPorts); i++ {
+					   rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[i]))
+                    }
 				}
 			}
 
@@ -657,7 +661,9 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 				blacklistOutPorts := networkItem["blacklistOutboundPorts"].([]interface{})
 				rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(blacklistOutPorts))
 				if len(blacklistOutPorts) > 0 {
-					rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[0]))
+                    for i := 0; i < len(blacklistOutPorts); i++ {
+                        rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[i]))
+                    }
 				}
 			}
 			if networkItem["blacklistOutboundPorts"] != nil {
@@ -680,7 +686,9 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 				whitelistListenPorts := networkItem["whitelistListeningPorts"].([]interface{})
 				rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(whitelistListenPorts))
 				if len(whitelistListenPorts) > 0 {
-					rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[0]))
+                    for i := 0; i < len(whitelistListenPorts); i++ {
+                        rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[i]))
+                    }
 				}
 			}
 
@@ -688,7 +696,9 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 				whitelistOutPorts := networkItem["whitelistOutboundPorts"].([]interface{})
 				rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(whitelistOutPorts))
 				if len(whitelistOutPorts) > 0 {
-					rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[0]))
+                    for i := 0; i < len(whitelistOutPorts); i++ {
+                        rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[i]))
+                    }
 				}
 			}
 		}
