@@ -153,7 +153,7 @@ func parseCollection(d *schema.ResourceData, id string) collection.Collection {
 	}
 	if d.Get("accountIDs") != nil && len(d.Get("accountIDs").([]interface{})) > 0 {
 		ans.AccountIDs = parseStringArray(d.Get("accountIDs").([]interface{}))
-    }
+	}
 	if d.Get("appIDs") != nil && len(d.Get("appIDs").([]interface{})) > 0 {
 		ans.AppIDs = parseStringArray(d.Get("appIDs").([]interface{}))
 	}
@@ -309,12 +309,12 @@ func deleteCollection(d *schema.ResourceData, meta interface{}) error {
 }
 
 func parseStringArray(itemList []interface{}) []string {
-    listArray := make([]string, 0, len(itemList))
-    if len(itemList) > 0 {
-        for i := 0; i < len(itemList); i++ {
-            item := itemList[i].(string)
-            listArray = append(listArray, item)
-        }
-    }
-    return listArray
+	listArray := make([]string, 0, len(itemList))
+	if len(itemList) > 0 {
+		for i := 0; i < len(itemList); i++ {
+			item := itemList[i].(string)
+			listArray = append(listArray, item)
+		}
+	}
+	return listArray
 }

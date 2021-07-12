@@ -333,6 +333,8 @@ github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210603215636-b9212a
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210603215636-b9212a65df11/go.mod h1:82kNq9CT0Kqg4xvPLArdHcOq//o/aNeT+zYQH8jG5tQ=
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210615200447-b1d34012b1fd h1:r+lg5j3LWjv6SzUn0H71LgJ9u3DDxTJOWL8sukqBQnI=
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210615200447-b1d34012b1fd/go.mod h1:82kNq9CT0Kqg4xvPLArdHcOq//o/aNeT+zYQH8jG5tQ=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210624202259-af8f71644b0f h1:iGY4Ed7z/H+xsMTY5vsJSwIABN5wGfaAj4iRRR39Xeg=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.0.0-20210624202259-af8f71644b0f/go.mod h1:82kNq9CT0Kqg4xvPLArdHcOq//o/aNeT+zYQH8jG5tQ=
 github.com/paloaltonetworks/prisma-cloud-go v0.4.0 h1:+x0YkJuD1b6RMNczXqE4zoiUeY9RcvH+KCKDh82N054=
 github.com/paloaltonetworks/prisma-cloud-go v0.4.0/go.mod h1:B1WWrW8CE2xroRVyP2rUjsqmb1rWAzcxrOyNUvxYSfs=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
