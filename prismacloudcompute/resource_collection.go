@@ -312,7 +312,7 @@ func parseStringArray(itemList []interface{}) []string {
     listArray := make([]string, 0, len(itemList))
     if len(itemList) > 0 {
         for i := 0; i < len(itemList); i++ {
-            item := itemList[i].(map[string]interface{})
+            item := itemList[i].(string)
             listArray = append(listArray, item)
         }
     }
