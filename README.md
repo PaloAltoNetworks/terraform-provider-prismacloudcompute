@@ -17,7 +17,7 @@
     ```
 1. Clone this repository and navigate to its directory.
     ```
-    git clone git@github.com:terraform-providers/terraform-provider-prismacloudcompute $GOPATH/src/github.com/terraform-providers/terraform-provider-prismacloudcompute && cd $_
+    git clone git@github.com:PaloAltoNetworks/terraform-provider-prismacloudcompute.git $GOPATH/src/github.com/terraform-providers/terraform-provider-prismacloudcompute && cd $_
     ```
 2. Build the provider.
     ```
