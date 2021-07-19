@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     prismacloudcompute = {
-      source  = "prismacloudcompute"
-      version = "~> 1.0"
+      source  = "hashicorp/prismacloudcompute"
+      version = "~>1.0.0"
     }
   }
 }
@@ -11,10 +11,15 @@ provider "prismacloudcompute" {
   json_config_file = "creds.json"
 }
 
-/*resource "prismacloudcompute_collection" "example1" {
-    name = "New Collection"
-    color = "#FF0000"
-}*/
+resource "prismacloudcompute_collection" "example1" {
+  name   = "example collection 1"
+  color  = "#FF0000"
+  appids = [ "app1" ]
+  coderepos = [ "coderepo1", "prefix1*" ]
+  images = [ "prefix2*", "prefix3*" ]
+  labels = [ "env:development", "env:staging" ]
+  namespaces = [ "hamilton" ]
+}
 
 /*resource "prismacloudcompute_policiesruntimecontainer" "example2" {
     learningdisabled = true
@@ -39,7 +44,7 @@ provider "prismacloudcompute" {
     }
 }*/
 
-resource "prismacloudcompute_policiesvulnerabilityimages" "example3" {
+/*resource "prismacloudcompute_policiesvulnerabilityimages" "example3" {
     policytype = "containerVulnerability"
     rules {
         name = "my-rule"
@@ -47,4 +52,4 @@ resource "prismacloudcompute_policiesvulnerabilityimages" "example3" {
 		name = "All"
 	}
     }
-}
+}*/
