@@ -906,12 +906,12 @@ func getCollection(collItem map[string]interface{}) collection.Collection {
 	if collItem["owner"] != nil {
 		coll.Owner = collItem["owner"].(string)
 	}
-	/*	if collItem["prisma"] != nil {
-			coll.Prisma = collItem["prisma"].(interface{}).(string)
-		}
-		if collItem["system"] != nil {
-			coll.System = collItem["system"].(interface{}).(string)
-		}*/
+	if collItem["prisma"] != nil {
+		coll.Prisma = collItem["prisma"].(interface{}).(bool)
+	}
+	if collItem["system"] != nil {
+		coll.System = collItem["system"].(interface{}).(bool)
+	}
 	return coll
 }
 
