@@ -12,16 +12,32 @@
 
 ## Building the provider
 0. Set `$GOPATH` if not already set.
-    ```
+    ```bash
     export GOPATH=$(go env GOPATH)
     ```
 1. Clone this repository and navigate to its directory.
-    ```
+    ```bash
     git clone git@github.com:PaloAltoNetworks/terraform-provider-prismacloudcompute.git $GOPATH/src/github.com/terraform-providers/terraform-provider-prismacloudcompute && cd $_
     ```
 2. Build the provider.
-    ```
+    ```bash
     make build
+    ```
+3. For local testing, symlink the resultant binary to the appropriate location.
+    ```bash
+    # macOS-specific path; adjust as necessary
+    mkdir -p ~/.terraform.d/plugins/paloaltonetworks.com/prismacloud/compute/0.0.1/darwin_amd64/ && ln -fs ~/go/bin/terraform-provider-prismacloudcompute ~/.terraform.d/plugins/paloaltonetworks.com/prismacloud/compute/0.0.1/darwin_amd64/terraform-provider-compute_v0.0.1
+    ```
+4. Point your terraform file to this local plugin.
+    ```terraform
+    terraform {
+      required_providers {
+        prismacloudcompute = {
+          source  = "paloaltonetworks.com/prismacloud/compute"
+          version = "~> 0.0.1"
+        }
+      }
+    }
     ```
 
 ## Developing the provider
