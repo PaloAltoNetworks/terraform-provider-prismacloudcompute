@@ -25,7 +25,26 @@ resource "prismacloudcompute_collection" "example1" {
 resource "prismacloudcompute_policiesruntimecontainer" "example2" {
   learningdisabled = false
   rules {
-    name = "example container runtime rule"
+    name = "example container runtime rule 1"
+    collections {
+      name = "All"
+    }
+    wildfireanalysis = "alert"
+    processes = {
+      "effect" : "alert"
+    }
+    network = {
+      "effect" : "alert"
+    }
+    dns = {
+      "effect" : "disable"
+    }
+    filesystem = {
+      effect = "alert"
+    }
+  }
+  rules {
+    name = "example container runtime rule 2"
     collections {
       name = "All"
     }
