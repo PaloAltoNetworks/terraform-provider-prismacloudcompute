@@ -19,22 +19,19 @@
     ```bash
     git clone git@github.com:PaloAltoNetworks/terraform-provider-prismacloudcompute.git $GOPATH/src/github.com/terraform-providers/terraform-provider-prismacloudcompute && cd $_
     ```
-2. Build the provider.
+2. Install the provider.
+This also moves the compiled binary to the appropriate location.
     ```bash
-    make build
-    ```
-3. For local testing, symlink the resultant binary to the appropriate location.
-    ```bash
-    # macOS-specific path; adjust as necessary
-    mkdir -p ~/.terraform.d/plugins/paloaltonetworks.com/prismacloud/compute/0.0.1/darwin_amd64/ && ln -fs ~/go/bin/terraform-provider-prismacloudcompute ~/.terraform.d/plugins/paloaltonetworks.com/prismacloud/compute/0.0.1/darwin_amd64/terraform-provider-compute_v0.0.1
+    # macOS-specific OS_ARCH; adjust as necessary
+    make install OS_ARCH=darwin_amd64 VERSION=0.0.2-test1
     ```
 4. Point your terraform file to this local plugin.
     ```terraform
     terraform {
       required_providers {
         prismacloudcompute = {
-          source  = "paloaltonetworks.com/prismacloud/compute"
-          version = "~> 0.0.1"
+          source  = "paloaltonetworks.com/prismacloud/prismacloudcompute"
+          version = "0.0.2-test1"
         }
       }
     }
