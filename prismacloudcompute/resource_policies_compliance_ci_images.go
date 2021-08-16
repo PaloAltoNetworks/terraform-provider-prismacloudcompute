@@ -5,19 +5,17 @@ import (
 	"time"
 
 	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyVulnerabilityImages"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyComplianceCiImages"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func resourcePoliciesVulnerabilityImages() *schema.Resource {
+func resourcePoliciesComplianceCiImages() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyVulnerabilityImages,
-		Read:   readPolicyVulnerabilityImages,
-		Update: updatePolicyVulnerabilityImages,
-		Delete: deletePolicyVulnerabilityImages,
+		Create: createPolicyComplianceCiImages,
+		Read:   readPolicyComplianceCiImages,
+		Update: updatePolicyComplianceCiImages,
+		Delete: deletePolicyComplianceCiImages,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -59,7 +57,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 						"alertthreshold": {
 							Type:        schema.TypeMap,
 							Optional:    true,
-							Description: "The vulnerability policy alert threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
+							Description: "The compliance container policy alert threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -70,7 +68,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 									"disabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', suppresses alerts for all vulnerabilities.",
+										Description: "If set to 'true', suppresses alerts for all compliance containers.",
 									},
 									"value": {
 										Type:        schema.TypeInt,
@@ -98,7 +96,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 						"blockthreshold": {
 							Type:        schema.TypeMap,
 							Optional:    true,
-							Description: "The vulnerability policy block threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
+							Description: "The compliance container policy block threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -109,7 +107,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 									"disabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', suppresses blocking for all vulnerabilities.",
+										Description: "If set to 'true', suppresses blocking for all compliance containers.",
 									},
 									"value": {
 										Type:        schema.TypeInt,
@@ -275,7 +273,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 												"id": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "Vulnerability ID.",
+													Description: "Compliance container ID.",
 												},
 											},
 										},
@@ -297,7 +295,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 									"effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Specifies the relevant action for a vulnerability. Can be set to 'ignore', 'alert', or 'block'.",
+										Description: "Specifies the relevant action for a compliance container. Can be set to 'ignore', 'alert', or 'block'.",
 									},
 									"id": {
 										Type:        schema.TypeString,
@@ -307,13 +305,13 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 									"expiration": {
 										Type:        schema.TypeMap,
 										Optional:    true,
-										Description: "The vulnerability expiration date.",
+										Description: "The compliance container expiration date.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"date": {
 													Type:        schema.TypeString,
 													Optional:    true,
-													Description: "The date the vulnerability expires.",
+													Description: "The date the compliance container expires.",
 												},
 												"enabled": {
 													Type:        schema.TypeBool,
@@ -339,7 +337,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 						"gracedays": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Description: "Number of days to suppress the rule's block effect. Measured from date the vulnerability was fixed. If there's no fix, measured from the date the vulnerability was published.",
+							Description: "Number of days to suppress the rule's block effect. Measured from date the compliance container was fixed. If there's no fix, measured from the date the compliance container was published.",
 						},
 						"group": {
 							Type:        schema.TypeList,
@@ -369,7 +367,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 												"disabled": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', suppresses alerts for all vulnerabilities.",
+													Description: "If set to 'true', suppresses alerts for all compliance containers.",
 												},
 												"value": {
 													Type:        schema.TypeInt,
@@ -393,7 +391,7 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 												"disabled": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', suppresses blocking for all vulnerabilities.",
+													Description: "If set to 'true', suppresses blocking for all compliance containers.",
 												},
 												"value": {
 													Type:        schema.TypeInt,
@@ -490,18 +488,18 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 									"effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Specifies the relevant action for a vulnerability. Can be set to 'ignore', 'alert', or 'block'.",
+										Description: "Specifies the relevant action for a compliance container. Can be set to 'ignore', 'alert', or 'block'.",
 									},
 									"expiration": {
 										Type:        schema.TypeMap,
 										Optional:    true,
-										Description: "The vulnerability expiration date.",
+										Description: "The compliance container expiration date.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"date": {
 													Type:        schema.TypeString,
 													Optional:    true,
-													Description: "Date of the vulnerability expiration.",
+													Description: "Date of the compliance container expiration.",
 												},
 												"enabled": {
 													Type:        schema.TypeBool,
@@ -531,8 +529,8 @@ func resourcePoliciesVulnerabilityImages() *schema.Resource {
 	}
 }
 
-func parsePolicyVulnerabilityImages(d *schema.ResourceData, id string) policyVulnerabilityImages.Policy {
-	ans := policyVulnerabilityImages.Policy{
+func parsePolicyComplianceCiImages(d *schema.ResourceData, id string) policyComplianceCiImages.Policy {
+	ans := policyComplianceCiImages.Policy{
 		PolicyId: id,
 	}
 	if d.Get("policytype") != nil {
@@ -540,215 +538,12 @@ func parsePolicyVulnerabilityImages(d *schema.ResourceData, id string) policyVul
 	}
 
 	rules := d.Get("rules").([]interface{})
-	ans.Rules = make([]policy.Rule, 0, len(rules))
-	if len(rules) > 0 {
-		for i := 0; i < len(rules); i++ {
-
-			item := rules[i].(map[string]interface{})
-
-			rule := policy.Rule{}
-
-			if item["alertthreshold"] != nil {
-				thresholdInterface := item["alertthreshold"]
-				rule.AlertThreshold = getThreshold(thresholdInterface)
-			}
-			if item["blockthreshold"] != nil {
-				thresholdInterface := item["blockthreshold"].(interface{})
-				rule.BlockThreshold = getThreshold(thresholdInterface)
-			}
-			if item["collections"] != nil {
-				colls := item["collections"].([]interface{})
-
-				rule.Collections = make([]collection.Collection, 0, len(colls))
-				if len(colls) > 0 {
-					collItem := colls[0].(map[string]interface{})
-
-					rule.Collections = append(rule.Collections, getCollection(collItem))
-				}
-			}
-			if item["condition"] != nil {
-				cond := item["condition"].(map[string]interface{})
-
-				condition := policy.Condition{}
-
-				if cond["vulnerabilities"] != nil {
-					vuln := cond["vulnerabilities"].(map[string]interface{})
-					vulnerabilities := policy.Vulnerability{
-						Block:       vuln["block"].(bool),
-						Id:          vuln["id"].(int),
-						MinSeverity: vuln["minSeverity"].(int),
-					}
-					condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerabilities)
-				}
-			}
-			if item["customrules"] != nil {
-				custRules := item["customrules"].([]interface{})
-				rule.CustomRules = make([]policy.CustomRule, 0, len(custRules))
-				if len(custRules) > 0 {
-					custRuleItem := custRules[0].(map[string]interface{})
-
-					custRule := policy.CustomRule{
-						Id:     custRuleItem["_id"].(int),
-						Action: custRuleItem["action"].([]string),
-						Effect: custRuleItem["effect"].(string),
-					}
-					rule.CustomRules = append(rule.CustomRules, custRule)
-				}
-			}
-			if item["disabled"] != nil {
-				rule.Disabled = item["disabled"].(bool)
-			}
-			if item["filesystem"] != nil {
-				fileSysSet := item["filesystem"].(interface{})
-				fileSysItem := fileSysSet.(map[string]interface{})
-
-				rule.Filesystem = policy.Filesystem{}
-				if fileSysItem["blacklist"] != nil {
-					rule.Filesystem.BackdoorFiles = fileSysItem["backdoorFiles"].(bool)
-				}
-				if fileSysItem["blacklist"] != nil {
-					rule.Filesystem.Blacklist = fileSysItem["blacklist"].([]string)
-				}
-				if fileSysItem["checkNewFiles"] != nil {
-					rule.Filesystem.CheckNewFiles = fileSysItem["checkNewFiles"].(bool)
-				}
-				if fileSysItem["effect"] != nil {
-					rule.Filesystem.Effect = fileSysItem["effect"].(string)
-				}
-				if fileSysItem["skipEncryptedBinaries"] != nil {
-					rule.Filesystem.SkipEncryptedBinaries = fileSysItem["skipEncryptedBinaries"].(bool)
-				}
-				if fileSysItem["suspiciousELFHeaders"] != nil {
-					rule.Filesystem.SuspiciousELFHeaders = fileSysItem["suspiciousELFHeaders"].(bool)
-				}
-				if fileSysItem["whitelist"] != nil {
-					rule.Filesystem.Whitelist = fileSysItem["whitelist"].([]string)
-				}
-			}
-			if item["kubernetesenforcement"] != nil {
-				rule.KubernetesEnforcement = item["kubernetesenforcement"].(bool)
-			}
-			if item["modified"] != nil {
-				rule.Modified = item["modified"].(string)
-			}
-			if item["name"] != nil {
-				rule.Name = item["name"].(string)
-			}
-			if item["network"] != nil {
-				networkSet := item["network"].(interface{})
-				networkItem := networkSet.(map[string]interface{})
-				if networkItem["blacklistIPs"] != nil {
-					rule.Network.BlacklistIPs = networkItem["blacklistIPs"].([]string)
-				}
-
-				if networkItem["blacklistListeningPorts"] != nil {
-					blacklistListenPorts := networkItem["blacklistListeningPorts"].([]interface{})
-					rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(blacklistListenPorts))
-					if len(blacklistListenPorts) > 0 {
-						rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[0]))
-					}
-				}
-
-				if networkItem["blacklistOutboundPorts"] != nil {
-					blacklistOutPorts := networkItem["blacklistOutboundPorts"].([]interface{})
-					rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(blacklistOutPorts))
-					if len(blacklistOutPorts) > 0 {
-						rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[0]))
-					}
-				}
-				if networkItem["blacklistOutboundPorts"] != nil {
-					rule.Network.DetectPortScan = networkItem["detectPortScan"].(bool)
-				}
-				if networkItem["effect"] != nil {
-					rule.Network.Effect = networkItem["effect"].(string)
-				}
-				if networkItem["skipModifiedProc"] != nil {
-					rule.Network.SkipModifiedProc = networkItem["skipModifiedProc"].(bool)
-				}
-				if networkItem["skipRawSockets"] != nil {
-					rule.Network.SkipRawSockets = networkItem["skipRawSockets"].(bool)
-				}
-				if networkItem["whitelistIPs"] != nil {
-					rule.Network.WhitelistIPs = networkItem["whitelistIPs"].([]string)
-				}
-
-				if networkItem["whitelistListeningPorts"] != nil {
-					whitelistListenPorts := networkItem["whitelistListeningPorts"].([]interface{})
-					rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(whitelistListenPorts))
-					if len(whitelistListenPorts) > 0 {
-						rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[0]))
-					}
-				}
-
-				if networkItem["whitelistOutboundPorts"] != nil {
-					whitelistOutPorts := networkItem["whitelistOutboundPorts"].([]interface{})
-					rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(whitelistOutPorts))
-					if len(whitelistOutPorts) > 0 {
-						rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[0]))
-					}
-				}
-			}
-			if item["notes"] != nil {
-				rule.Notes = item["notes"].(string)
-			}
-			if item["owner"] != nil {
-				rule.Owner = item["owner"].(string)
-			}
-			if item["previousname"] != nil {
-				rule.PreviousName = item["previousname"].(string)
-			}
-			if item["processes"] != nil {
-				processSet := item["processes"].(interface{})
-				processItem := processSet.(map[string]interface{})
-
-				rule.Processes = policy.Processes{}
-
-				if processItem["blacklist"] != nil {
-					rule.Processes.Blacklist = processItem["blacklist"].([]string)
-				}
-				if processItem["blockAllBinaries"] != nil {
-					rule.Processes.BlockAllBinaries = processItem["blockAllBinaries"].(bool)
-				}
-				if processItem["checkCryptoMiners"] != nil {
-					rule.Processes.CheckCryptoMiners = processItem["checkCryptoMiners"].(bool)
-				}
-				if processItem["checkLateralMovement"] != nil {
-					rule.Processes.CheckLateralMovement = processItem["checkLateralMovement"].(bool)
-				}
-				if processItem["checkNewBinaries"] != nil {
-					rule.Processes.CheckNewBinaries = processItem["checkNewBinaries"].(bool)
-				}
-				if processItem["checkParentChild"] != nil {
-					rule.Processes.CheckParentChild = processItem["checkParentChild"].(bool)
-				}
-				if processItem["checkSuidBinaries"] != nil {
-					rule.Processes.CheckSuidBinaries = processItem["checkSuidBinaries"].(bool)
-				}
-				if processItem["effect"] != nil {
-					rule.Processes.Effect = processItem["effect"].(string)
-				}
-				if processItem["skipModified"] != nil {
-					rule.Processes.SkipModified = processItem["skipModified"].(bool)
-				}
-				if processItem["skipReverseShell"] != nil {
-					rule.Processes.SkipReverseShell = processItem["skipReverseShell"].(bool)
-				}
-				if processItem["whitelist"] != nil {
-					rule.Processes.Whitelist = processItem["whitelist"].([]string)
-				}
-			}
-			if item["wildfireanalysis"] != nil {
-				rule.WildFireAnalysis = item["wildfireanalysis"].(string)
-			}
-
-			ans.Rules = append(ans.Rules, rule)
-		}
-	}
+	ans.Rules = parseRules(rules)
 
 	return ans
 }
 
-func savePolicyVulnerabilityImages(d *schema.ResourceData, obj policyVulnerabilityImages.Policy) {
+func savePolicyComplianceCiImages(d *schema.ResourceData, obj policyComplianceCiImages.Policy) {
 	d.Set("_id", obj.PolicyId)
 	d.Set("policytype", obj.PolicyType)
 	d.Set("rules", obj.Rules)
@@ -756,8 +551,6 @@ func savePolicyVulnerabilityImages(d *schema.ResourceData, obj policyVulnerabili
 	// Rule.
 	if len(obj.Rules) > 0 {
 		rv := map[string]interface{}{
-			"alertthreshold":           obj.Rules[0].AlertThreshold,
-			"blockthreshold":           obj.Rules[0].BlockThreshold,
 			"advancedprotection":       obj.Rules[0].AdvancedProtection,
 			"cloudmetadataenforcement": obj.Rules[0].CloudMetadataEnforcement,
 			"collections":              obj.Rules[0].Collections,
@@ -783,32 +576,32 @@ func savePolicyVulnerabilityImages(d *schema.ResourceData, obj policyVulnerabili
 
 }
 
-func createPolicyVulnerabilityImages(d *schema.ResourceData, meta interface{}) error {
+func createPolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pc.Client)
-	obj := parsePolicyVulnerabilityImages(d, "")
+	obj := parsePolicyComplianceCiImages(d, "")
 
-	if err := policyVulnerabilityImages.Create(client, obj); err != nil {
+	if err := policyComplianceCiImages.Create(client, obj); err != nil {
 		return err
 	}
 
 	PollApiUntilSuccess(func() error {
-		_, err := policyVulnerabilityImages.Get(client)
+		_, err := policyComplianceCiImages.Get(client)
 		return err
 	})
 
-	pol, err := policyVulnerabilityImages.Get(client)
+	pol, err := policyComplianceCiImages.Get(client)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(pol.PolicyId)
-	return readPolicyVulnerabilityImages(d, meta)
+	return readPolicyComplianceCiImages(d, meta)
 }
 
-func readPolicyVulnerabilityImages(d *schema.ResourceData, meta interface{}) error {
+func readPolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pc.Client)
 
-	obj, err := policyVulnerabilityImages.Get(client)
+	obj, err := policyComplianceCiImages.Get(client)
 	if err != nil {
 		if err == pc.ObjectNotFoundError {
 			d.SetId("")
@@ -817,24 +610,24 @@ func readPolicyVulnerabilityImages(d *schema.ResourceData, meta interface{}) err
 		return err
 	}
 
-	savePolicyVulnerabilityImages(d, obj)
+	savePolicyComplianceCiImages(d, obj)
 
 	return nil
 }
 
-func updatePolicyVulnerabilityImages(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pc.Client)
 	id := d.Id()
-	obj := parsePolicyVulnerabilityImages(d, id)
+	obj := parsePolicyComplianceCiImages(d, id)
 
-	if err := policyVulnerabilityImages.Update(client, obj); err != nil {
+	if err := policyComplianceCiImages.Update(client, obj); err != nil {
 		return err
 	}
 
-	return readPolicyVulnerabilityImages(d, meta)
+	return readPolicyComplianceCiImages(d, meta)
 }
 
-func deletePolicyVulnerabilityImages(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
 	/*	client := meta.(*pc.Client)
 		id := d.Id()
 

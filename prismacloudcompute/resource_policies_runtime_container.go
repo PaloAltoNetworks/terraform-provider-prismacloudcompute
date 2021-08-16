@@ -48,10 +48,20 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"advancedprotection": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Prisma Cloud advanced threat protection",
+						},
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
 							Description: "Name of the rule.",
+						},
+						"cloudmetadataenforcement": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Suspicious queries to cloud provider APIs",
 						},
 						"collections": {
 							Type:        schema.TypeList,
@@ -860,70 +870,4 @@ func deletePolicy(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId("")
 	return nil
-}
-
-func getCollection(collItem map[string]interface{}) collection.Collection {
-	coll := collection.Collection{
-		Name: collItem["name"].(string),
-	}
-	if collItem["accountIDs"] != nil && len(collItem["accountIDs"].([]interface{})) > 0 {
-		coll.AccountIDs = collItem["accountIDs"].([]interface{})[0].([]string)
-	}
-	if collItem["appIDs"] != nil && len(collItem["appIDs"].([]interface{})) > 0 {
-		coll.AppIDs = collItem["appIDs"].([]interface{})[0].([]string)
-	}
-	if collItem["clusters"] != nil && len(collItem["clusters"].([]interface{})) > 0 {
-		coll.Clusters = collItem["clusters"].([]interface{})[0].([]string)
-	}
-	if collItem["codeRepos"] != nil && len(collItem["codeRepos"].([]interface{})) > 0 {
-		coll.CodeRepos = collItem["codeRepos"].([]interface{})[0].([]string)
-	}
-	if collItem["color"] != nil {
-		coll.Color = collItem["color"].(string)
-	}
-	if collItem["containers"] != nil && len(collItem["containers"].([]interface{})) > 0 {
-		coll.Containers = collItem["containers"].([]interface{})[0].([]string)
-	}
-	if collItem["description"] != nil {
-		coll.Description = collItem["description"].(string)
-	}
-	if collItem["functions"] != nil && len(collItem["functions"].([]interface{})) > 0 {
-		coll.Functions = collItem["functions"].([]interface{})[0].([]string)
-	}
-	if collItem["hosts"] != nil && len(collItem["hosts"].([]interface{})) > 0 {
-		coll.Hosts = collItem["hosts"].([]interface{})[0].([]string)
-	}
-	if collItem["images"] != nil && len(collItem["images"].([]interface{})) > 0 {
-		coll.Images = collItem["images"].([]interface{})[0].([]string)
-	}
-	if collItem["labels"] != nil && len(collItem["labels"].([]interface{})) > 0 {
-		coll.Labels = collItem["labels"].([]interface{})[0].([]string)
-	}
-	if collItem["modified"] != nil {
-		coll.Modified = collItem["modified"].(string)
-	}
-	if collItem["namespaces"] != nil && len(collItem["namespaces"].([]interface{})) > 0 {
-		coll.Namespaces = collItem["namespaces"].([]interface{})[0].([]string)
-	}
-	if collItem["owner"] != nil {
-		coll.Owner = collItem["owner"].(string)
-	}
-	if collItem["prisma"] != nil {
-		coll.Prisma = collItem["prisma"].(interface{}).(bool)
-	}
-	if collItem["system"] != nil {
-		coll.System = collItem["system"].(interface{}).(bool)
-	}
-	return coll
-}
-
-func getListPort(listPortInterface interface{}) policy.ListPort {
-	listPortItem := listPortInterface.(map[string]interface{})
-
-	listPort := policy.ListPort{
-		Deny:  listPortItem["deny"].(bool),
-		End:   listPortItem["end"].(int),
-		Start: listPortItem["start"].(int),
-	}
-	return listPort
 }
