@@ -151,17 +151,17 @@ func parseCollection(d *schema.ResourceData, id string) collection.Collection {
 	ans := collection.Collection{
 		Name: d.Get("name").(string),
 	}
-	if d.Get("accountIDs") != nil && len(d.Get("accountIDs").([]interface{})) > 0 {
-		ans.AccountIDs = parseStringArray(d.Get("accountIDs").([]interface{}))
+	if d.Get("accountids") != nil && len(d.Get("accountids").([]interface{})) > 0 {
+		ans.AccountIDs = parseStringArray(d.Get("accountids").([]interface{}))
 	}
-	if d.Get("appIDs") != nil && len(d.Get("appIDs").([]interface{})) > 0 {
-		ans.AppIDs = parseStringArray(d.Get("appIDs").([]interface{}))
+	if d.Get("appids") != nil && len(d.Get("appids").([]interface{})) > 0 {
+		ans.AppIDs = parseStringArray(d.Get("appids").([]interface{}))
 	}
 	if d.Get("clusters") != nil && len(d.Get("clusters").([]interface{})) > 0 {
 		ans.Clusters = parseStringArray(d.Get("clusters").([]interface{}))
 	}
-	if d.Get("codeRepos") != nil && len(d.Get("codeRepos").([]interface{})) > 0 {
-		ans.CodeRepos = parseStringArray(d.Get("codeRepos").([]interface{}))
+	if d.Get("coderepos") != nil && len(d.Get("coderepos").([]interface{})) > 0 {
+		ans.CodeRepos = parseStringArray(d.Get("coderepos").([]interface{}))
 	}
 	if d.Get("color") != nil {
 		ans.Color = d.Get("color").(string)
@@ -204,16 +204,16 @@ func parseCollection(d *schema.ResourceData, id string) collection.Collection {
 }
 
 func saveCollection(d *schema.ResourceData, obj collection.Collection) {
-	if err := d.Set("accountIDs", StringSliceToSet(obj.AccountIDs)); err != nil {
+	if err := d.Set("accountids", StringSliceToSet(obj.AccountIDs)); err != nil {
 		log.Printf("[WARN] Error setting 'accountIDs' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("appIDs", StringSliceToSet(obj.AppIDs)); err != nil {
+	if err := d.Set("appids", StringSliceToSet(obj.AppIDs)); err != nil {
 		log.Printf("[WARN] Error setting 'appIDs' for %q: %s", d.Id(), err)
 	}
 	if err := d.Set("clusters", StringSliceToSet(obj.Clusters)); err != nil {
 		log.Printf("[WARN] Error setting 'clusters' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("codeRepos", StringSliceToSet(obj.CodeRepos)); err != nil {
+	if err := d.Set("coderepos", StringSliceToSet(obj.CodeRepos)); err != nil {
 		log.Printf("[WARN] Error setting 'codeRepos' for %q: %s", d.Id(), err)
 	}
 	d.Set("color", obj.Color)
