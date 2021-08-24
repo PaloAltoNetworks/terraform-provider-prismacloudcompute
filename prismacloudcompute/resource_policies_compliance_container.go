@@ -41,7 +41,7 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 				Description: "Type of policy. For example: 'docker', 'containerVulnerability', 'containerCompliance', etc.",
 				Default:     true,
 			},
-			"rules": {
+			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of policy rules.",
@@ -539,7 +539,7 @@ func parsePolicyComplianceContainer(d *schema.ResourceData, id string) policyCom
 		ans.PolicyType = d.Get("policytype").(string)
 	}
 
-	rules := d.Get("rules").([]interface{})
+	rules := d.Get("rule").([]interface{})
 	ans.Rules = make([]policy.Rule, 0, len(rules))
 	if len(rules) > 0 {
 		for i := 0; i < len(rules); i++ {
@@ -750,7 +750,7 @@ func parsePolicyComplianceContainer(d *schema.ResourceData, id string) policyCom
 func savePolicyComplianceContainer(d *schema.ResourceData, obj policyComplianceContainer.Policy) {
 	d.Set("_id", obj.PolicyId)
 	d.Set("policytype", obj.PolicyType)
-	d.Set("rules", obj.Rules)
+	d.Set("rule", obj.Rules)
 
 	// Rule.
 	if len(obj.Rules) > 0 {
@@ -773,8 +773,8 @@ func savePolicyComplianceContainer(d *schema.ResourceData, obj policyComplianceC
 			"wildfireanalysis":         obj.Rules[0].WildFireAnalysis,
 		}
 
-		if err := d.Set("rules", []interface{}{rv}); err != nil {
-			log.Printf("[WARN] Error setting 'rules' for %q: %s", d.Id(), err)
+		if err := d.Set("rule", []interface{}{rv}); err != nil {
+			log.Printf("[WARN] Error setting 'rule' for %q: %s", d.Id(), err)
 		}
 	}
 

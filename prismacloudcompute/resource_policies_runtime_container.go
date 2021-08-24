@@ -41,7 +41,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 				Description: "If set to 'true', automatic behavioural learning is enabled.",
 				Default:     true,
 			},
-			"rules": {
+			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Rules in the policies.",
@@ -555,7 +555,7 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 		LearningDisabled: d.Get("learningdisabled").(bool),
 	}
 
-	rules := d.Get("rules").([]interface{})
+	rules := d.Get("rule").([]interface{})
 	ans.Rules = make([]policy.Rule, 0, len(rules))
 	if len(rules) > 0 {
 
@@ -776,7 +776,7 @@ func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Polic
 func savePolicy(d *schema.ResourceData, obj policyRuntimeContainer.Policy) {
 	d.Set("_id", obj.PolicyId)
 	d.Set("learningdisabled", obj.LearningDisabled)
-	d.Set("rules", obj.Rules)
+	d.Set("rule", obj.Rules)
 
 	// Rule.
 	if len(obj.Rules) > 0 {
@@ -799,8 +799,8 @@ func savePolicy(d *schema.ResourceData, obj policyRuntimeContainer.Policy) {
 			"wildfireanalysis":         obj.Rules[0].WildFireAnalysis,
 		}
 
-		if err := d.Set("rules", []interface{}{rv}); err != nil {
-			log.Printf("[WARN] Error setting 'rules' for %q: %s", d.Id(), err)
+		if err := d.Set("rule", []interface{}{rv}); err != nil {
+			log.Printf("[WARN] Error setting 'rule' for %q: %s", d.Id(), err)
 		}
 	}
 
