@@ -244,7 +244,7 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 							},
 						},
 						"condition": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Rule conditions. Conditions only apply for their respective policy type.",
 							Elem: &schema.Resource{
@@ -259,8 +259,8 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 										Optional:    true,
 										Description: "If set to 'true', the condition applies only to read-only commands. For example: HTTP GET requests.",
 									},
-									"vulnerabilities": {
-										Type:        schema.TypeMap,
+									"compliance_check": {
+										Type:        schema.TypeSet,
 										Optional:    true,
 										Description: "Block and scan severity-based vulnerabilities conditions.",
 										Elem: &schema.Resource{

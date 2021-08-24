@@ -3,6 +3,7 @@ package prismacloudcompute
 import (
 	"strconv"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 )
@@ -42,19 +43,26 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 			}
 			if item["condition"] != nil {
-				cond := item["condition"].(map[string]interface{})
-
 				condition := policy.Condition{}
+				// rule.condition is a list with guaranteed length 1, so grab first element and cast it
+				cond := item["condition"].([]interface{})[0].(map[string]interface{})
+				if cond["compliance_check"] != nil {
+					compliance_checks := cond["compliance_check"].(*schema.Set).List()
+					condition.Vulnerabilities = make([]policy.Vulnerability, 0, len(compliance_checks))
 
-				if cond["vulnerabilities"] != nil {
-					vuln := cond["vulnerabilities"].(map[string]interface{})
-					vulnerabilities := policy.Vulnerability{
-						Block:       vuln["block"].(bool),
-						Id:          vuln["id"].(int),
-						MinSeverity: vuln["minSeverity"].(int),
+					for _, v := range compliance_checks {
+						check := v.(map[string]interface{})
+						vulnerability := policy.Vulnerability{}
+						if check["block"] != nil {
+							vulnerability.Block = check["block"].(bool)
+						}
+						if check["id"] != nil {
+							vulnerability.Id = check["id"].(int)
+						}
+						condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerability)
 					}
-					condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerabilities)
 				}
+				rule.Condition = condition
 			}
 			if item["customrules"] != nil {
 				custRules := item["customrules"].([]interface{})
@@ -89,6 +97,11 @@ func parseRules(rules []interface{}) []policy.Rule {
 				if dnsItem["whitelist"] != nil {
 					rule.Dns.Whitelist = dnsItem["whitelist"].([]string)
 				}
+			}
+			if item["effect"] != nil {
+				rule.Effect = item["effect"].(string)
+			} else {
+				rule.Effect = "Not specified"
 			}
 
 			if item["filesystem"] != nil {

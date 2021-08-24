@@ -246,23 +246,13 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 							},
 						},
 						"condition": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Rule conditions. Conditions only apply for their respective policy type.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"device": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Allowed volume host device (wildcard). If a 'container create' command specifies a non-matching host device, the action is blocked. Only applies to rules in certain policy types.",
-									},
-									"readonly": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', the condition applies only to read-only commands. For example: HTTP GET requests.",
-									},
-									"vulnerabilities": {
-										Type:        schema.TypeMap,
+									"compliance_check": {
+										Type:        schema.TypeSet,
 										Optional:    true,
 										Description: "Block and scan severity-based vulnerabilities conditions.",
 										Elem: &schema.Resource{
@@ -566,19 +556,26 @@ func parsePolicyComplianceContainer(d *schema.ResourceData, id string) policyCom
 				}
 			}
 			if item["condition"] != nil {
-				cond := item["condition"].(map[string]interface{})
-
 				condition := policy.Condition{}
+				// rule.condition is a list with guaranteed length 1, so grab first element and cast it
+				cond := item["condition"].([]interface{})[0].(map[string]interface{})
+				if cond["compliance_check"] != nil {
+					compliance_checks := cond["compliance_check"].(*schema.Set).List()
+					condition.Vulnerabilities = make([]policy.Vulnerability, 0, len(compliance_checks))
 
-				if cond["vulnerabilities"] != nil {
-					vuln := cond["vulnerabilities"].(map[string]interface{})
-					vulnerabilities := policy.Vulnerability{
-						Block:       vuln["block"].(bool),
-						Id:          vuln["id"].(int),
-						MinSeverity: vuln["minSeverity"].(int),
+					for _, v := range compliance_checks {
+						check := v.(map[string]interface{})
+						vulnerability := policy.Vulnerability{}
+						if check["block"] != nil {
+							vulnerability.Block = check["block"].(bool)
+						}
+						if check["id"] != nil {
+							vulnerability.Id = check["id"].(int)
+						}
+						condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerability)
 					}
-					condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerabilities)
 				}
+				rule.Condition = condition
 			}
 			if item["customrules"] != nil {
 				custRules := item["customrules"].([]interface{})
@@ -596,6 +593,9 @@ func parsePolicyComplianceContainer(d *schema.ResourceData, id string) policyCom
 			}
 			if item["disabled"] != nil {
 				rule.Disabled = item["disabled"].(bool)
+			}
+			if item["effect"] != nil {
+				rule.Effect = item["effect"].(string)
 			}
 			if item["filesystem"] != nil {
 				fileSysSet := item["filesystem"].(interface{})
@@ -758,6 +758,7 @@ func savePolicyComplianceContainer(d *schema.ResourceData, obj policyComplianceC
 			"advancedprotection":       obj.Rules[0].AdvancedProtection,
 			"cloudmetadataenforcement": obj.Rules[0].CloudMetadataEnforcement,
 			"collections":              obj.Rules[0].Collections,
+			"condition":                obj.Rules[0].Condition,
 			"customrules":              obj.Rules[0].CustomRules,
 			"disabled":                 obj.Rules[0].Disabled,
 			"dns":                      obj.Rules[0].Dns,
