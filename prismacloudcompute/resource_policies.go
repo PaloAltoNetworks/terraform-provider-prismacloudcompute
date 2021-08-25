@@ -1,11 +1,10 @@
 package prismacloudcompute
 
 import (
-	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
+	"strconv"
+	"encoding/json"
 )
 
 func parseRules(rules []interface{}) []policy.Rule {
@@ -43,26 +42,23 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 			}
 			if item["condition"] != nil {
-				condition := policy.Condition{}
-				// rule.condition is a list with guaranteed length 1, so grab first element and cast it
-				cond := item["condition"].([]interface{})[0].(map[string]interface{})
-				if cond["compliance_check"] != nil {
-					compliance_checks := cond["compliance_check"].(*schema.Set).List()
-					condition.Vulnerabilities = make([]policy.Vulnerability, 0, len(compliance_checks))
+				cond := item["condition"].(map[string]interface{})
 
-					for _, v := range compliance_checks {
-						check := v.(map[string]interface{})
-						vulnerability := policy.Vulnerability{}
-						if check["block"] != nil {
-							vulnerability.Block = check["block"].(bool)
+				condition := policy.Condition{}
+
+				if cond["vulnerabilities"] != nil {
+					vulnString := cond["vulnerabilities"].(string)
+					if vulnString != "" {
+						var vulnArray []policy.Vulnerability
+						if err := json.Unmarshal([]byte(vulnString), &vulnArray); err != nil {
+        	panic(err)
+        }
+						for i := 0; i < len(vulnArray); i++ {
+						vuln := vulnArray[i]
+						condition.Vulnerabilities = append(condition.Vulnerabilities, vuln)
 						}
-						if check["id"] != nil {
-							vulnerability.Id = check["id"].(int)
-						}
-						condition.Vulnerabilities = append(condition.Vulnerabilities, vulnerability)
 					}
 				}
-				rule.Condition = condition
 			}
 			if item["customrules"] != nil {
 				custRules := item["customrules"].([]interface{})
@@ -97,11 +93,6 @@ func parseRules(rules []interface{}) []policy.Rule {
 				if dnsItem["whitelist"] != nil {
 					rule.Dns.Whitelist = dnsItem["whitelist"].([]string)
 				}
-			}
-			if item["effect"] != nil {
-				rule.Effect = item["effect"].(string)
-			} else {
-				rule.Effect = "Not specified"
 			}
 
 			if item["filesystem"] != nil {
