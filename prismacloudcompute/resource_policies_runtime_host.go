@@ -12,10 +12,10 @@ import (
 
 func resourcePoliciesRuntimeHost() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicy,
-		Read:   readPolicy,
-		Update: updatePolicy,
-		Delete: deletePolicy,
+		Create: createPolicyRuntimeHost,
+		Read:   readPolicyRuntimeHost,
+		Update: updatePolicyRuntimeHost,
+		Delete: deletePolicyRuntimeHost,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -269,12 +269,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 										Description: "User who created or last modified the collection.",
 									},
 									"prisma": {
-										Type:        schema.TypeString,
+										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true' this collection originates from Prisma Cloud.",
 									},
 									"system": {
-										Type:        schema.TypeString,
+										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
 									},
@@ -317,7 +317,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "If set to 'true', the rule is currently disabled.",
 						},
 						"dns": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeMap,
 							Optional:    true,
 							Description: "The DNS runtime rule",
 							Elem: &schema.Resource{
@@ -486,7 +486,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Name of the rule.",
 						},
 						"network": {
-							Type:        schema.TypeList,
+							Type:        schema.TypeMap,
 							Optional:    true,
 							Description: "Represents the restrictions or suppression for networking.",
 							Elem: &schema.Resource{

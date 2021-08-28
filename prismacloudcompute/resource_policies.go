@@ -19,6 +19,66 @@ func parseRules(rules []interface{}) []policy.Rule {
 				thresholdInterface := item["alertthreshold"].(interface{})
 				rule.AlertThreshold = getThreshold(thresholdInterface)
 			}
+			if item["antiMalware"] != nil {
+				antiMalwareSet := item["antiMalware"].(interface{})
+				antiMalwareItem := antiMalwareSet.(map[string]interface{})
+
+				rule.AntiMalware = policy.AntiMalware{}
+				if antiMalwareItem["allowedProcesses"] != nil {
+					rule.AntiMalware.AllowedProcesses = antiMalwareItem["allowedProcesses"].([]string)
+				}
+				if antiMalwareItem["cryptoMiner"] != nil {
+					rule.AntiMalware.CryptoMiner = antiMalwareItem["cryptoMiner"].(string)
+				}
+				if antiMalwareItem["deniedProcesses"] != nil {
+					deniedProcessesSet := item["deniedProcesses"].(interface{})
+					deniedProcessesItem := deniedProcessesSet.(map[string]interface{})
+
+					rule.AntiMalware.DeniedProcesses = policy.DeniedProcesses{}
+					if deniedProcessesItem["effect"] != nil {
+						rule.AntiMalware.DeniedProcesses.Effect = deniedProcessesItem["effect"].(string)
+					}
+					if deniedProcessesItem["paths"] != nil {
+						rule.AntiMalware.DeniedProcesses.Paths = deniedProcessesItem["paths"].([]string)
+					}
+				}
+				if antiMalwareItem["detectCompilerGeneratedBinary"] != nil {
+					rule.AntiMalware.DetectCompilerGeneratedBinary = antiMalwareItem["detectCompilerGeneratedBinary"].(bool)
+				}
+				if antiMalwareItem["encryptedBinaries"] != nil {
+					rule.AntiMalware.EncryptedBinaries = antiMalwareItem["encryptedBinaries"].(string)
+				}
+				if antiMalwareItem["executionFlowHijack"] != nil {
+					rule.AntiMalware.ExecutionFlowHijack = antiMalwareItem["executionFlowHijack"].(string)
+				}
+				if antiMalwareItem["intelligenceFeed"] != nil {
+					rule.AntiMalware.IntelligenceFeed = antiMalwareItem["intelligenceFeed"].(string)
+				}
+				if antiMalwareItem["reverseShell"] != nil {
+					rule.AntiMalware.ReverseShell = antiMalwareItem["reverseShell"].(string)
+				}
+				if antiMalwareItem["serviceUnknownOriginBinary"] != nil {
+					rule.AntiMalware.ServiceUnknownOriginBinary = antiMalwareItem["serviceUnknownOriginBinary"].(string)
+				}
+				if antiMalwareItem["skipSSHTracking"] != nil {
+					rule.AntiMalware.SkipSSHTracking = antiMalwareItem["skipSSHTracking"].(bool)
+				}
+				if antiMalwareItem["suspiciousELFHeaders"] != nil {
+					rule.AntiMalware.SuspiciousELFHeaders = antiMalwareItem["suspiciousELFHeaders"].(string)
+				}
+				if antiMalwareItem["tempFSProc"] != nil {
+					rule.AntiMalware.TempFSProc = antiMalwareItem["tempFSProc"].(string)
+				}
+				if antiMalwareItem["userUnknownOriginBinary"] != nil {
+					rule.AntiMalware.UserUnknownOriginBinary = antiMalwareItem["userUnknownOriginBinary"].(string)
+				}
+				if antiMalwareItem["webShell"] != nil {
+					rule.AntiMalware.WebShell = antiMalwareItem["webShell"].(string)
+				}
+				if antiMalwareItem["wildFireAnalysis"] != nil {
+					rule.AntiMalware.WildFireAnalysis = antiMalwareItem["wildFireAnalysis"].(string)
+				}
+			}
 			if item["blockthreshold"] != nil {
 				thresholdInterface := item["blockthreshold"].(interface{})
 				rule.BlockThreshold = getThreshold(thresholdInterface)
@@ -124,6 +184,68 @@ func parseRules(rules []interface{}) []policy.Rule {
 			}
 			if item["kubernetesenforcement"] != nil {
 				rule.KubernetesEnforcement = item["kubernetesenforcement"].(bool)
+			}
+			if item["fileIntegrityRules"] != nil {
+				fileIntegrityRulesSet := item["fileIntegrityRules"].([]interface{})
+				fileIntegrityRulesItem := fileIntegrityRulesSet[0].(map[string]interface{})
+
+				rule.FileIntegrityRules = []policy.FileIntegrityRule{}
+				if fileIntegrityRulesItem["dir"] != nil {
+					rule.FileIntegrityRules[0].Dir = fileIntegrityRulesItem["dir"].(bool)
+				}
+				if fileIntegrityRulesItem["exclusions"] != nil {
+					rule.FileIntegrityRules[0].Exclusions = fileIntegrityRulesItem["exclusions"].([]string)
+				}
+				if fileIntegrityRulesItem["metadata"] != nil {
+					rule.FileIntegrityRules[0].Metadata = fileIntegrityRulesItem["metadata"].(bool)
+				}
+				if fileIntegrityRulesItem["path"] != nil {
+					rule.FileIntegrityRules[0].Path = fileIntegrityRulesItem["path"].(string)
+				}
+				if fileIntegrityRulesItem["procWhitelist"] != nil {
+					rule.FileIntegrityRules[0].ProcWhitelist = fileIntegrityRulesItem["procWhitelist"].([]string)
+				}
+				if fileIntegrityRulesItem["read"] != nil {
+					rule.FileIntegrityRules[0].Read = fileIntegrityRulesItem["read"].(bool)
+				}
+				if fileIntegrityRulesItem["recursive"] != nil {
+					rule.FileIntegrityRules[0].Recursive = fileIntegrityRulesItem["recursive"].(bool)
+				}
+				if fileIntegrityRulesItem["write"] != nil {
+					rule.FileIntegrityRules[0].Write = fileIntegrityRulesItem["write"].(bool)
+				}
+			}
+			if item["forensic"] != nil {
+				forensicSet := item["forensic"].(interface{})
+				forensicItem := forensicSet.(map[string]interface{})
+				if forensicItem["activitiesDisabled"] != nil {
+					rule.Forensic.ActivitiesDisabled = forensicItem["activitiesDisabled"].(bool)
+				}
+				if forensicItem["dockerEnabled"] != nil {
+					rule.Forensic.DockerEnabled = forensicItem["dockerEnabled"].(bool)
+				}
+				if forensicItem["readOnlyDockerEnabled"] != nil {
+					rule.Forensic.ReadonlyDockerEnabled = forensicItem["readOnlyDockerEnabled"].(bool)
+				}
+				if forensicItem["serviceActivitiesEnabled"] != nil {
+					rule.Forensic.ServiceActivitiesEnabled = forensicItem["serviceActivitiesEnabled"].(bool)
+				}
+				if forensicItem["sshdEnabled"] != nil {
+					rule.Forensic.SshdEnabled = forensicItem["sshdEnabled"].(bool)
+				}
+				if forensicItem["sudoEnabled"] != nil {
+					rule.Forensic.SudoEnabled = forensicItem["sudoEnabled"].(bool)
+				}
+			}
+			if item["logInspectionRules"] != nil {
+				logInspectionRulesSet := item["logInspectionRules"].([]interface{})
+				logInspectionRulesItem := logInspectionRulesSet[0].(map[string]interface{})
+				if logInspectionRulesItem["path"] != nil {
+					rule.LogInspectionRules[0].Path = logInspectionRulesItem["path"].(string)
+				}
+				if logInspectionRulesItem["regex"] != nil {
+					rule.LogInspectionRules[0].Regex = logInspectionRulesItem["regex"].([]string)
+				}
 			}
 			if item["modified"] != nil {
 				rule.Modified = item["modified"].(string)
