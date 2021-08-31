@@ -78,12 +78,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Schema: map[string]*schema.Schema {
 												"effect": {
 													Type:        schema.TypeString,
-													Required:    false,
+													Optional:    true,
 													Description: "Effect that will be used in the runtime rule.",
 												},
 												"paths": {
 													Type:        schema.TypeList,
-													Required:    false,
+													Optional:    true,
 													Description: "Paths to alert/prevent when an event with one of the paths is triggered.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
@@ -92,7 +92,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"detectvompilergeneratedbinary": {
+									"detectcompilergeneratedbinary": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Represents what happens when a compiler service writes a binary.",
@@ -289,7 +289,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"_id": {
 										Type:        schema.TypeInt,
-										Required:    true,
+										Optional:    true,
 										Description: "Custom rule ID.",
 									},
 									"action": {
@@ -367,12 +367,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"dir": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates that the path is a directory.",
 									},
 									"exclusions": {
 										Type:        schema.TypeList,
-										Required:    true,
+										Optional:    true,
 										Description: "Filenames that should be ignored while generating audits These filenames may contain a wildcard regex pattern, e.g. foo*.log, *.cache.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -380,17 +380,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									},
 									"metadata": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates that metadata changes should be monitored (e.g. chmod, chown).",
 									},
 									"path": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: "Path to monitor.",
 									},
 									"procwhitelist": {
 										Type:        schema.TypeList,
-										Required:    true,
+										Optional:    true,
 										Description: "The processes to ignore Filesystem events caused by these processes DO NOT generate file integrity events.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -398,17 +398,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									},
 									"read": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates that eads operations should be monitored.",
 									},
 									"recursive": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates that monitoring should be recursive.",
 									},
 									"write": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates that write operations should be monitored.",
 									},
 								},
@@ -422,32 +422,32 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"activitiesdisabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates if the host activity collection is enabled/disabled.",
 									},
 									"dockerenabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates whether docker commands are collected.",
 									},
 									"readonlydockerenabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates whether docker readonly commands are collected.",
 									},
 									"serviceactivitiesenabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates whether activities from services are collected.",
 									},
 									"sshdenabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates whether ssh commands are collected.",
 									},
 									"sudoenabled": {
 										Type:        schema.TypeBool,
-										Required:    true,
+										Optional:    true,
 										Description: "Indicates whether sudo commands are collected.",
 									},
 								},
@@ -461,12 +461,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"path": {
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: "the log path.",
 									},
 									"regex": {
 										Type:        schema.TypeList,
-										Required:    true,
+										Optional:    true,
 										Description: "Regular expressions associated with the rule if it is a custom one.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
@@ -507,17 +507,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
-													Required:    true,
+													Optional:    true,
 													Description: "If set to 'true' the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "end",
 												},
 												"start": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "start",
 												},
 											},
@@ -531,17 +531,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
-													Required:    true,
+													Optional:    true,
 													Description: "If set to 'true' the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "end",
 												},
 												"start": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "start",
 												},
 											},
@@ -601,17 +601,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
-													Required:    true,
+													Optional:    true,
 													Description: "If set to 'true', the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "end",
 												},
 												"start": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "start",
 												},
 											},
@@ -625,17 +625,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
-													Required:    true,
+													Optional:    true,
 													Description: "If set to 'true', the connection is denied.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "end",
 												},
 												"start": {
 													Type:        schema.TypeInt,
-													Required:    true,
+													Optional:    true,
 													Description: "start",
 												},
 											},
