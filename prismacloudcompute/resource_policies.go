@@ -19,6 +19,67 @@ func parseRules(rules []interface{}) []policy.Rule {
 				thresholdInterface := item["alertthreshold"].(interface{})
 				rule.AlertThreshold = getThreshold(thresholdInterface)
 			}
+			if item["antimalware"] != nil {
+				antiMalwareSet := item["antimalware"].(interface{})
+				antiMalwareItem := antiMalwareSet.(map[string]interface{})
+
+				rule.AntiMalware = policy.AntiMalware{}
+				if antiMalwareItem["allowedprocesses"] != nil {
+					rule.AntiMalware.AllowedProcesses = antiMalwareItem["allowedprocesses"].([]string)
+				}
+				if antiMalwareItem["cryptominer"] != nil {
+					rule.AntiMalware.CryptoMiner = antiMalwareItem["cryptominer"].(string)
+				}
+				if antiMalwareItem["customfeed"] != nil {
+					rule.AntiMalware.CustomFeed = antiMalwareItem["customfeed"].(string)
+				}
+				if antiMalwareItem["deniedprocesses"] != nil {
+					deniedProcessesString := antiMalwareItem["deniedprocesses"].(string)
+					if deniedProcessesString != "" {
+						var deniedProcesses policy.DeniedProcesses
+						if err := json.Unmarshal([]byte(deniedProcessesString), &deniedProcesses); err != nil {
+					        	panic(err)
+					        }
+						rule.AntiMalware.DeniedProcesses = deniedProcesses
+					}
+				}
+				if antiMalwareItem["detectcompilergeneratedbinary"] != nil {
+					rule.AntiMalware.DetectCompilerGeneratedBinary = antiMalwareItem["detectcompilergeneratedbinary"].(bool)
+				}
+				if antiMalwareItem["encryptedbinaries"] != nil {
+					rule.AntiMalware.EncryptedBinaries = antiMalwareItem["encryptedbinaries"].(string)
+				}
+				if antiMalwareItem["executionflowhijack"] != nil {
+					rule.AntiMalware.ExecutionFlowHijack = antiMalwareItem["executionflowhijack"].(string)
+				}
+				if antiMalwareItem["intelligencefeed"] != nil {
+					rule.AntiMalware.IntelligenceFeed = antiMalwareItem["intelligencefeed"].(string)
+				}
+				if antiMalwareItem["reverseshell"] != nil {
+					rule.AntiMalware.ReverseShell = antiMalwareItem["reverseshell"].(string)
+				}
+				if antiMalwareItem["serviceunknownoriginbinary"] != nil {
+					rule.AntiMalware.ServiceUnknownOriginBinary = antiMalwareItem["serviceunknownoriginbinary"].(string)
+				}
+				if antiMalwareItem["skipsshtracking"] != nil {
+					rule.AntiMalware.SkipSSHTracking = antiMalwareItem["skipsshtracking"].(bool)
+				}
+				if antiMalwareItem["suspiciouselfheaders"] != nil {
+					rule.AntiMalware.SuspiciousELFHeaders = antiMalwareItem["suspiciouselfheaders"].(string)
+				}
+				if antiMalwareItem["tempfsproc"] != nil {
+					rule.AntiMalware.TempFSProc = antiMalwareItem["tempfsproc"].(string)
+				}
+				if antiMalwareItem["userunknownoriginbinary"] != nil {
+					rule.AntiMalware.UserUnknownOriginBinary = antiMalwareItem["userunknownoriginbinary"].(string)
+				}
+				if antiMalwareItem["webshell"] != nil {
+					rule.AntiMalware.WebShell = antiMalwareItem["webshell"].(string)
+				}
+				if antiMalwareItem["wildfireanalysis"] != nil {
+					rule.AntiMalware.WildFireAnalysis = antiMalwareItem["wildfireanalysis"].(string)
+				}
+			}
 			if item["blockthreshold"] != nil {
 				thresholdInterface := item["blockthreshold"].(interface{})
 				rule.BlockThreshold = getThreshold(thresholdInterface)
@@ -93,6 +154,18 @@ func parseRules(rules []interface{}) []policy.Rule {
 				if dnsItem["whitelist"] != nil {
 					rule.Dns.Whitelist = dnsItem["whitelist"].([]string)
 				}
+				if dnsItem["allow"] != nil {
+					rule.Dns.Allow = dnsItem["allow"].([]string)
+				}
+				if dnsItem["deny"] != nil {
+					rule.Dns.Deny = dnsItem["deny"].([]string)
+				}
+				if dnsItem["denylisteffect"] != nil {
+					rule.Dns.DenyListEffect = dnsItem["denylisteffect"].(string)
+				}
+				if dnsItem["intelligencefeed"] != nil {
+					rule.Dns.IntelligenceFeed = dnsItem["intelligencefeed"].(string)
+				}
 			}
 
 			if item["filesystem"] != nil {
@@ -100,23 +173,23 @@ func parseRules(rules []interface{}) []policy.Rule {
 				fileSysItem := fileSysSet.(map[string]interface{})
 
 				rule.Filesystem = policy.Filesystem{}
-				if fileSysItem["blacklist"] != nil {
+				if fileSysItem["backdoorFiles"] != nil {
 					rule.Filesystem.BackdoorFiles = fileSysItem["backdoorFiles"].(bool)
 				}
 				if fileSysItem["blacklist"] != nil {
 					rule.Filesystem.Blacklist = fileSysItem["blacklist"].([]string)
 				}
-				if fileSysItem["checkNewFiles"] != nil {
-					rule.Filesystem.CheckNewFiles = fileSysItem["checkNewFiles"].(bool)
+				if fileSysItem["checknewfiles"] != nil {
+					rule.Filesystem.CheckNewFiles = fileSysItem["checknewfiles"].(bool)
 				}
 				if fileSysItem["effect"] != nil {
 					rule.Filesystem.Effect = fileSysItem["effect"].(string)
 				}
-				if fileSysItem["skipEncryptedBinaries"] != nil {
-					rule.Filesystem.SkipEncryptedBinaries = fileSysItem["skipEncryptedBinaries"].(bool)
+				if fileSysItem["skipencryptedbinaries"] != nil {
+					rule.Filesystem.SkipEncryptedBinaries = fileSysItem["skipencryptedbinaries"].(bool)
 				}
-				if fileSysItem["suspiciousELFHeaders"] != nil {
-					rule.Filesystem.SuspiciousELFHeaders = fileSysItem["suspiciousELFHeaders"].(bool)
+				if fileSysItem["suspiciouselfheaders"] != nil {
+					rule.Filesystem.SuspiciousELFHeaders = fileSysItem["suspiciouselfheaders"].(bool)
 				}
 				if fileSysItem["whitelist"] != nil {
 					rule.Filesystem.Whitelist = fileSysItem["whitelist"].([]string)
@@ -124,6 +197,91 @@ func parseRules(rules []interface{}) []policy.Rule {
 			}
 			if item["kubernetesenforcement"] != nil {
 				rule.KubernetesEnforcement = item["kubernetesenforcement"].(bool)
+			}
+			if item["fileintegrityrules"] != nil {
+				fileIntegrityRulesSet := item["fileintegrityrules"].([]interface{})
+				if (len(fileIntegrityRulesSet) > 0) {
+					fileIntegrityRulesItem := fileIntegrityRulesSet[0].(map[string]interface{})
+
+					rule.FileIntegrityRules = []policy.FileIntegrityRule{}
+					if fileIntegrityRulesItem["dir"] != nil {
+						rule.FileIntegrityRules[0].Dir = fileIntegrityRulesItem["dir"].(bool)
+					}
+					if fileIntegrityRulesItem["exclusions"] != nil {
+						rule.FileIntegrityRules[0].Exclusions = fileIntegrityRulesItem["exclusions"].([]string)
+					}
+					if fileIntegrityRulesItem["metadata"] != nil {
+						rule.FileIntegrityRules[0].Metadata = fileIntegrityRulesItem["metadata"].(bool)
+					}
+					if fileIntegrityRulesItem["path"] != nil {
+						rule.FileIntegrityRules[0].Path = fileIntegrityRulesItem["path"].(string)
+					}
+					if fileIntegrityRulesItem["procwhitelist"] != nil {
+						rule.FileIntegrityRules[0].ProcWhitelist = fileIntegrityRulesItem["procwhitelist"].([]string)
+					}
+					if fileIntegrityRulesItem["read"] != nil {
+						rule.FileIntegrityRules[0].Read = fileIntegrityRulesItem["read"].(bool)
+					}
+					if fileIntegrityRulesItem["recursive"] != nil {
+						rule.FileIntegrityRules[0].Recursive = fileIntegrityRulesItem["recursive"].(bool)
+					}
+					if fileIntegrityRulesItem["write"] != nil {
+						rule.FileIntegrityRules[0].Write = fileIntegrityRulesItem["write"].(bool)
+					}
+				}
+			}
+			if item["forensic"] != nil {
+				forensicSet := item["forensic"].(interface{})
+				forensicItem := forensicSet.(map[string]interface{})
+				rule.Forensic = policy.Forensic{}
+				if forensicItem["activitiesdisabled"] != nil {
+					activitiesDisabled, err := strconv.ParseBool(forensicItem["activitiesdisabled"].(string))
+					if err == nil {
+						rule.Forensic.ActivitiesDisabled = activitiesDisabled
+					}
+				}
+				if forensicItem["dockerenabled"] != nil {
+					dockerEnabled, err := strconv.ParseBool(forensicItem["dockerenabled"].(string))
+					if err == nil {
+						rule.Forensic.DockerEnabled = dockerEnabled
+					}
+				}
+				if forensicItem["readOnlydockerenabled"] != nil {
+					readonlyDockerEnabled, err := strconv.ParseBool(forensicItem["readOnlydockerenabled"].(string))
+					if err == nil {
+						rule.Forensic.ReadonlyDockerEnabled = readonlyDockerEnabled
+					}
+				}
+				if forensicItem["serviceactivitiesenabled"] != nil {
+					serviceActivitiesEnabled, err := strconv.ParseBool(forensicItem["serviceactivitiesenabled"].(string))
+					if err == nil {
+						rule.Forensic.ServiceActivitiesEnabled = serviceActivitiesEnabled
+					}
+				}
+				if forensicItem["sshdenabled"] != nil {
+					sshdEnabled, err := strconv.ParseBool(forensicItem["sshdenabled"].(string))
+					if err == nil {
+						rule.Forensic.SshdEnabled = sshdEnabled
+					}
+				}
+				if forensicItem["sudoenabled"] != nil {
+					sudoEnabled, err := strconv.ParseBool(forensicItem["sudoenabled"].(string))
+					if err == nil {
+						rule.Forensic.SudoEnabled = sudoEnabled
+					}
+				}
+			}
+			if item["loginspectionrules"] != nil {
+				logInspectionRulesSet := item["loginspectionrules"].([]interface{})
+				if (len(logInspectionRulesSet) > 0) {
+					logInspectionRulesItem := logInspectionRulesSet[0].(map[string]interface{})
+					if logInspectionRulesItem["path"] != nil {
+						rule.LogInspectionRules[0].Path = logInspectionRulesItem["path"].(string)
+					}
+					if logInspectionRulesItem["regex"] != nil {
+						rule.LogInspectionRules[0].Regex = logInspectionRulesItem["regex"].([]string)
+					}
+				}
 			}
 			if item["modified"] != nil {
 				rule.Modified = item["modified"].(string)
@@ -134,12 +292,13 @@ func parseRules(rules []interface{}) []policy.Rule {
 			if item["network"] != nil {
 				networkSet := item["network"].(interface{})
 				networkItem := networkSet.(map[string]interface{})
-				if networkItem["blacklistIPs"] != nil {
-					rule.Network.BlacklistIPs = networkItem["blacklistIPs"].([]string)
+				rule.Network = policy.Network{}
+				if networkItem["blacklistips"] != nil {
+					rule.Network.BlacklistIPs = networkItem["blacklistips"].([]string)
 				}
 
-				if networkItem["blacklistListeningPorts"] != nil {
-					blacklistListenPorts := networkItem["blacklistListeningPorts"].([]interface{})
+				if networkItem["blacklistlisteningports"] != nil {
+					blacklistListenPorts := networkItem["blacklistlisteningports"].([]interface{})
 					rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(blacklistListenPorts))
 					if len(blacklistListenPorts) > 0 {
 						for i := 0; i < len(blacklistListenPorts); i++ {
@@ -148,8 +307,8 @@ func parseRules(rules []interface{}) []policy.Rule {
 					}
 				}
 
-				if networkItem["blacklistOutboundPorts"] != nil {
-					blacklistOutPorts := networkItem["blacklistOutboundPorts"].([]interface{})
+				if networkItem["blacklistoutboundports"] != nil {
+					blacklistOutPorts := networkItem["blacklistoutboundports"].([]interface{})
 					rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(blacklistOutPorts))
 					if len(blacklistOutPorts) > 0 {
 						for i := 0; i < len(blacklistOutPorts); i++ {
@@ -157,24 +316,24 @@ func parseRules(rules []interface{}) []policy.Rule {
 						}
 					}
 				}
-				if networkItem["detectPortScan"] != nil {
-					rule.Network.DetectPortScan = networkItem["detectPortScan"].(bool)
+				if networkItem["detectportscan"] != nil {
+					rule.Network.DetectPortScan = networkItem["detectportscan"].(bool)
 				}
 				if networkItem["effect"] != nil {
 					rule.Network.Effect = networkItem["effect"].(string)
 				}
-				if networkItem["skipModifiedProc"] != nil {
-					rule.Network.SkipModifiedProc = networkItem["skipModifiedProc"].(bool)
+				if networkItem["skipmodifiedproc"] != nil {
+					rule.Network.SkipModifiedProc = networkItem["skipmodifiedproc"].(bool)
 				}
-				if networkItem["skipRawSockets"] != nil {
-					rule.Network.SkipRawSockets = networkItem["skipRawSockets"].(bool)
+				if networkItem["skiprawsockets"] != nil {
+					rule.Network.SkipRawSockets = networkItem["skiprawsockets"].(bool)
 				}
-				if networkItem["whitelistIPs"] != nil {
-					rule.Network.WhitelistIPs = networkItem["whitelistIPs"].([]string)
+				if networkItem["whitelistips"] != nil {
+					rule.Network.WhitelistIPs = networkItem["whitelistips"].([]string)
 				}
 
-				if networkItem["whitelistListeningPorts"] != nil {
-					whitelistListenPorts := networkItem["whitelistListeningPorts"].([]interface{})
+				if networkItem["whitelistlisteningports"] != nil {
+					whitelistListenPorts := networkItem["whitelistlisteningports"].([]interface{})
 					rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(whitelistListenPorts))
 					if len(whitelistListenPorts) > 0 {
 						for i := 0; i < len(whitelistListenPorts); i++ {
@@ -183,14 +342,47 @@ func parseRules(rules []interface{}) []policy.Rule {
 					}
 				}
 
-				if networkItem["whitelistOutboundPorts"] != nil {
-					whitelistOutPorts := networkItem["whitelistOutboundPorts"].([]interface{})
+				if networkItem["whitelistoutboundports"] != nil {
+					whitelistOutPorts := networkItem["whitelistoutboundports"].([]interface{})
 					rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(whitelistOutPorts))
 					if len(whitelistOutPorts) > 0 {
 						for i := 0; i < len(whitelistOutPorts); i++ {
 							rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[i]))
 						}
 					}
+				}
+				if networkItem["allowedoutboundips"] != nil {
+					rule.Network.AllowedOutboundIPs = networkItem["allowedoutboundips"].([]string)
+				}
+				if networkItem["customfeed"] != nil {
+					rule.Network.CustomFeed = networkItem["customfeed"].(string)
+				}
+				if networkItem["deniedlisteningports"] != nil {
+					deniedListeningPorts := networkItem["deniedlisteningports"].([]interface{})
+					rule.Network.DeniedListeningPorts = make([]policy.ListPort, 0, len(deniedListeningPorts))
+					if len(deniedListeningPorts) > 0 {
+						for i := 0; i < len(deniedListeningPorts); i++ {
+							rule.Network.DeniedListeningPorts = append(rule.Network.DeniedListeningPorts, getListPort(deniedListeningPorts[i]))
+						}
+					}
+				}
+				if networkItem["deniedoutboundips"] != nil {
+					rule.Network.DeniedOutboundIPs = networkItem["deniedoutboundips"].([]string)
+				}
+				if networkItem["deniedoutboundports"] != nil {
+					deniedOutboundPorts := networkItem["deniedoutboundports"].([]interface{})
+					rule.Network.DeniedOutboundPorts = make([]policy.ListPort, 0, len(deniedOutboundPorts))
+					if len(deniedOutboundPorts) > 0 {
+						for i := 0; i < len(deniedOutboundPorts); i++ {
+							rule.Network.DeniedOutboundPorts = append(rule.Network.DeniedOutboundPorts, getListPort(deniedOutboundPorts[i]))
+						}
+					}
+				}
+				if networkItem["denylisteffect"] != nil {
+					rule.Network.DenyListEffect = networkItem["denylisteffect"].(string)
+				}
+				if networkItem["intelligencefeed"] != nil {
+					rule.Network.IntelligenceFeed = networkItem["intelligencefeed"].(string)
 				}
 			}
 			if item["notes"] != nil {
@@ -211,32 +403,32 @@ func parseRules(rules []interface{}) []policy.Rule {
 				if processItem["blacklist"] != nil {
 					rule.Processes.Blacklist = processItem["blacklist"].([]string)
 				}
-				if processItem["blockAllBinaries"] != nil {
-					rule.Processes.BlockAllBinaries = processItem["blockAllBinaries"].(bool)
+				if processItem["blockallbinaries"] != nil {
+					rule.Processes.BlockAllBinaries = processItem["blockallbinaries"].(bool)
 				}
-				if processItem["checkCryptoMiners"] != nil {
-					rule.Processes.CheckCryptoMiners = processItem["checkCryptoMiners"].(bool)
+				if processItem["checkcryptominers"] != nil {
+					rule.Processes.CheckCryptoMiners = processItem["checkcryptominers"].(bool)
 				}
-				if processItem["checkLateralMovement"] != nil {
-					rule.Processes.CheckLateralMovement = processItem["checkLateralMovement"].(bool)
+				if processItem["checklateralmovement"] != nil {
+					rule.Processes.CheckLateralMovement = processItem["checklateralmovement"].(bool)
 				}
-				if processItem["checkNewBinaries"] != nil {
-					rule.Processes.CheckNewBinaries = processItem["checkNewBinaries"].(bool)
+				if processItem["checknewbinaries"] != nil {
+					rule.Processes.CheckNewBinaries = processItem["checknewbinaries"].(bool)
 				}
-				if processItem["checkParentChild"] != nil {
-					rule.Processes.CheckParentChild = processItem["checkParentChild"].(bool)
+				if processItem["checkparentchild"] != nil {
+					rule.Processes.CheckParentChild = processItem["checkparentchild"].(bool)
 				}
-				if processItem["checkSuidBinaries"] != nil {
-					rule.Processes.CheckSuidBinaries = processItem["checkSuidBinaries"].(bool)
+				if processItem["checksuidbinaries"] != nil {
+					rule.Processes.CheckSuidBinaries = processItem["checksuidbinaries"].(bool)
 				}
 				if processItem["effect"] != nil {
 					rule.Processes.Effect = processItem["effect"].(string)
 				}
-				if processItem["skipModified"] != nil {
-					rule.Processes.SkipModified = processItem["skipModified"].(bool)
+				if processItem["skipmodified"] != nil {
+					rule.Processes.SkipModified = processItem["skipmodified"].(bool)
 				}
-				if processItem["skipReverseShell"] != nil {
-					rule.Processes.SkipReverseShell = processItem["skipReverseShell"].(bool)
+				if processItem["skipreverseshell"] != nil {
+					rule.Processes.SkipReverseShell = processItem["skipreverseshell"].(bool)
 				}
 				if processItem["whitelist"] != nil {
 					rule.Processes.Whitelist = processItem["whitelist"].([]string)

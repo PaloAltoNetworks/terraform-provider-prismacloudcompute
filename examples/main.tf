@@ -30,16 +30,16 @@ resource "prismacloudcompute_policiesruntimecontainer" "example2" {
       name = "All"
     }
     wildfireanalysis = "alert"
-    processes = {
-      "effect" : "alert"
+    processes {
+      effect = "alert"
     }
-    network = {
-      "effect" : "alert"
+    network {
+      effect = "alert"
     }
-    dns = {
-      "effect" : "disable"
+    dns {
+      effect = "disable"
     }
-    filesystem = {
+    filesystem {
       effect = "alert"
     }
   }
@@ -53,10 +53,10 @@ resource "prismacloudcompute_policiesruntimecontainer" "example2" {
       "effect" : "alert"
     }
     network = {
-      "effect" : "alert"
+      effect = "alert"
     }
     dns = {
-      "effect" : "disable"
+      effect = "disable"
     }
     filesystem = {
       effect = "alert"
@@ -144,12 +144,12 @@ resource "prismacloudcompute_policiesruntimehost" "example7" {
        dockerenabled = false
        readonlydockerenabled = false
     }
-    network {
+    network = {
        denylisteffect = "alert"
        customfeed = "alert"
        intelligencefeed = "alert"
     }
-    dns {
+    dns = {
        denylisteffect = "disable"
        intelligencefeed = "disable"
     }
