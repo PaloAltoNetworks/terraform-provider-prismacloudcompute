@@ -23,7 +23,7 @@
 This also moves the compiled binary to the appropriate location.
     ```bash
     # macOS-specific OS_ARCH; adjust as necessary
-    make install OS_ARCH=darwin_amd64 VERSION=0.0.2-test1
+    make install OS_ARCH=darwin_amd64 VERSION=0.0.1
     ```
 4. Point your terraform file to this local plugin.
     ```terraform
@@ -31,7 +31,7 @@ This also moves the compiled binary to the appropriate location.
       required_providers {
         prismacloudcompute = {
           source  = "paloaltonetworks.com/prismacloud/prismacloudcompute"
-          version = "0.0.2-test1"
+          version = "0.0.1"
         }
       }
     }
