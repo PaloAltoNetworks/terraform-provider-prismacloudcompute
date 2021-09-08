@@ -1,23 +1,20 @@
 package prismacloudcompute
 
 import (
-	"log"
 	"time"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyRuntimeContainer"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func resourcePoliciesRuntimeContainer() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicy,
-		Read:   readPolicy,
-		Update: updatePolicy,
-		Delete: deletePolicy,
+		Create: createPolicyRuntimeContainer,
+		Read:   readPolicyRuntimeContainer,
+		Update: updatePolicyRuntimeContainer,
+		Delete: deletePolicyRuntimeContainer,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -34,12 +31,13 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "ID of the policy set.",
+				Default:     policyTypeRuntimeContainer,
 			},
 			"learningdisabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "If set to 'true', automatic behavioural learning is enabled.",
-				Default:     true,
+				Default:     false,
 			},
 			"rule": {
 				Type:        schema.TypeList,
@@ -53,11 +51,6 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 							Optional:    true,
 							Description: "Prisma Cloud advanced threat protection",
 						},
-						"name": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "Name of the rule.",
-						},
 						"cloudmetadataenforcement": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -66,127 +59,9 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of collections. Used to scope the rule.",
-							MaxItems:    1,
-							MinItems:    1,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"accountids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of account IDs.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"appids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of application IDs.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"clusters": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of Kubernetes cluster names.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"coderepos": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of code repositories.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"color": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Hex color code for a collection.",
-									},
-									"containers": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of containers.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "A free-form text description of the collection.",
-									},
-									"functions": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of functions.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"hosts": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of hosts.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"images": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of images.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"labels": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of labels",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"modified": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Date/time when the collection was last modified.",
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Unique collection name.",
-									},
-									"namespaces": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of Kubernetes namespaces.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"owner": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "User who created or last modified the collection.",
-									},
-									"prisma": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', this collection originates from Prisma Cloud.",
-									},
-									"system": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true' this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
-									},
-								},
+							Description: "List of collections used to scope the rule.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
 							},
 						},
 						"customrules": {
@@ -306,10 +181,10 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 							Optional:    true,
 							Description: "Detects containers that attempt to compromise the orchestrator.",
 						},
-						"modified": {
+						"name": {
 							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Date/time when the rule was last modified.",
+							Required:    true,
+							Description: "Name of the rule.",
 						},
 						"network": {
 							Type:        schema.TypeMap,
@@ -457,16 +332,6 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 							Optional:    true,
 							Description: "A free-form text description of the collection.",
 						},
-						"owner": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "User who created or last modified the rule.",
-						},
-						"previousname": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Previous name of the rule. Required for rule renaming.",
-						},
 						"processes": {
 							Type:        schema.TypeMap,
 							Optional:    true,
@@ -481,11 +346,6 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"blockallbinaries": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', blocks all processes except for the main process.",
-									},
 									"checkcryptominers": {
 										Type:        schema.TypeBool,
 										Optional:    true,
@@ -495,11 +355,6 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true', enables detection of processes that can be used for lateral movement exploits.",
-									},
-									"checknewbinaries": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', binaries which don't belong to the original image are allowed to run.",
 									},
 									"checkparentchild": {
 										Type:        schema.TypeBool,
@@ -549,321 +404,61 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 	}
 }
 
-func parsePolicy(d *schema.ResourceData, id string) policyRuntimeContainer.Policy {
-	ans := policyRuntimeContainer.Policy{
-		PolicyId:         id,
-		LearningDisabled: d.Get("learningdisabled").(bool),
-	}
-
-	rules := d.Get("rule").([]interface{})
-	ans.Rules = make([]policy.Rule, 0, len(rules))
-	if len(rules) > 0 {
-
-		for i := 0; i < len(rules); i++ {
-			item := rules[i].(map[string]interface{})
-
-			rule := policy.Rule{}
-
-			if item["advancedprotection"] != nil {
-				rule.AdvancedProtection = item["advancedprotection"].(bool)
-			}
-			if item["cloudmetadataenforcement"] != nil {
-				rule.CloudMetadataEnforcement = item["cloudmetadataenforcement"].(bool)
-			}
-			if item["collections"] != nil {
-				colls := item["collections"].([]interface{})
-
-				rule.Collections = make([]collection.Collection, 0, len(colls))
-				if len(colls) > 0 {
-					collItem := colls[0].(map[string]interface{})
-
-					rule.Collections = append(rule.Collections, getCollection(collItem))
-				}
-
-			}
-			if item["customrules"] != nil {
-				custRules := item["customrules"].([]interface{})
-				rule.CustomRules = make([]policy.CustomRule, 0, len(custRules))
-				if len(custRules) > 0 {
-					for i := 0; i < len(custRules); i++ {
-						custRuleItem := custRules[i].(map[string]interface{})
-
-						custRule := policy.CustomRule{
-							Id:     custRuleItem["_id"].(int),
-							Action: custRuleItem["action"].([]string),
-							Effect: custRuleItem["effect"].(string),
-						}
-						rule.CustomRules = append(rule.CustomRules, custRule)
-					}
-				}
-			}
-			if item["disabled"] != nil {
-				rule.Disabled = item["disabled"].(bool)
-			}
-			if item["dns"] != nil {
-				dnsSet := item["dns"].(interface{})
-				dnsItem := dnsSet.(map[string]interface{})
-
-				rule.Dns = policy.Dns{}
-				if dnsItem["blacklist"] != nil {
-					rule.Dns.Blacklist = dnsItem["blacklist"].([]string)
-				}
-				if dnsItem["effect"] != nil {
-					rule.Dns.Effect = dnsItem["effect"].(string)
-				}
-				if dnsItem["whitelist"] != nil {
-					rule.Dns.Whitelist = dnsItem["whitelist"].([]string)
-				}
-			}
-			if item["filesystem"] != nil {
-				fileSysSet := item["filesystem"].(interface{})
-				fileSysItem := fileSysSet.(map[string]interface{})
-
-				rule.Filesystem = policy.Filesystem{}
-				if fileSysItem["backdoorFiles"] != nil {
-					rule.Filesystem.BackdoorFiles = fileSysItem["backdoorFiles"].(bool)
-				}
-				if fileSysItem["blacklist"] != nil {
-					rule.Filesystem.Blacklist = fileSysItem["blacklist"].([]string)
-				}
-				if fileSysItem["checkNewFiles"] != nil {
-					rule.Filesystem.CheckNewFiles = fileSysItem["checkNewFiles"].(bool)
-				}
-				if fileSysItem["effect"] != nil {
-					rule.Filesystem.Effect = fileSysItem["effect"].(string)
-				}
-				if fileSysItem["skipEncryptedBinaries"] != nil {
-					rule.Filesystem.SkipEncryptedBinaries = fileSysItem["skipEncryptedBinaries"].(bool)
-				}
-				if fileSysItem["suspiciousELFHeaders"] != nil {
-					rule.Filesystem.SuspiciousELFHeaders = fileSysItem["suspiciousELFHeaders"].(bool)
-				}
-				if fileSysItem["whitelist"] != nil {
-					rule.Filesystem.Whitelist = fileSysItem["whitelist"].([]string)
-				}
-			}
-			if item["kubernetesenforcement"] != nil {
-				rule.KubernetesEnforcement = item["kubernetesenforcement"].(bool)
-			}
-			if item["modified"] != nil {
-				rule.Modified = item["modified"].(string)
-			}
-			if item["name"] != nil {
-				rule.Name = item["name"].(string)
-			}
-			if item["network"] != nil {
-				networkSet := item["network"].(interface{})
-				networkItem := networkSet.(map[string]interface{})
-				if networkItem["blacklistIPs"] != nil {
-					rule.Network.BlacklistIPs = networkItem["blacklistIPs"].([]string)
-				}
-
-				if networkItem["blacklistListeningPorts"] != nil {
-					blacklistListenPorts := networkItem["blacklistListeningPorts"].([]interface{})
-					rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(blacklistListenPorts))
-					if len(blacklistListenPorts) > 0 {
-						for i := 0; i < len(blacklistListenPorts); i++ {
-							rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[i]))
-						}
-					}
-				}
-
-				if networkItem["blacklistOutboundPorts"] != nil {
-					blacklistOutPorts := networkItem["blacklistOutboundPorts"].([]interface{})
-					rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(blacklistOutPorts))
-					if len(blacklistOutPorts) > 0 {
-						for i := 0; i < len(blacklistOutPorts); i++ {
-							rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[i]))
-						}
-					}
-				}
-				if networkItem["blacklistOutboundPorts"] != nil {
-					rule.Network.DetectPortScan = networkItem["detectPortScan"].(bool)
-				}
-				if networkItem["effect"] != nil {
-					rule.Network.Effect = networkItem["effect"].(string)
-				}
-				if networkItem["skipModifiedProc"] != nil {
-					rule.Network.SkipModifiedProc = networkItem["skipModifiedProc"].(bool)
-				}
-				if networkItem["skipRawSockets"] != nil {
-					rule.Network.SkipRawSockets = networkItem["skipRawSockets"].(bool)
-				}
-				if networkItem["whitelistIPs"] != nil {
-					rule.Network.WhitelistIPs = networkItem["whitelistIPs"].([]string)
-				}
-
-				if networkItem["whitelistListeningPorts"] != nil {
-					whitelistListenPorts := networkItem["whitelistListeningPorts"].([]interface{})
-					rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(whitelistListenPorts))
-					if len(whitelistListenPorts) > 0 {
-						for i := 0; i < len(whitelistListenPorts); i++ {
-							rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[i]))
-						}
-					}
-				}
-
-				if networkItem["whitelistOutboundPorts"] != nil {
-					whitelistOutPorts := networkItem["whitelistOutboundPorts"].([]interface{})
-					rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(whitelistOutPorts))
-					if len(whitelistOutPorts) > 0 {
-						for i := 0; i < len(whitelistOutPorts); i++ {
-							rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[i]))
-						}
-					}
-				}
-			}
-			if item["notes"] != nil {
-				rule.Notes = item["notes"].(string)
-			}
-			if item["owner"] != nil {
-				rule.Owner = item["owner"].(string)
-			}
-			if item["previousname"] != nil {
-				rule.PreviousName = item["previousname"].(string)
-			}
-			if item["processes"] != nil {
-				processSet := item["processes"].(interface{})
-				processItem := processSet.(map[string]interface{})
-
-				rule.Processes = policy.Processes{}
-
-				if processItem["blacklist"] != nil {
-					rule.Processes.Blacklist = processItem["blacklist"].([]string)
-				}
-				if processItem["blockAllBinaries"] != nil {
-					rule.Processes.BlockAllBinaries = processItem["blockAllBinaries"].(bool)
-				}
-				if processItem["checkCryptoMiners"] != nil {
-					rule.Processes.CheckCryptoMiners = processItem["checkCryptoMiners"].(bool)
-				}
-				if processItem["checkLateralMovement"] != nil {
-					rule.Processes.CheckLateralMovement = processItem["checkLateralMovement"].(bool)
-				}
-				if processItem["checkNewBinaries"] != nil {
-					rule.Processes.CheckNewBinaries = processItem["checkNewBinaries"].(bool)
-				}
-				if processItem["checkParentChild"] != nil {
-					rule.Processes.CheckParentChild = processItem["checkParentChild"].(bool)
-				}
-				if processItem["checkSuidBinaries"] != nil {
-					rule.Processes.CheckSuidBinaries = processItem["checkSuidBinaries"].(bool)
-				}
-				if processItem["effect"] != nil {
-					rule.Processes.Effect = processItem["effect"].(string)
-				}
-				if processItem["skipModified"] != nil {
-					rule.Processes.SkipModified = processItem["skipModified"].(bool)
-				}
-				if processItem["skipReverseShell"] != nil {
-					rule.Processes.SkipReverseShell = processItem["skipReverseShell"].(bool)
-				}
-				if processItem["whitelist"] != nil {
-					rule.Processes.Whitelist = processItem["whitelist"].([]string)
-				}
-			}
-			if item["wildfireanalysis"] != nil {
-				rule.WildFireAnalysis = item["wildfireanalysis"].(string)
-			}
-
-			ans.Rules = append(ans.Rules, rule)
-		}
-	}
-
-	return ans
+func parsePolicyRuntimeContainer(rd *schema.ResourceData, policyID string) policies.Policy {
+	return parsePolicy(rd, policyID, "")
 }
 
-func savePolicy(d *schema.ResourceData, obj policyRuntimeContainer.Policy) {
-	d.Set("_id", obj.PolicyId)
-	d.Set("learningdisabled", obj.LearningDisabled)
-	d.Set("rule", obj.Rules)
+func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	obj := parsePolicyRuntimeContainer(d, "")
 
-	// Rule.
-	if len(obj.Rules) > 0 {
-		rv := map[string]interface{}{
-			"advancedprotection":       obj.Rules[0].AdvancedProtection,
-			"cloudmetadataenforcement": obj.Rules[0].CloudMetadataEnforcement,
-			"collections":              obj.Rules[0].Collections,
-			"customrules":              obj.Rules[0].CustomRules,
-			"disabled":                 obj.Rules[0].Disabled,
-			"dns":                      obj.Rules[0].Dns,
-			"filesystem":               obj.Rules[0].Filesystem,
-			"kubernetesenforcement":    obj.Rules[0].KubernetesEnforcement,
-			"modified":                 obj.Rules[0].Modified,
-			"name":                     obj.Rules[0].Name,
-			"network":                  obj.Rules[0].Network,
-			"notes":                    obj.Rules[0].Notes,
-			"owner":                    obj.Rules[0].Owner,
-			"previousname":             obj.Rules[0].PreviousName,
-			"processes":                obj.Rules[0].Processes,
-			"wildfireanalysis":         obj.Rules[0].WildFireAnalysis,
-		}
-
-		if err := d.Set("rule", []interface{}{rv}); err != nil {
-			log.Printf("[WARN] Error setting 'rule' for %q: %s", d.Id(), err)
-		}
-	}
-
-}
-
-func createPolicy(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
-	obj := parsePolicy(d, "")
-
-	if err := policyRuntimeContainer.Create(client, obj); err != nil {
+	if err := policies.Update(*client, policies.RuntimeContainerEndpoint, obj); err != nil {
 		return err
 	}
 
-	PollApiUntilSuccess(func() error {
-		_, err := policyRuntimeContainer.Get(client)
-		return err
-	})
-
-	pol, err := policyRuntimeContainer.Get(client)
+	pol, err := policies.Get(*client, policies.RuntimeContainerEndpoint)
 	if err != nil {
 		return err
 	}
 
 	d.SetId(pol.PolicyId)
-	return readPolicy(d, meta)
+	return readPolicyRuntimeContainer(d, meta)
 }
 
-func readPolicy(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
 
-	obj, err := policyRuntimeContainer.Get(client)
+	obj, err := policies.Get(*client, policies.RuntimeContainerEndpoint)
 	if err != nil {
-		if err == pc.ObjectNotFoundError {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	savePolicy(d, obj)
+	d.Set("_id", policyTypeRuntimeContainer)
+	d.Set("learningdisabled", obj.LearningDisabled)
+	d.Set("rule", obj.Rules)
 
 	return nil
 }
 
-func updatePolicy(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
 	id := d.Id()
-	obj := parsePolicy(d, id)
+	obj := parsePolicyRuntimeContainer(d, id)
 
-	if err := policyRuntimeContainer.Update(client, obj); err != nil {
+	if err := policies.Update(*client, policies.RuntimeContainerEndpoint, obj); err != nil {
 		return err
 	}
 
-	return readPolicy(d, meta)
+	return readPolicyRuntimeContainer(d, meta)
 }
 
-func deletePolicy(d *schema.ResourceData, meta interface{}) error {
-	/*	client := meta.(*pc.Client)
+func deletePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+	/*	client := meta.(*pcc.Client)
 		id := d.Id()
 
-		err := policy.Delete(client, id)
+		err := policies.Delete(client, id)
 		if err != nil {
-			if err != pc.ObjectNotFoundError {
+			if err != pcc.ObjectNotFoundError {
 				return err
 			}
 		}*/

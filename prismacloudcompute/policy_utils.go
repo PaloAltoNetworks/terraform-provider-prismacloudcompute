@@ -1,29 +1,56 @@
 package prismacloudcompute
 
 import (
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
-	"strconv"
 	"encoding/json"
+	"strconv"
+
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
 )
 
-func parseRules(rules []interface{}) []policy.Rule {
-	rulesList := make([]policy.Rule, 0, len(rules))
+const (
+	policyTypeComplianceCIImages    = "ciImagesCompliance"
+	policyTypeComplianceContainer   = "containerCompliance"
+	policyTypeComplianceHost        = "hostCompliance"
+	policyTypeRuntimeContainer      = "containerRuntime"
+	policyTypeRuntimeHost           = "hostRuntime"
+	policyTypeVulnerabilityCIImages = "ciImagesVulnerability"
+	policyTypeVulnerabilityHost     = "hostVulnerability"
+	policyTypeVulnerabilityImages   = "containerVulnerability"
+)
+
+func parsePolicy(rd *schema.ResourceData, policyID, policyType string) policies.Policy {
+	policy := policies.Policy{
+		PolicyId:   policyID,
+		PolicyType: policyType,
+		Rules:      parseRules(rd.Get("rule").([]interface{})),
+	}
+
+	if rd.Get("learningdisabled") != nil {
+		policy.LearningDisabled = rd.Get("learningdisabled").(bool)
+	}
+
+	return policy
+}
+
+func parseRules(rules []interface{}) []policies.Rule {
+	rulesList := make([]policies.Rule, 0, len(rules))
 	if len(rules) > 0 {
 		for i := 0; i < len(rules); i++ {
 			item := rules[i].(map[string]interface{})
 
-			rule := policy.Rule{}
+			rule := policies.Rule{}
 
 			if item["alertthreshold"] != nil {
-				thresholdInterface := item["alertthreshold"].(interface{})
+				thresholdInterface := item["alertthreshold"]
 				rule.AlertThreshold = getThreshold(thresholdInterface)
 			}
 			if item["antimalware"] != nil {
-				antiMalwareSet := item["antimalware"].(interface{})
+				antiMalwareSet := item["antimalware"]
 				antiMalwareItem := antiMalwareSet.(map[string]interface{})
 
-				rule.AntiMalware = policy.AntiMalware{}
+				rule.AntiMalware = policies.AntiMalware{}
 				if antiMalwareItem["allowedprocesses"] != nil {
 					rule.AntiMalware.AllowedProcesses = antiMalwareItem["allowedprocesses"].([]string)
 				}
@@ -36,10 +63,10 @@ func parseRules(rules []interface{}) []policy.Rule {
 				if antiMalwareItem["deniedprocesses"] != nil {
 					deniedProcessesString := antiMalwareItem["deniedprocesses"].(string)
 					if deniedProcessesString != "" {
-						var deniedProcesses policy.DeniedProcesses
+						var deniedProcesses policies.DeniedProcesses
 						if err := json.Unmarshal([]byte(deniedProcessesString), &deniedProcesses); err != nil {
-					        	panic(err)
-					        }
+							panic(err)
+						}
 						rule.AntiMalware.DeniedProcesses = deniedProcesses
 					}
 				}
@@ -81,7 +108,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 			}
 			if item["blockthreshold"] != nil {
-				thresholdInterface := item["blockthreshold"].(interface{})
+				thresholdInterface := item["blockthreshold"]
 				rule.BlockThreshold = getThreshold(thresholdInterface)
 			}
 
@@ -93,42 +120,38 @@ func parseRules(rules []interface{}) []policy.Rule {
 			}
 
 			if item["collections"] != nil {
-				colls := item["collections"].([]interface{})
-
-				rule.Collections = make([]collection.Collection, 0, len(colls))
-				if len(colls) > 0 {
-					collItem := colls[0].(map[string]interface{})
-
-					rule.Collections = append(rule.Collections, getCollection(collItem))
+				colls := parseStringArray(item["collections"].([]interface{}))
+				for _, v := range colls {
+					coll := collections.Collection{Name: v}
+					rule.Collections = append(rule.Collections, coll)
 				}
 			}
-			if item["condition"] != nil {
-				cond := item["condition"].(map[string]interface{})
 
-				condition := policy.Condition{}
+			if item["conditions"] != nil &&
+				len(item["conditions"].([]interface{})) > 0 &&
+				item["conditions"].([]interface{})[0] != nil {
+				presentCondition := item["conditions"].([]interface{})[0].(map[string]interface{})
+				condition := policies.Condition{}
 
-				if cond["vulnerabilities"] != nil {
-					vulnString := cond["vulnerabilities"].(string)
-					if vulnString != "" {
-						var vulnArray []policy.Vulnerability
-						if err := json.Unmarshal([]byte(vulnString), &vulnArray); err != nil {
-        	panic(err)
-        }
-						for i := 0; i < len(vulnArray); i++ {
-						vuln := vulnArray[i]
-						condition.Vulnerabilities = append(condition.Vulnerabilities, vuln)
-						}
+				if presentCondition["compliance_check"] != nil {
+					complianceChecks := presentCondition["compliance_check"].(*schema.Set).List()
+					for _, v := range complianceChecks {
+						condition.Vulnerabilities = append(condition.Vulnerabilities, policies.Vulnerability{
+							Block: v.(map[string]interface{})["block"].(bool),
+							Id:    v.(map[string]interface{})["id"].(int),
+						})
 					}
+					rule.Condition = condition
 				}
 			}
 			if item["customrules"] != nil {
 				custRules := item["customrules"].([]interface{})
-				rule.CustomRules = make([]policy.CustomRule, 0, len(custRules))
+				rule.CustomRules = make([]policies.CustomRule, 0, len(custRules))
 				if len(custRules) > 0 {
 					for i := 0; i < len(custRules); i++ {
 						custRuleItem := custRules[i].(map[string]interface{})
 
-						custRule := policy.CustomRule{
+						custRule := policies.CustomRule{
 							Id:     custRuleItem["_id"].(int),
 							Action: custRuleItem["action"].([]string),
 							Effect: custRuleItem["effect"].(string),
@@ -141,10 +164,10 @@ func parseRules(rules []interface{}) []policy.Rule {
 				rule.Disabled = item["disabled"].(bool)
 			}
 			if item["dns"] != nil {
-				dnsSet := item["dns"].(interface{})
+				dnsSet := item["dns"]
 				dnsItem := dnsSet.(map[string]interface{})
 
-				rule.Dns = policy.Dns{}
+				rule.Dns = policies.Dns{}
 				if dnsItem["blacklist"] != nil {
 					rule.Dns.Blacklist = dnsItem["blacklist"].([]string)
 				}
@@ -168,11 +191,15 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 			}
 
+			if item["effect"] != nil {
+				rule.Effect = item["effect"].(string)
+			}
+
 			if item["filesystem"] != nil {
-				fileSysSet := item["filesystem"].(interface{})
+				fileSysSet := item["filesystem"]
 				fileSysItem := fileSysSet.(map[string]interface{})
 
-				rule.Filesystem = policy.Filesystem{}
+				rule.Filesystem = policies.Filesystem{}
 				if fileSysItem["backdoorFiles"] != nil {
 					rule.Filesystem.BackdoorFiles = fileSysItem["backdoorFiles"].(bool)
 				}
@@ -200,10 +227,10 @@ func parseRules(rules []interface{}) []policy.Rule {
 			}
 			if item["fileintegrityrules"] != nil {
 				fileIntegrityRulesSet := item["fileintegrityrules"].([]interface{})
-				if (len(fileIntegrityRulesSet) > 0) {
+				if len(fileIntegrityRulesSet) > 0 {
 					fileIntegrityRulesItem := fileIntegrityRulesSet[0].(map[string]interface{})
 
-					rule.FileIntegrityRules = []policy.FileIntegrityRule{}
+					rule.FileIntegrityRules = []policies.FileIntegrityRules{}
 					if fileIntegrityRulesItem["dir"] != nil {
 						rule.FileIntegrityRules[0].Dir = fileIntegrityRulesItem["dir"].(bool)
 					}
@@ -231,9 +258,9 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 			}
 			if item["forensic"] != nil {
-				forensicSet := item["forensic"].(interface{})
+				forensicSet := item["forensic"]
 				forensicItem := forensicSet.(map[string]interface{})
-				rule.Forensic = policy.Forensic{}
+				rule.Forensic = policies.Forensic{}
 				if forensicItem["activitiesdisabled"] != nil {
 					activitiesDisabled, err := strconv.ParseBool(forensicItem["activitiesdisabled"].(string))
 					if err == nil {
@@ -273,7 +300,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 			}
 			if item["loginspectionrules"] != nil {
 				logInspectionRulesSet := item["loginspectionrules"].([]interface{})
-				if (len(logInspectionRulesSet) > 0) {
+				if len(logInspectionRulesSet) > 0 {
 					logInspectionRulesItem := logInspectionRulesSet[0].(map[string]interface{})
 					if logInspectionRulesItem["path"] != nil {
 						rule.LogInspectionRules[0].Path = logInspectionRulesItem["path"].(string)
@@ -290,16 +317,16 @@ func parseRules(rules []interface{}) []policy.Rule {
 				rule.Name = item["name"].(string)
 			}
 			if item["network"] != nil {
-				networkSet := item["network"].(interface{})
+				networkSet := item["network"]
 				networkItem := networkSet.(map[string]interface{})
-				rule.Network = policy.Network{}
+				rule.Network = policies.Network{}
 				if networkItem["blacklistips"] != nil {
 					rule.Network.BlacklistIPs = networkItem["blacklistips"].([]string)
 				}
 
 				if networkItem["blacklistlisteningports"] != nil {
 					blacklistListenPorts := networkItem["blacklistlisteningports"].([]interface{})
-					rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(blacklistListenPorts))
+					rule.Network.BlacklistListeningPorts = make([]policies.ListPort, 0, len(blacklistListenPorts))
 					if len(blacklistListenPorts) > 0 {
 						for i := 0; i < len(blacklistListenPorts); i++ {
 							rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[i]))
@@ -309,7 +336,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 
 				if networkItem["blacklistoutboundports"] != nil {
 					blacklistOutPorts := networkItem["blacklistoutboundports"].([]interface{})
-					rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(blacklistOutPorts))
+					rule.Network.BlacklistOutboundPorts = make([]policies.ListPort, 0, len(blacklistOutPorts))
 					if len(blacklistOutPorts) > 0 {
 						for i := 0; i < len(blacklistOutPorts); i++ {
 							rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[i]))
@@ -334,7 +361,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 
 				if networkItem["whitelistlisteningports"] != nil {
 					whitelistListenPorts := networkItem["whitelistlisteningports"].([]interface{})
-					rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(whitelistListenPorts))
+					rule.Network.WhitelistListeningPorts = make([]policies.ListPort, 0, len(whitelistListenPorts))
 					if len(whitelistListenPorts) > 0 {
 						for i := 0; i < len(whitelistListenPorts); i++ {
 							rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[i]))
@@ -344,7 +371,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 
 				if networkItem["whitelistoutboundports"] != nil {
 					whitelistOutPorts := networkItem["whitelistoutboundports"].([]interface{})
-					rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(whitelistOutPorts))
+					rule.Network.WhitelistOutboundPorts = make([]policies.ListPort, 0, len(whitelistOutPorts))
 					if len(whitelistOutPorts) > 0 {
 						for i := 0; i < len(whitelistOutPorts); i++ {
 							rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[i]))
@@ -359,7 +386,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 				if networkItem["deniedlisteningports"] != nil {
 					deniedListeningPorts := networkItem["deniedlisteningports"].([]interface{})
-					rule.Network.DeniedListeningPorts = make([]policy.ListPort, 0, len(deniedListeningPorts))
+					rule.Network.DeniedListeningPorts = make([]policies.ListPort, 0, len(deniedListeningPorts))
 					if len(deniedListeningPorts) > 0 {
 						for i := 0; i < len(deniedListeningPorts); i++ {
 							rule.Network.DeniedListeningPorts = append(rule.Network.DeniedListeningPorts, getListPort(deniedListeningPorts[i]))
@@ -371,7 +398,7 @@ func parseRules(rules []interface{}) []policy.Rule {
 				}
 				if networkItem["deniedoutboundports"] != nil {
 					deniedOutboundPorts := networkItem["deniedoutboundports"].([]interface{})
-					rule.Network.DeniedOutboundPorts = make([]policy.ListPort, 0, len(deniedOutboundPorts))
+					rule.Network.DeniedOutboundPorts = make([]policies.ListPort, 0, len(deniedOutboundPorts))
 					if len(deniedOutboundPorts) > 0 {
 						for i := 0; i < len(deniedOutboundPorts); i++ {
 							rule.Network.DeniedOutboundPorts = append(rule.Network.DeniedOutboundPorts, getListPort(deniedOutboundPorts[i]))
@@ -395,10 +422,10 @@ func parseRules(rules []interface{}) []policy.Rule {
 				rule.PreviousName = item["previousname"].(string)
 			}
 			if item["processes"] != nil {
-				processSet := item["processes"].(interface{})
+				processSet := item["processes"]
 				processItem := processSet.(map[string]interface{})
 
-				rule.Processes = policy.Processes{}
+				rule.Processes = policies.Processes{}
 
 				if processItem["blacklist"] != nil {
 					rule.Processes.Blacklist = processItem["blacklist"].([]string)
@@ -445,65 +472,10 @@ func parseRules(rules []interface{}) []policy.Rule {
 	return rulesList
 }
 
-func getCollection(collItem map[string]interface{}) collection.Collection {
-	coll := collection.Collection{
-		Name: collItem["name"].(string),
-	}
-	if collItem["accountIDs"] != nil && len(collItem["accountIDs"].([]interface{})) > 0 {
-		coll.AccountIDs = collItem["accountIDs"].([]interface{})[0].([]string)
-	}
-	if collItem["appIDs"] != nil && len(collItem["appIDs"].([]interface{})) > 0 {
-		coll.AppIDs = collItem["appIDs"].([]interface{})[0].([]string)
-	}
-	if collItem["clusters"] != nil && len(collItem["clusters"].([]interface{})) > 0 {
-		coll.Clusters = collItem["clusters"].([]interface{})[0].([]string)
-	}
-	if collItem["codeRepos"] != nil && len(collItem["codeRepos"].([]interface{})) > 0 {
-		coll.CodeRepos = collItem["codeRepos"].([]interface{})[0].([]string)
-	}
-	if collItem["color"] != nil {
-		coll.Color = collItem["color"].(string)
-	}
-	if collItem["containers"] != nil && len(collItem["containers"].([]interface{})) > 0 {
-		coll.Containers = collItem["containers"].([]interface{})[0].([]string)
-	}
-	if collItem["description"] != nil {
-		coll.Description = collItem["description"].(string)
-	}
-	if collItem["functions"] != nil && len(collItem["functions"].([]interface{})) > 0 {
-		coll.Functions = collItem["functions"].([]interface{})[0].([]string)
-	}
-	if collItem["hosts"] != nil && len(collItem["hosts"].([]interface{})) > 0 {
-		coll.Hosts = collItem["hosts"].([]interface{})[0].([]string)
-	}
-	if collItem["images"] != nil && len(collItem["images"].([]interface{})) > 0 {
-		coll.Images = collItem["images"].([]interface{})[0].([]string)
-	}
-	if collItem["labels"] != nil && len(collItem["labels"].([]interface{})) > 0 {
-		coll.Labels = collItem["labels"].([]interface{})[0].([]string)
-	}
-	if collItem["modified"] != nil {
-		coll.Modified = collItem["modified"].(string)
-	}
-	if collItem["namespaces"] != nil && len(collItem["namespaces"].([]interface{})) > 0 {
-		coll.Namespaces = collItem["namespaces"].([]interface{})[0].([]string)
-	}
-	if collItem["owner"] != nil {
-		coll.Owner = collItem["owner"].(string)
-	}
-	if collItem["prisma"] != nil {
-		coll.Prisma = collItem["prisma"].(interface{}).(bool)
-	}
-	if collItem["system"] != nil {
-		coll.System = collItem["system"].(interface{}).(bool)
-	}
-	return coll
-}
-
-func getListPort(listPortInterface interface{}) policy.ListPort {
+func getListPort(listPortInterface interface{}) policies.ListPort {
 	listPortItem := listPortInterface.(map[string]interface{})
 
-	listPort := policy.ListPort{
+	listPort := policies.ListPort{
 		Deny:  listPortItem["deny"].(bool),
 		End:   listPortItem["end"].(int),
 		Start: listPortItem["start"].(int),
@@ -511,10 +483,10 @@ func getListPort(listPortInterface interface{}) policy.ListPort {
 	return listPort
 }
 
-func getThreshold(thresholdInterface interface{}) policy.Threshold {
+func getThreshold(thresholdInterface interface{}) policies.Threshold {
 	thresholdItem := thresholdInterface.(map[string]interface{})
 
-	threshold := policy.Threshold{}
+	threshold := policies.Threshold{}
 	if thresholdItem["enabled"] != nil {
 		enbl, err := strconv.ParseBool(thresholdItem["enabled"].(string))
 		if err == nil {

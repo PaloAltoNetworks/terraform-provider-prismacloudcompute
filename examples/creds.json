@@ -1,7 +1,6 @@
 {
-	"url": "localhost",
-	"username": "PCC_USERNAME",
-	"password": "PCC_PASSWORD",
-	"port": 8083,
-	"skip_ssl_cert_verification": true
+	"console_url": "https://example.com:8083",
+	"username": "username",
+	"password": "password",
+	"skip_cert_verification": true
 }

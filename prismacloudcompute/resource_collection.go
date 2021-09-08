@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -147,8 +147,17 @@ func resourceCollection() *schema.Resource {
 	}
 }
 
-func parseCollection(d *schema.ResourceData, id string) collection.Collection {
-	ans := collection.Collection{
+func StringSliceToSet(list []string) *schema.Set {
+	items := make([]interface{}, len(list))
+	for i := range list {
+		items[i] = list[i]
+	}
+
+	return schema.NewSet(schema.HashString, items)
+}
+
+func parseCollection(d *schema.ResourceData, id string) collections.Collection {
+	ans := collections.Collection{
 		Name: d.Get("name").(string),
 	}
 	if d.Get("accountids") != nil && len(d.Get("accountids").([]interface{})) > 0 {
@@ -202,28 +211,16 @@ func parseCollection(d *schema.ResourceData, id string) collection.Collection {
 	} else {
 		ans.Labels = []string{"*"}
 	}
-	// if d.Get("modified") != nil {
-	// 	ans.Modified = d.Get("modified").(string)
-	// }
 	if d.Get("namespaces") != nil && len(d.Get("namespaces").([]interface{})) > 0 {
 		ans.Namespaces = parseStringArray(d.Get("namespaces").([]interface{}))
 	} else {
 		ans.Namespaces = []string{"*"}
 	}
-	if d.Get("owner") != nil {
-		ans.Owner = d.Get("owner").(string)
-	}
-	// if d.Get("prisma") != nil {
-	// 	ans.Prisma = d.Get("prisma").(interface{}).(bool)
-	// }
-	// if d.Get("system") != nil {
-	// 	ans.System = d.Get("system").(interface{}).(bool)
-	// }
 
 	return ans
 }
 
-func saveCollection(d *schema.ResourceData, obj collection.Collection) {
+func saveCollection(d *schema.ResourceData, obj collections.Collection) {
 	if err := d.Set("accountids", StringSliceToSet(obj.AccountIDs)); err != nil {
 		log.Printf("[WARN] Error setting 'accountIDs' for %q: %s", d.Id(), err)
 	}
@@ -253,60 +250,45 @@ func saveCollection(d *schema.ResourceData, obj collection.Collection) {
 	if err := d.Set("labels", StringSliceToSet(obj.Labels)); err != nil {
 		log.Printf("[WARN] Error setting 'labels' for %q: %s", d.Id(), err)
 	}
-	// d.Set("modified", obj.Modified)
 	d.Set("name", obj.Name)
 	if err := d.Set("namespaces", StringSliceToSet(obj.Namespaces)); err != nil {
 		log.Printf("[WARN] Error setting 'namespaces' for %q: %s", d.Id(), err)
 	}
-	d.Set("owner", obj.Owner)
-	// d.Set("prisma", obj.Prisma)
-	// d.Set("system", obj.System)
 }
 
 func createCollection(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 	obj := parseCollection(d, "")
 
-	if err := collection.Create(client, obj); err != nil {
+	if err := collections.Create(*client, obj); err != nil {
 		log.Printf("Failed to create collection: %s\n", err)
 		return err
 	}
-
-	PollApiUntilSuccess(func() error {
-		_, err := collection.Get(client, obj.Name)
-		log.Printf("Failed to get collection %s: %s\n", obj.Name, err)
-		return err
-	})
 
 	d.SetId(obj.Name)
 	return readCollection(d, meta)
 }
 
 func readCollection(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
-	obj := parseCollection(d, "")
+	client := meta.(*pcc.Client)
 	id := d.Id()
 
-	obj, err := collection.Get(client, id)
+	obj, err := collections.Get(*client, id)
 	if err != nil {
-		if err == pc.ObjectNotFoundError {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	saveCollection(d, obj)
+	saveCollection(d, *obj)
 
 	return nil
 }
 
 func updateCollection(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 	id := d.Id()
 	obj := parseCollection(d, id)
 
-	if err := collection.Update(client, obj); err != nil {
+	if err := collections.Update(*client, obj); err != nil {
 		return err
 	}
 
@@ -314,14 +296,12 @@ func updateCollection(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deleteCollection(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 	id := d.Id()
 
-	err := collection.Delete(client, id)
+	err := collections.Delete(*client, id)
 	if err != nil {
-		if err != pc.ObjectNotFoundError {
-			return err
-		}
+		return err
 	}
 
 	d.SetId("")

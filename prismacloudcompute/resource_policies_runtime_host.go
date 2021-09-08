@@ -1,11 +1,10 @@
 package prismacloudcompute
 
 import (
-	"log"
 	"time"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyRuntimeHost"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -29,17 +28,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "ID of the policy set.",
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  policyTypeRuntimeHost,
 			},
 			"owner": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Policy owner",
-				Default:     true,
+				Default:     "",
 			},
-			"rules": {
+			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Rules in the policies.",
@@ -75,7 +74,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema {
+											Schema: map[string]*schema.Schema{
 												"effect": {
 													Type:        schema.TypeString,
 													Optional:    true,
@@ -154,131 +153,13 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									},
 								},
 							},
-						},								
+						},
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of collections. Used to scope the rule.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-
-									// Output.
-									"accountids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of account IDs.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"appids": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of application IDs.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"clusters": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of Kubernetes cluster names.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"coderepos": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of code repositories.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"color": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Hex color code for a collection.",
-									},
-									"containers": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of containers.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "A free-form text description of the collection.",
-									},
-									"functions": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of functions.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"hosts": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of hosts.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"images": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of images.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"labels": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of labels.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"modified": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Date/time when the collection was last modified.",
-									},
-									"name": {
-										Type:        schema.TypeString,
-										Required:    true,
-										Description: "Unique collection name.",
-									},
-									"namespaces": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of Kubernetes namespaces.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"owner": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "User who created or last modified the collection.",
-									},
-									"prisma": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true' this collection originates from Prisma Cloud.",
-									},
-									"system": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
-									},
-								},
+							Description: "List of collections used to scope the rule.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
 							},
 						},
 						"customrules": {
@@ -322,7 +203,15 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "The DNS runtime rule",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"blacklist": {
+									"allow": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of allowed domain names (e.g., *.gmail.com, *.s3.amazon.com).",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"deny": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of domain names (e.g., www.bad-url.com, *.bad-url.com).",
@@ -335,26 +224,10 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"effect": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The effect used in the runtime rule. Can be set to 'block', 'prevent', 'alert', 'disable'.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 									"intelligencefeed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
-									},
-									"whitelist": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "List of allowed domain names (e.g., *.gmail.com, *.s3.amazon.com).",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
 									},
 								},
 							},
@@ -365,11 +238,6 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "file integrity monitoring rules..",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"dir": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates that the path is a directory.",
-									},
 									"exclusions": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -475,11 +343,6 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"modified": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Date/time when the rule was last modified.",
-						},
 						"name": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -491,15 +354,20 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Represents the restrictions or suppression for networking.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"blacklistips": {
+									"allowedoutboundips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-list of IP addresses.",
+										Description: "Allow-listed IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
 									},
-									"blacklistlisteningports": {
+									"customfeed": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: "Effect that will be used in the runtime rule.",
+									},
+									"deniedlisteningports": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of listening ports.",
@@ -523,7 +391,15 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"blacklistoutboundports": {
+									"deniedoutboundips": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Deny-list of IP addresses.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"deniedoutboundports": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-listed outbound ports.",
@@ -547,99 +423,15 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"customfeed": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
-									},
-									"detectportscan": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true' port scanning detection is enabled.",
-									},
 									"denylisteffect": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"effect": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The effect used in the runtime rule. Can be set to 'block', 'prevent', 'alert', 'disable'.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
 									"intelligencefeed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
-									},
-									"skipmodifiedproc": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', Prisma Cloud can detect malicious networking activity from modified processes.",
-									},
-									"skiprawsockets": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "If set to 'true', raw socket detection will be skipped.",
-									},
-									"whitelistips": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "Allow-listed IP addresses.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"whitelistlisteningports": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "Allow-listed listening ports.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"deny": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
-												},
-												"end": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "end",
-												},
-												"start": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "start",
-												},
-											},
-										},
-									},
-									"whitelistoutboundports": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "Allow-listed outbound ports.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"deny": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
-												},
-												"end": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "end",
-												},
-												"start": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "start",
-												},
-											},
-										},
 									},
 								},
 							},
@@ -649,16 +441,6 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Optional:    true,
 							Description: "A free-form text description of the collection.",
 						},
-						"owner": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "User who created or last modified the rule.",
-						},
-						"previousname": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Previous name of the rule. Required for rule renaming.",
-						},
 					},
 				},
 			},
@@ -666,65 +448,19 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 	}
 }
 
-func parsePolicyRuntimeHost(d *schema.ResourceData, id string) policyRuntimeHost.Policy {
-	ans := policyRuntimeHost.Policy{
-		PolicyId:         id,
-		Owner: 	d.Get("owner").(string),
-	}
-
-	rules := d.Get("rules").([]interface{})
-	ans.Rules = parseRules(rules)
-
-	return ans
-}
-
-func savePolicyRuntimeHost(d *schema.ResourceData, obj policyRuntimeHost.Policy) {
-	d.Set("_id", obj.PolicyId)
-	d.Set("owner", obj.Owner)
-	d.Set("rules", obj.Rules)
-
-	// Rule.
-	if len(obj.Rules) > 0 {
-		rv := map[string]interface{}{
-			"advancedprotection":       obj.Rules[0].AdvancedProtection,
-			"cloudmetadataenforcement": obj.Rules[0].CloudMetadataEnforcement,
-			"collections":              obj.Rules[0].Collections,
-			"customrules":              obj.Rules[0].CustomRules,
-			"disabled":                 obj.Rules[0].Disabled,
-			"dns":                      obj.Rules[0].Dns,
-			"filesystem":               obj.Rules[0].Filesystem,
-			"kubernetesenforcement":    obj.Rules[0].KubernetesEnforcement,
-			"modified":                 obj.Rules[0].Modified,
-			"name":                     obj.Rules[0].Name,
-			"network":                  obj.Rules[0].Network,
-			"notes":                    obj.Rules[0].Notes,
-			"owner":                    obj.Rules[0].Owner,
-			"previousname":             obj.Rules[0].PreviousName,
-			"processes":                obj.Rules[0].Processes,
-			"wildfireanalysis":         obj.Rules[0].WildFireAnalysis,
-		}
-
-		if err := d.Set("rules", []interface{}{rv}); err != nil {
-			log.Printf("[WARN] Error setting 'rules' for %q: %s", d.Id(), err)
-		}
-	}
-
+func parsePolicyRuntimeHost(rd *schema.ResourceData, policyID string) policies.Policy {
+	return parsePolicy(rd, policyID, "")
 }
 
 func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 	obj := parsePolicyRuntimeHost(d, "")
 
-	if err := policyRuntimeHost.Create(client, obj); err != nil {
+	if err := policies.Update(*client, policies.RuntimeHostEndpoint, obj); err != nil {
 		return err
 	}
 
-	PollApiUntilSuccess(func() error {
-		_, err := policyRuntimeHost.Get(client)
-		return err
-	})
-
-	pol, err := policyRuntimeHost.Get(client)
+	pol, err := policies.Get(*client, policies.RuntimeHostEndpoint)
 	if err != nil {
 		return err
 	}
@@ -734,28 +470,25 @@ func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 }
 
 func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 
-	obj, err := policyRuntimeHost.Get(client)
+	obj, err := policies.Get(*client, policies.RuntimeHostEndpoint)
 	if err != nil {
-		if err == pc.ObjectNotFoundError {
-			d.SetId("")
-			return nil
-		}
 		return err
 	}
 
-	savePolicyRuntimeHost(d, obj)
+	d.Set("_id", policyTypeRuntimeHost)
+	d.Set("rules", obj.Rules)
 
 	return nil
 }
 
 func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 	id := d.Id()
 	obj := parsePolicyRuntimeHost(d, id)
 
-	if err := policyRuntimeHost.Update(client, obj); err != nil {
+	if err := policies.Update(*client, policies.RuntimeHostEndpoint, obj); err != nil {
 		return err
 	}
 
@@ -763,12 +496,12 @@ func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deletePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
-	/*	client := meta.(*pc.Client)
+	/*	client := meta.(*pcc.Client)
 		id := d.Id()
 
 		err := policy.Delete(client, id)
 		if err != nil {
-			if err != pc.ObjectNotFoundError {
+			if err != pcc.ObjectNotFoundError {
 				return err
 			}
 		}*/
