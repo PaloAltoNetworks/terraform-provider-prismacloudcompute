@@ -5,8 +5,6 @@ import (
 	"os"
 	"testing"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
@@ -21,22 +19,22 @@ var (
 	sessionTimeoutOrig, sessionTimeout int
 )
 
-func init() {
-	fmt.Printf("\n\nStart Provider init()\n")
-	var err error
+// func init() {
+// 	fmt.Printf("\n\nStart Provider init()\n")
+// 	var err error
 
-	testAccProvider = Provider().(*schema.Provider)
-	testAccProviders = map[string]terraform.ResourceProvider{
-		"prismacloudcompute": testAccProvider,
-	}
+// 	testAccProvider = Provider().(*schema.Provider)
+// 	testAccProviders = map[string]terraform.ResourceProvider{
+// 		"prismacloudcompute": testAccProvider,
+// 	}
 
-	client := &pc.Client{}
-	if err = client.Initialize(os.Getenv(PrismacloudcomputeJsonConfigFileEnvVar)); err == nil {
-		if err != nil {
-			fmt.Sprintf("Error initializing client")
-		}
-	}
-}
+// 	client := &pcc.Client{}
+// 	if err = client.Initialize(os.Getenv(PrismacloudcomputeJsonConfigFileEnvVar)); err == nil {
+// 		if err != nil {
+// 			fmt.Sprintf("Error initializing client")
+// 		}
+// 	}
+// }
 
 func TestProvider(t *testing.T) {
 	fmt.Printf("\n\nStart Provider TestProvider()\n")

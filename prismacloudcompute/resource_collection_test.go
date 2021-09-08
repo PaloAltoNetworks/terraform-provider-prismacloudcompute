@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +15,7 @@ import (
 
 func TestAccCollectionConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccCollectionConfig")
-	var o collection.Collection
+	var o collections.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccCollectionConfig(t *testing.T) {
 }
 
 func TestAccCollectionNetwork(t *testing.T) {
-	var o collection.Collection
+	var o collections.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccCollectionNetwork(t *testing.T) {
 }
 
 func TestAccCollectionAuditEvent(t *testing.T) {
-	var o collection.Collection
+	var o collections.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccCollectionAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckCollectionExists(n string, o *collection.Collection) resource.TestCheckFunc {
+func testAccCheckCollectionExists(n string, o *collections.Collection) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return fmt.Errorf("What is the name: %s", o.Name)
 
@@ -108,19 +108,19 @@ func testAccCheckCollectionExists(n string, o *collection.Collection) resource.T
 			return fmt.Errorf("Object label Name is not set")
 		}
 
-		client := testAccProvider.Meta().(*pc.Client)
+		client := testAccProvider.Meta().(*pcc.Client)
 		name := rs.Primary.ID
-		lo, err := collection.Get(client, name)
+		lo, err := collections.Get(*client, name)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
-		*o = lo
+		o = lo
 
 		return nil
 	}
 }
 
-func testAccCheckCollectionAttributes(o *collection.Collection, name string, description string, color string) resource.TestCheckFunc {
+func testAccCheckCollectionAttributes(o *collections.Collection, name string, description string, color string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.Name != name {
 			return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)
@@ -141,7 +141,7 @@ func testAccCheckCollectionAttributes(o *collection.Collection, name string, des
 }
 
 func testAccCollectionDestroy(s *terraform.State) error {
-	client := testAccProvider.Meta().(*pc.Client)
+	client := testAccProvider.Meta().(*pcc.Client)
 
 	for _, rs := range s.RootModule().Resources {
 
@@ -151,7 +151,7 @@ func testAccCollectionDestroy(s *terraform.State) error {
 
 		if rs.Primary.ID != "" {
 			name := rs.Primary.ID
-			if err := collection.Delete(client, name); err == nil {
+			if err := collections.Delete(*client, name); err == nil {
 				return fmt.Errorf("Object %q still exists", name)
 			}
 		}

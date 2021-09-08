@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyComplianceCiImages"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +15,7 @@ import (
 
 func TestAccPolicyComplianceCiImagesConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyComplianceCiImagesConfig")
-	var o policyComplianceCiImages.Policy
+	var o policies.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccPolicyComplianceCiImagesConfig(t *testing.T) {
 }
 
 func TestAccPolicyComplianceCiImagesNetwork(t *testing.T) {
-	var o policyComplianceCiImages.Policy
+	var o policies.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccPolicyComplianceCiImagesNetwork(t *testing.T) {
 }
 
 func TestAccPolicyComplianceCiImagesAuditEvent(t *testing.T) {
-	var o policyComplianceCiImages.Policy
+	var o policies.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccPolicyComplianceCiImagesAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckPolicyComplianceCiImagesExists(n string, o *policyComplianceCiImages.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceCiImagesExists(n string, o *policies.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -108,8 +108,8 @@ func testAccCheckPolicyComplianceCiImagesExists(n string, o *policyComplianceCiI
 			return fmt.Errorf("Object label Id is not set")
 		}
 
-		client := testAccProvider.Meta().(*pc.Client)
-		lo, err := policyComplianceCiImages.Get(client)
+		client := testAccProvider.Meta().(*pcc.Client)
+		lo, err := policies.Get(*client, policies.ComplianceCiImagesEndpoint)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,7 +119,7 @@ func testAccCheckPolicyComplianceCiImagesExists(n string, o *policyComplianceCiI
 	}
 }
 
-func testAccCheckPolicyComplianceCiImagesAttributes(o *policyComplianceCiImages.Policy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceCiImagesAttributes(o *policies.Policy, id string, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.PolicyId != id {
 			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
@@ -136,7 +136,7 @@ func testAccCheckPolicyComplianceCiImagesAttributes(o *policyComplianceCiImages.
 }
 
 func testAccPolicyComplianceCiImagesDestroy(s *terraform.State) error {
-	/*	client := testAccProvider.Meta().(*pc.Client)
+	/*	client := testAccProvider.Meta().(*pcc.Client)
 
 		for _, rs := range s.RootModule().Resources {
 
@@ -146,7 +146,7 @@ func testAccPolicyComplianceCiImagesDestroy(s *terraform.State) error {
 
 			if rs.Primary.ID != "" {
 				name := rs.Primary.ID
-				if err := policyComplianceCiImages.Delete(client, name); err == nil {
+				if err := policies.Delete(client, name); err == nil {
 					return fmt.Errorf("Object %q still exists", name)
 				}
 			}

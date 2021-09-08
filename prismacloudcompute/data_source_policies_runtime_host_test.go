@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-func TestAccDsPolicies(t *testing.T) {
+func TestAccRuntimeHostDsPolicies(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
@@ -21,7 +21,7 @@ func TestAccDsPolicies(t *testing.T) {
 	})
 }
 
-func testAccDsPoliciesConfig() string {
+func testAccRuntimeHostDsPoliciesConfig() string {
 	return `
 data "prismacloudcompute_policies" "test" {
     learningDisabled = true

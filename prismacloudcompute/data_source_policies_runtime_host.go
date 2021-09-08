@@ -3,8 +3,8 @@ package prismacloudcompute
 import (
 	"log"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy/policyRuntimeHost"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -70,7 +70,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
 										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema {
+											Schema: map[string]*schema.Schema{
 												"effect": {
 													Type:        schema.TypeString,
 													Required:    false,
@@ -149,7 +149,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 									},
 								},
 							},
-						},								
+						},
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -662,9 +662,9 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 }
 
 func dataSourcePoliciesRuntimeHostRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 
-	i, err := policyRuntimeHost.Get(client)
+	i, err := policies.Get(*client, policies.RuntimeHostEndpoint)
 	if err != nil {
 		return err
 	}
@@ -673,9 +673,8 @@ func dataSourcePoliciesRuntimeHostRead(d *schema.ResourceData, meta interface{})
 
 	list := make([]interface{}, 0, 1)
 	list = append(list, map[string]interface{}{
-		"_id":              i.PolicyId,
-		"owner": 	i.Owner,
-		"rules":            i.Rules,
+		"_id":   i.PolicyId,
+		"rules": i.Rules,
 	})
 
 	if err := d.Set("listing", list); err != nil {

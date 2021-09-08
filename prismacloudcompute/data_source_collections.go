@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 	"log"
 
-	pc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -139,9 +139,9 @@ func dataSourceCollections() *schema.Resource {
 
 func dataSourceCollectionsRead(d *schema.ResourceData, meta interface{}) error {
 	var buf bytes.Buffer
-	client := meta.(*pc.Client)
+	client := meta.(*pcc.Client)
 
-	items, err := collection.List(client)
+	items, err := collections.List(*client)
 	if err != nil {
 		return err
 	}
@@ -167,12 +167,8 @@ func dataSourceCollectionsRead(d *schema.ResourceData, meta interface{}) error {
 			"hosts":       StringSliceToSet(i.Hosts),
 			"images":      StringSliceToSet(i.Images),
 			"labels":      StringSliceToSet(i.Labels),
-			"modified":    i.Modified,
 			"name":        i.Name,
 			"namespaces":  StringSliceToSet(i.Namespaces),
-			"owner":       i.Owner,
-			"prisma":      i.Prisma,
-			"system":      i.System,
 		})
 	}
 
