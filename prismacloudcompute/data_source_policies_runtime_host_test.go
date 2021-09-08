@@ -21,13 +21,13 @@ func TestAccRuntimeHostDsPolicies(t *testing.T) {
 	})
 }
 
-func testAccRuntimeHostDsPoliciesConfig() string {
-	return `
-data "prismacloudcompute_policies" "test" {
-    learningDisabled = true
-    rule {
-        name = "my rule"
-    }
-}
-`
-}
+// func testAccRuntimeHostDsPoliciesConfig() string {
+// 	return `
+// data "prismacloudcompute_policies" "test" {
+//     learningDisabled = true
+//     rule {
+//         name = "my rule"
+//     }
+// }
+// `
+// }

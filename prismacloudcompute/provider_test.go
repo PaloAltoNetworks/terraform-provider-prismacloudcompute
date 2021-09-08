@@ -14,9 +14,9 @@ const (
 )
 
 var (
-	testAccProviders                   map[string]terraform.ResourceProvider
-	testAccProvider                    *schema.Provider
-	sessionTimeoutOrig, sessionTimeout int
+	testAccProviders map[string]terraform.ResourceProvider
+	testAccProvider  *schema.Provider
+	// sessionTimeoutOrig, sessionTimeout int
 )
 
 // func init() {

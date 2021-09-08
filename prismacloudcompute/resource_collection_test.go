@@ -97,7 +97,7 @@ func TestAccCollectionAuditEvent(t *testing.T) {
 
 func testAccCheckCollectionExists(n string, o *collections.Collection) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		return fmt.Errorf("What is the name: %s", o.Name)
+		// return fmt.Errorf("What is the name: %s", o.Name)
 
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
