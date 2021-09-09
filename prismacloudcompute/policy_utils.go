@@ -24,11 +24,16 @@ func parsePolicy(rd *schema.ResourceData, policyID, policyType string) policies.
 	policy := policies.Policy{
 		PolicyId:   policyID,
 		PolicyType: policyType,
-		Rules:      parseRules(rd.Get("rule").([]interface{})),
 	}
 
 	if rd.Get("learningdisabled") != nil {
 		policy.LearningDisabled = rd.Get("learningdisabled").(bool)
+	}
+
+	if rd.Get("rule") != nil {
+		policy.Rules = parseRules(rd.Get("rule").([]interface{}))
+	} else {
+		policy.Rules = []policies.Rule{}
 	}
 
 	return policy
@@ -160,9 +165,39 @@ func parseRules(rules []interface{}) []policies.Rule {
 					}
 				}
 			}
+
+			if item["cverules"] != nil && len(item["cverules"].([]interface{})) > 0 {
+				cveRules := item["cverules"].([]interface{})
+				for _, v := range cveRules {
+					cveRule := policies.CveRule{}
+					if v.(map[string]interface{})["description"] != nil {
+						cveRule.Description = v.(map[string]interface{})["description"].(string)
+					}
+					if v.(map[string]interface{})["effect"] != nil {
+						cveRule.Effect = v.(map[string]interface{})["effect"].(string)
+					}
+					cveRuleExpiration := policies.Expiration{}
+					if v.(map[string]interface{})["expiration"] != nil {
+						if v.(map[string]interface{})["expiration"].(map[string]interface{})["date"] != nil {
+							cveRuleExpiration.Date = v.(map[string]interface{})["expiration"].(map[string]interface{})["date"].(string)
+						}
+						if v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"] != nil {
+							cveRuleExpiration.Enabled = v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"].(bool)
+						}
+					}
+					cveRule.Expiration = cveRuleExpiration
+					if v.(map[string]interface{})["id"] != nil {
+						cveRule.Id = v.(map[string]interface{})["id"].(string)
+					}
+
+					rule.CveRules = append(rule.CveRules, cveRule)
+				}
+			}
+
 			if item["disabled"] != nil {
 				rule.Disabled = item["disabled"].(bool)
 			}
+
 			if item["dns"] != nil {
 				dnsSet := item["dns"]
 				dnsItem := dnsSet.(map[string]interface{})
@@ -415,8 +450,8 @@ func parseRules(rules []interface{}) []policies.Rule {
 			if item["notes"] != nil {
 				rule.Notes = item["notes"].(string)
 			}
-			if item["owner"] != nil {
-				rule.Owner = item["owner"].(string)
+			if item["onlyfixed"] != nil {
+				rule.OnlyFixed = item["onlyfixed"].(bool)
 			}
 			if item["previousname"] != nil {
 				rule.PreviousName = item["previousname"].(string)
@@ -461,6 +496,35 @@ func parseRules(rules []interface{}) []policies.Rule {
 					rule.Processes.Whitelist = processItem["whitelist"].([]string)
 				}
 			}
+
+			if item["tags"] != nil && len(item["tags"].([]interface{})) > 0 {
+				tags := item["tags"].([]interface{})
+				for _, v := range tags {
+					tag := policies.Tag{}
+					if v.(map[string]interface{})["description"] != nil {
+						tag.Description = v.(map[string]interface{})["description"].(string)
+					}
+					if v.(map[string]interface{})["effect"] != nil {
+						tag.Effect = v.(map[string]interface{})["effect"].(string)
+					}
+					tagExpiration := policies.Expiration{}
+					if v.(map[string]interface{})["expiration"] != nil {
+						if v.(map[string]interface{})["expiration"].(map[string]interface{})["date"] != nil {
+							tagExpiration.Date = v.(map[string]interface{})["expiration"].(map[string]interface{})["date"].(string)
+						}
+						if v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"] != nil {
+							tagExpiration.Enabled = v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"].(bool)
+						}
+					}
+					tag.Expiration = tagExpiration
+					if v.(map[string]interface{})["name"] != nil {
+						tag.Name = v.(map[string]interface{})["name"].(string)
+					}
+
+					rule.Tags = append(rule.Tags, tag)
+				}
+			}
+
 			if item["wildfireanalysis"] != nil {
 				rule.WildFireAnalysis = item["wildfireanalysis"].(string)
 			}
