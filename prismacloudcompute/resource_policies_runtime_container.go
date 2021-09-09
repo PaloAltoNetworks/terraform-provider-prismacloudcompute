@@ -1,6 +1,7 @@
 package prismacloudcompute
 
 import (
+	"fmt"
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
@@ -404,8 +405,8 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 	}
 }
 
-func parsePolicyRuntimeContainer(rd *schema.ResourceData, policyID string) policies.Policy {
-	return parsePolicy(rd, policyID, "")
+func parsePolicyRuntimeContainer(d *schema.ResourceData, policyID string) policies.Policy {
+	return parsePolicy(d, policyID, "")
 }
 
 func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
@@ -435,7 +436,9 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 
 	d.Set("_id", policyTypeRuntimeContainer)
 	d.Set("learningdisabled", obj.LearningDisabled)
-	d.Set("rule", obj.Rules)
+	if err := d.Set("rule", obj.Rules); err != nil {
+		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }

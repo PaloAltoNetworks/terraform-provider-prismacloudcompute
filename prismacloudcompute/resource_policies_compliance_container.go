@@ -1,6 +1,7 @@
 package prismacloudcompute
 
 import (
+	"fmt"
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
@@ -122,8 +123,8 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 	}
 }
 
-func parsePolicyComplianceContainer(rd *schema.ResourceData, policyID string) policies.Policy {
-	policy := parsePolicy(rd, policyID, rd.Get("policytype").(string))
+func parsePolicyComplianceContainer(d *schema.ResourceData, policyID string) policies.Policy {
+	policy := parsePolicy(d, policyID, d.Get("policytype").(string))
 	for _, v := range policy.Rules {
 		v.Action = []string{""}
 		v.Group = []string{""}
@@ -160,7 +161,9 @@ func readPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("_id", policyTypeComplianceContainer)
 	d.Set("policytype", policyTypeComplianceContainer)
-	d.Set("rule", obj.Rules)
+	if err := d.Set("rule", obj.Rules); err != nil {
+		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }

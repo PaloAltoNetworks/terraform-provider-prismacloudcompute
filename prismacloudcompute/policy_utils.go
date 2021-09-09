@@ -20,18 +20,18 @@ const (
 	policyTypeVulnerabilityImages   = "containerVulnerability"
 )
 
-func parsePolicy(rd *schema.ResourceData, policyID, policyType string) policies.Policy {
+func parsePolicy(d *schema.ResourceData, policyID, policyType string) policies.Policy {
 	policy := policies.Policy{
 		PolicyId:   policyID,
 		PolicyType: policyType,
 	}
 
-	if rd.Get("learningdisabled") != nil {
-		policy.LearningDisabled = rd.Get("learningdisabled").(bool)
+	if d.Get("learningdisabled") != nil {
+		policy.LearningDisabled = d.Get("learningdisabled").(bool)
 	}
 
-	if rd.Get("rule") != nil {
-		policy.Rules = parseRules(rd.Get("rule").([]interface{}))
+	if d.Get("rule") != nil {
+		policy.Rules = parseRules(d.Get("rule").([]interface{}))
 	} else {
 		policy.Rules = []policies.Rule{}
 	}

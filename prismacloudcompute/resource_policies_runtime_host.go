@@ -1,6 +1,7 @@
 package prismacloudcompute
 
 import (
+	"fmt"
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
@@ -241,7 +242,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"exclusions": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Filenames that should be ignored while generating audits These filenames may contain a wildcard regex pattern, e.g. foo*.log, *.cache.",
+										Description: "Filenames that should be ignored while generating audits These filenames may contain a wildcad regex pattern, e.g. foo*.log, *.cache.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -448,8 +449,8 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 	}
 }
 
-func parsePolicyRuntimeHost(rd *schema.ResourceData, policyID string) policies.Policy {
-	return parsePolicy(rd, policyID, "")
+func parsePolicyRuntimeHost(d *schema.ResourceData, policyID string) policies.Policy {
+	return parsePolicy(d, policyID, "")
 }
 
 func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
@@ -478,7 +479,9 @@ func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("_id", policyTypeRuntimeHost)
-	d.Set("rules", obj.Rules)
+	if err := d.Set("rule", obj.Rules); err != nil {
+		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
+	}
 
 	return nil
 }
