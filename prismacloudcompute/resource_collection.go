@@ -47,7 +47,7 @@ func resourceCollection() *schema.Resource {
 			"clusters": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of Kubernetes cluster names.",
+				Description: "List of cluster names.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -63,7 +63,7 @@ func resourceCollection() *schema.Resource {
 			"color": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "A hex color code for a collection",
+				Description: "A hex color code for the collection",
 			},
 			"containers": {
 				Type:        schema.TypeList,
@@ -110,11 +110,6 @@ func resourceCollection() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"modified": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Date/time when the collection was last modified.",
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -123,31 +118,16 @@ func resourceCollection() *schema.Resource {
 			"namespaces": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of Kubernetes namespaces.",
+				Description: "List of cluster namespaces.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			"owner": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "User who created or last modified the collection.",
-			},
-			"prisma": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "If set to 'true', this collection originates from Prisma Cloud.",
-			},
-			"system": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise it was created by a real user.",
 			},
 		},
 	}
 }
 
-func StringSliceToSet(list []string) *schema.Set {
+func stringSliceToSet(list []string) *schema.Set {
 	items := make([]interface{}, len(list))
 	for i := range list {
 		items[i] = list[i]
@@ -221,37 +201,37 @@ func parseCollection(d *schema.ResourceData, id string) collections.Collection {
 }
 
 func saveCollection(d *schema.ResourceData, obj collections.Collection) {
-	if err := d.Set("accountids", StringSliceToSet(obj.AccountIDs)); err != nil {
+	if err := d.Set("accountids", stringSliceToSet(obj.AccountIDs)); err != nil {
 		log.Printf("[WARN] Error setting 'accountIDs' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("appids", StringSliceToSet(obj.AppIDs)); err != nil {
+	if err := d.Set("appids", stringSliceToSet(obj.AppIDs)); err != nil {
 		log.Printf("[WARN] Error setting 'appIDs' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("clusters", StringSliceToSet(obj.Clusters)); err != nil {
+	if err := d.Set("clusters", stringSliceToSet(obj.Clusters)); err != nil {
 		log.Printf("[WARN] Error setting 'clusters' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("coderepos", StringSliceToSet(obj.CodeRepos)); err != nil {
+	if err := d.Set("coderepos", stringSliceToSet(obj.CodeRepos)); err != nil {
 		log.Printf("[WARN] Error setting 'codeRepos' for %q: %s", d.Id(), err)
 	}
 	d.Set("color", obj.Color)
-	if err := d.Set("containers", StringSliceToSet(obj.Containers)); err != nil {
+	if err := d.Set("containers", stringSliceToSet(obj.Containers)); err != nil {
 		log.Printf("[WARN] Error setting 'containers' for %q: %s", d.Id(), err)
 	}
 	d.Set("description", obj.Description)
-	if err := d.Set("functions", StringSliceToSet(obj.Functions)); err != nil {
+	if err := d.Set("functions", stringSliceToSet(obj.Functions)); err != nil {
 		log.Printf("[WARN] Error setting 'functions' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("hosts", StringSliceToSet(obj.Hosts)); err != nil {
+	if err := d.Set("hosts", stringSliceToSet(obj.Hosts)); err != nil {
 		log.Printf("[WARN] Error setting 'hosts' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("images", StringSliceToSet(obj.Images)); err != nil {
+	if err := d.Set("images", stringSliceToSet(obj.Images)); err != nil {
 		log.Printf("[WARN] Error setting 'images' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("labels", StringSliceToSet(obj.Labels)); err != nil {
+	if err := d.Set("labels", stringSliceToSet(obj.Labels)); err != nil {
 		log.Printf("[WARN] Error setting 'labels' for %q: %s", d.Id(), err)
 	}
 	d.Set("name", obj.Name)
-	if err := d.Set("namespaces", StringSliceToSet(obj.Namespaces)); err != nil {
+	if err := d.Set("namespaces", stringSliceToSet(obj.Namespaces)); err != nil {
 		log.Printf("[WARN] Error setting 'namespaces' for %q: %s", d.Id(), err)
 	}
 }

@@ -100,11 +100,6 @@ func dataSourceCollections() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"modified": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Date/time when the collection was last modified.",
-			},
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -117,21 +112,6 @@ func dataSourceCollections() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
-			},
-			"owner": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "User who created or last modified the collection.",
-			},
-			"prisma": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "If set to 'true', this collection originates from Prisma Cloud.",
-			},
-			"system": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "If set to 'true', this collection was created by the system (i.e., a non-user). Otherwise (false) a real user.",
 			},
 		},
 	}
@@ -156,19 +136,19 @@ func dataSourceCollectionsRead(d *schema.ResourceData, meta interface{}) error {
 	list := make([]interface{}, 0, len(items))
 	for _, i := range items {
 		list = append(list, map[string]interface{}{
-			"accountIDs":  StringSliceToSet(i.AccountIDs),
-			"appIDs":      StringSliceToSet(i.AppIDs),
-			"clusters":    StringSliceToSet(i.Clusters),
-			"codeRepos":   StringSliceToSet(i.CodeRepos),
+			"accountIDs":  stringSliceToSet(i.AccountIDs),
+			"appIDs":      stringSliceToSet(i.AppIDs),
+			"clusters":    stringSliceToSet(i.Clusters),
+			"codeRepos":   stringSliceToSet(i.CodeRepos),
 			"color":       i.Color,
-			"containers":  StringSliceToSet(i.Containers),
+			"containers":  stringSliceToSet(i.Containers),
 			"description": i.Description,
-			"functions":   StringSliceToSet(i.Functions),
-			"hosts":       StringSliceToSet(i.Hosts),
-			"images":      StringSliceToSet(i.Images),
-			"labels":      StringSliceToSet(i.Labels),
+			"functions":   stringSliceToSet(i.Functions),
+			"hosts":       stringSliceToSet(i.Hosts),
+			"images":      stringSliceToSet(i.Images),
+			"labels":      stringSliceToSet(i.Labels),
 			"name":        i.Name,
-			"namespaces":  StringSliceToSet(i.Namespaces),
+			"namespaces":  stringSliceToSet(i.Namespaces),
 		})
 	}
 
