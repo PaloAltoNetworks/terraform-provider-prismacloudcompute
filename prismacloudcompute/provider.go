@@ -59,6 +59,7 @@ func Provider() terraform.ResourceProvider {
 			"prismacloudcompute_ci_image_vulnerability_policy": resourcePoliciesVulnerabilityCiImages(),
 			"prismacloudcompute_host_vulnerability_policy":     resourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":    resourcePoliciesVulnerabilityImages(),
+			"prismacloudcompute_settings_registry":    resourceRegistry(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -71,6 +72,7 @@ func Provider() terraform.ResourceProvider {
 			"prismacloudcompute_ci_image_vulnerability_policy": dataSourcePoliciesVulnerabilityCiImages(),
 			"prismacloudcompute_host_vulnerability_policy":     dataSourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":    dataSourcePoliciesVulnerabilityImages(),
+			"prismacloudcompute_settings_registry":    dataSourceRegistry(),
 		},
 
 		ConfigureFunc: configure,

@@ -11,7 +11,7 @@ terraform {
 provider "prismacloudcompute" {
   config_file = "creds.json"
 }
-
+/*
 resource "prismacloudcompute_ci_image_compliance_policy" "ruleset" {
   rule {
     name        = "Default - alert on critical and high"
@@ -1419,5 +1419,20 @@ resource "prismacloudcompute_image_vulnerability_policy" "ruleset" {
       enabled = false
       value   = 0
     }
+  }
+}
+*/
+
+resource "prismacloudcompute_settings_registry" "registry" {
+  specifications {
+    version = "2"
+    registry = ""
+    os = "linux"
+    cap = 5
+    scanners = 2
+    jfrogrepotypes = []
+    repository = "library/ubuntu"
+    tag = "20.04"
+    collections = ["All"]
   }
 }
