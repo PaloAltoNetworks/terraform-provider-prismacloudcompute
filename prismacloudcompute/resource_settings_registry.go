@@ -279,13 +279,18 @@ func createRegistry(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	obj := parseRegistry(d, "")
 
-	if err := registry.Create(*client, obj); err != nil {
+	if err := registry.Update(*client, obj); err != nil {
 		log.Printf("Failed to create Registry: %s\n", err)
 		return err
 	}
 
-	d.SetId(obj.WebhookUrlSuffix)
-	return readRegistry(d, meta)
+	reg, err := registry.Get(*client)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(reg.WebhookUrlSuffix)
+	return readRegistry(d, meta)	
 }
 
 func readRegistry(d *schema.ResourceData, meta interface{}) error {
