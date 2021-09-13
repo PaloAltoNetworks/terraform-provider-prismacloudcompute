@@ -4,7 +4,7 @@ import (
 	"log"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -30,7 +30,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 				Optional:    true,
 				Description: "ID of the policy set.",
 			},
-			"policytype": {
+			"policy_type": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Type of policy. For example: 'docker', 'containerVulnerability', 'containerCompliance', etc.",
@@ -49,7 +49,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
-						"alertthreshold": {
+						"alert_threshold": {
 							Type:        schema.TypeMap,
 							Optional:    true,
 							Description: "The compliance container policy alert threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
@@ -73,7 +73,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 								},
 							},
 						},
-						"allcompliance": {
+						"show_passed_checks": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "If set to 'true', reports the results of all (passed and failed) compliance checks.",
@@ -83,12 +83,12 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 							Optional:    true,
 							Description: "If set to 'true', Prisma Cloud audits successful transactions.",
 						},
-						"blockmsg": {
+						"block_message": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Represents the block message in a policy.",
 						},
-						"blockthreshold": {
+						"block_threshold": {
 							Type:        schema.TypeMap,
 							Optional:    true,
 							Description: "The compliance container policy block threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
@@ -120,7 +120,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 
 									// Output.
-									"accountids": {
+									"account_ids": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of account IDs.",
@@ -128,7 +128,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"appids": {
+									"application_ids": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of application IDs.",
@@ -144,7 +144,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"coderepos": {
+									"code_repositories": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of code repositories.",
@@ -276,7 +276,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 								},
 							},
 						},
-						"cverules": {
+						"cve_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "List of Common Vulnerability and Exposure (CVE) IDs classified for special handling/exceptions.",
@@ -329,7 +329,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 							Optional:    true,
 							Description: "The effect of evaluating the given policy. Can be set to 'allow', 'deny', 'block', or 'alert'.",
 						},
-						"gracedays": {
+						"grace_days": {
 							Type:        schema.TypeInt,
 							Optional:    true,
 							Description: "Number of days to suppress the rule's block effect. Measured from date the vuln was fixed. If there's no fix, measured from the date the vuln was published.",
@@ -446,7 +446,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 							Optional:    true,
 							Description: "Free-form text notes.",
 						},
-						"onlyfixed": {
+						"only_fixed": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "If set to 'true', applies rule only when vendor fixes are available.",
@@ -527,7 +527,7 @@ func dataSourcePoliciesComplianceHost() *schema.Resource {
 func dataSourcePoliciesComplianceHostRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	i, err := policies.Get(*client, policies.ComplianceHostEndpoint)
+	i, err := policy.Get(*client, policy.ComplianceHostEndpoint)
 	if err != nil {
 		return err
 	}

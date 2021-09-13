@@ -4,7 +4,7 @@ import (
 	"log"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -47,7 +47,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Restrictions/suppression for suspected anti-malware.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"allowedprocesses": {
+									"allowed_processes": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "A list of paths for files and processes to skip during anti-malware checks.",
@@ -55,17 +55,17 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"cryptominer": {
+									"crypto_miner": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"customfeed": {
+									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"deniedprocesses": {
+									"denied_processes": {
 										Type:        schema.TypeMap,
 										Optional:    true,
 										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
@@ -92,47 +92,47 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "Represents what happens when a compiler service writes a binary.",
 									},
-									"encryptedbinaries": {
+									"encrypted_binaries": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"executionflowhijack": {
+									"execution_flow_hijack": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"reverseshell": {
+									"reverse_shell": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"serviceunknownoriginbinary": {
+									"service_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"skipsshtracking": {
+									"skip_ssh_tracking": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"suspiciouselfheaders": {
+									"suspicious_elf_headers": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"tempfsproc": {
+									"temp_filesystem_processes": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"userunknownoriginbinary": {
+									"user_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -142,7 +142,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"wildfireanalysis": {
+									"wildfire_analysis": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -158,7 +158,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 
 									// Output.
-									"accountids": {
+									"account_ids": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of account IDs.",
@@ -166,7 +166,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"appids": {
+									"application_ids": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of application IDs.",
@@ -182,7 +182,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"coderepos": {
+									"code_repositories": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of code repositories.",
@@ -276,7 +276,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"customrules": {
+						"custom_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "List of custom runtime rules.",
@@ -317,7 +317,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "The DNS runtime rule",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"blacklist": {
+									"denylist": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of domain names (e.g., www.bad-url.com, *.bad-url.com).",
@@ -325,7 +325,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"denylisteffect": {
+									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -338,12 +338,12 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"whitelist": {
+									"allowlist": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "List of allowed domain names (e.g., *.gmail.com, *.s3.amazon.com).",
@@ -354,7 +354,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"fileintegrityrules": {
+						"file_integrity_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "file integrity monitoring rules..",
@@ -383,7 +383,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 										Required:    true,
 										Description: "Path to monitor.",
 									},
-									"procwhitelist": {
+									"allowed_processes": {
 										Type:        schema.TypeList,
 										Required:    true,
 										Description: "The processes to ignore Filesystem events caused by these processes DO NOT generate file integrity events.",
@@ -415,32 +415,32 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Indicates how to perform host forensic.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"activitiesdisabled": {
+									"activities_disabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates if the host activity collection is enabled/disabled.",
 									},
-									"dockerenabled": {
+									"docker_enabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates whether docker commands are collected.",
 									},
-									"readonlydockerenabled": {
+									"readonly_docker_enabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates whether docker readonly commands are collected.",
 									},
-									"serviceactivitiesenabled": {
+									"service_activities_enabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates whether activities from services are collected.",
 									},
-									"sshdenabled": {
+									"sshd_enabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates whether ssh commands are collected.",
 									},
-									"sudoenabled": {
+									"sudo_enabled": {
 										Type:        schema.TypeBool,
 										Required:    true,
 										Description: "Indicates whether sudo commands are collected.",
@@ -448,7 +448,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"loginspectionrules": {
+						"log_inspection_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "List of log inspection rules.",
@@ -486,7 +486,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Represents the restrictions or suppression for networking.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"blacklistips": {
+									"denied_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of IP addresses.",
@@ -494,7 +494,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"blacklistlisteningports": {
+									"denied_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of listening ports.",
@@ -518,7 +518,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"blacklistoutboundports": {
+									"denied_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-listed outbound ports.",
@@ -542,17 +542,17 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"customfeed": {
+									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"detectportscan": {
+									"detect_port_scan": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true' port scanning detection is enabled.",
 									},
-									"denylisteffect": {
+									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -565,22 +565,22 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"skipmodifiedproc": {
+									"skip_modified_processes": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true', Prisma Cloud can detect malicious networking activity from modified processes.",
 									},
-									"skiprawsockets": {
+									"skip_raw_sockets": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "If set to 'true', raw socket detection will be skipped.",
 									},
-									"whitelistips": {
+									"allowed_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Allow-listed IP addresses.",
@@ -588,7 +588,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"whitelistlisteningports": {
+									"allowed_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Allow-listed listening ports.",
@@ -612,7 +612,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"whitelistoutboundports": {
+									"allowed_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Allow-listed outbound ports.",
@@ -664,7 +664,7 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 func dataSourcePoliciesRuntimeHostRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	i, err := policies.Get(*client, policies.RuntimeHostEndpoint)
+	i, err := policy.Get(*client, policy.RuntimeHostEndpoint)
 	if err != nil {
 		return err
 	}

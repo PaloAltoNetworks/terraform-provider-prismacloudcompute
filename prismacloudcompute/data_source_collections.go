@@ -6,7 +6,7 @@ import (
 	"log"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -18,7 +18,7 @@ func dataSourceCollections() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 
 			// Output.
-			"accountids": {
+			"account_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of account IDs.",
@@ -26,7 +26,7 @@ func dataSourceCollections() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"appids": {
+			"application_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of application IDs.",
@@ -42,7 +42,7 @@ func dataSourceCollections() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"coderepos": {
+			"code_repositories": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of code repositories.",
@@ -121,7 +121,7 @@ func dataSourceCollectionsRead(d *schema.ResourceData, meta interface{}) error {
 	var buf bytes.Buffer
 	client := meta.(*pcc.Client)
 
-	items, err := collections.List(*client)
+	items, err := collection.List(*client)
 	if err != nil {
 		return err
 	}
@@ -136,8 +136,8 @@ func dataSourceCollectionsRead(d *schema.ResourceData, meta interface{}) error {
 	list := make([]interface{}, 0, len(items))
 	for _, i := range items {
 		list = append(list, map[string]interface{}{
-			"accountIDs":  stringSliceToSet(i.AccountIDs),
-			"appIDs":      stringSliceToSet(i.AppIDs),
+			"accountIDs":  stringSliceToSet(i.AccountIds),
+			"appIDs":      stringSliceToSet(i.AppIds),
 			"clusters":    stringSliceToSet(i.Clusters),
 			"codeRepos":   stringSliceToSet(i.CodeRepos),
 			"color":       i.Color,

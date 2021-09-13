@@ -26,11 +26,11 @@ func dataSourceRegistry() *schema.Resource {
 				Optional:    true,
 				Description: "URL suffix for the webhook.",
 			},
-			"specifications": {
+			"specification": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of specifications.",
-				Elem: &schema.Resource {
+				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cap": {
 							Type:        schema.TypeInt,
@@ -49,28 +49,28 @@ func dataSourceRegistry() *schema.Resource {
 							Type:        schema.TypeMap,
 							Optional:    true,
 							Description: "Credential contains external provider authentication data",
-							Elem: &schema.Resource {
+							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"_id": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Unique ID for the credential.",
 									},
-									"accountguid": {
+									"account_guid": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Account identifier (e.g., username, access key, account GUID, etc.).",
 									},
-									"accountid": {
+									"account_id": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Account identifier (e.g., username, access key, account GUID, etc.).",
 									},
-									"apitoken": {
+									"api_token": {
 										Type:        schema.TypeMap,
 										Optional:    true,
 										Description: "Secret contains the plain and encrypted version of a value (the plain version is never stored in the DB)",
-										Elem: &schema.Resource {
+										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"encrypted": {
 													Type:        schema.TypeString,
@@ -85,7 +85,7 @@ func dataSourceRegistry() *schema.Resource {
 											},
 										},
 									},
-									"cacert": {
+									"ca_cert": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "CA certificate for certificate-based authentication.",
@@ -115,7 +115,7 @@ func dataSourceRegistry() *schema.Resource {
 										Optional:    true,
 										Description: "User who created or modified the credential.",
 									},
-									"rolearn": {
+									"role_arn": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Amazon Resource Name (ARN) of the role to assume.",
@@ -124,7 +124,7 @@ func dataSourceRegistry() *schema.Resource {
 										Type:        schema.TypeMap,
 										Optional:    true,
 										Description: "Secret contains the plain and encrypted version of a value (the plain version is never stored in the DB).",
-										Elem: &schema.Resource {
+										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"encrypted": {
 													Type:        schema.TypeString,
@@ -139,7 +139,7 @@ func dataSourceRegistry() *schema.Resource {
 											},
 										},
 									},
-									"skipverify": {
+									"skip_verify": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "SkipVerify if should skip certificate verification in tls communication.",
@@ -154,7 +154,7 @@ func dataSourceRegistry() *schema.Resource {
 										Optional:    true,
 										Description: "The server base URL.",
 									},
-									"useawsrole": {
+									"use_aws_role": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates if authentication should be done with the instance's attached credentials (EC2 IAM Role).",
@@ -162,12 +162,12 @@ func dataSourceRegistry() *schema.Resource {
 								},
 							},
 						},
-						"credentialid": {
+						"credential_id": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "ID of the credentials in the credentials store to use for authenticating with the registry.",
 						},
-						"excludedrepositories": {
+						"excluded_repositories": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Repositories to exclude from scanning.",
@@ -175,17 +175,17 @@ func dataSourceRegistry() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
-						"excludedtags": {
+						"excluded_tags": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Tags to exclude from scanning.",
 						},
-						"harbordeploymentsecurity": {
+						"harbor_deployment_security": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "Indicates whether the Prisma Cloud plugin uses temporary tokens provided by Harbor to scan images in projects where Harbor's deployment security setting is enabled.",
 						},
-						"jfrogrepotypes": {
+						"jfrog_repo_types": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "JFrog Artifactory repository types to scan.",
@@ -228,11 +228,11 @@ func dataSourceRegistry() *schema.Resource {
 							Optional:    true,
 							Description: "Registry type. Determines the protocol Prisma Cloud uses to communicate with the registry.",
 						},
-						"versionpattern": {
+						"version_pattern": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Pattern heuristic for quickly filtering images by tags without having to query all images for modification dates.",
-						},						
+						},
 					},
 				},
 			},
@@ -244,18 +244,14 @@ func dataSourceRegistryRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
 	i, err := registry.Get(*client)
-	
+
 	if err != nil {
 		return err
 	}
 
-	d.SetId(i.WebhookUrlSuffix)
-
 	list := make([]interface{}, 0, 1)
 	list = append(list, map[string]interface{}{
-		"harborScannerurlsuffix": i.HarborScannerUrlSuffix,
-		"specifications": i.Specifications,
-		"webhookUrlSuffix": i.WebhookUrlSuffix,
+		"specification": i.Specifications,
 	})
 
 	if err := d.Set("listing", list); err != nil {
