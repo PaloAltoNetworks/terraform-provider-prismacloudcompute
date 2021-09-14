@@ -1,11 +1,12 @@
 package prismacloudcompute
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -28,7 +29,7 @@ func resourceCollection() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"accountids": {
+			"account_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of account IDs.",
@@ -36,7 +37,7 @@ func resourceCollection() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"appids": {
+			"application_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of application IDs.",
@@ -52,7 +53,7 @@ func resourceCollection() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
-			"coderepos": {
+			"code_repositories": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of code repositories.",
@@ -136,27 +137,27 @@ func stringSliceToSet(list []string) *schema.Set {
 	return schema.NewSet(schema.HashString, items)
 }
 
-func parseCollection(d *schema.ResourceData, id string) collections.Collection {
-	ans := collections.Collection{
+func parseCollection(d *schema.ResourceData, id string) collection.Collection {
+	ans := collection.Collection{
 		Name: d.Get("name").(string),
 	}
-	if d.Get("accountids") != nil && len(d.Get("accountids").([]interface{})) > 0 {
-		ans.AccountIDs = parseStringArray(d.Get("accountids").([]interface{}))
+	if d.Get("account_ids") != nil && len(d.Get("account_ids").([]interface{})) > 0 {
+		ans.AccountIds = parseStringArray(d.Get("account_ids").([]interface{}))
 	} else {
-		ans.AccountIDs = []string{"*"}
+		ans.AccountIds = []string{"*"}
 	}
-	if d.Get("appids") != nil && len(d.Get("appids").([]interface{})) > 0 {
-		ans.AppIDs = parseStringArray(d.Get("appids").([]interface{}))
+	if d.Get("application_ids") != nil && len(d.Get("application_ids").([]interface{})) > 0 {
+		ans.AppIds = parseStringArray(d.Get("application_ids").([]interface{}))
 	} else {
-		ans.AppIDs = []string{"*"}
+		ans.AppIds = []string{"*"}
 	}
 	if d.Get("clusters") != nil && len(d.Get("clusters").([]interface{})) > 0 {
 		ans.Clusters = parseStringArray(d.Get("clusters").([]interface{}))
 	} else {
 		ans.Clusters = []string{"*"}
 	}
-	if d.Get("coderepos") != nil && len(d.Get("coderepos").([]interface{})) > 0 {
-		ans.CodeRepos = parseStringArray(d.Get("coderepos").([]interface{}))
+	if d.Get("code_repositories") != nil && len(d.Get("code_repositories").([]interface{})) > 0 {
+		ans.CodeRepos = parseStringArray(d.Get("code_repositories").([]interface{}))
 	} else {
 		ans.CodeRepos = []string{"*"}
 	}
@@ -200,17 +201,17 @@ func parseCollection(d *schema.ResourceData, id string) collections.Collection {
 	return ans
 }
 
-func saveCollection(d *schema.ResourceData, obj collections.Collection) {
-	if err := d.Set("accountids", stringSliceToSet(obj.AccountIDs)); err != nil {
+func saveCollection(d *schema.ResourceData, obj collection.Collection) {
+	if err := d.Set("account_ids", stringSliceToSet(obj.AccountIds)); err != nil {
 		log.Printf("[WARN] Error setting 'accountIDs' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("appids", stringSliceToSet(obj.AppIDs)); err != nil {
+	if err := d.Set("application_ids", stringSliceToSet(obj.AppIds)); err != nil {
 		log.Printf("[WARN] Error setting 'appIDs' for %q: %s", d.Id(), err)
 	}
 	if err := d.Set("clusters", stringSliceToSet(obj.Clusters)); err != nil {
 		log.Printf("[WARN] Error setting 'clusters' for %q: %s", d.Id(), err)
 	}
-	if err := d.Set("coderepos", stringSliceToSet(obj.CodeRepos)); err != nil {
+	if err := d.Set("code_repositories", stringSliceToSet(obj.CodeRepos)); err != nil {
 		log.Printf("[WARN] Error setting 'codeRepos' for %q: %s", d.Id(), err)
 	}
 	d.Set("color", obj.Color)
@@ -240,9 +241,8 @@ func createCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	obj := parseCollection(d, "")
 
-	if err := collections.Create(*client, obj); err != nil {
-		log.Printf("Failed to create collection: %s\n", err)
-		return err
+	if err := collection.Create(*client, obj); err != nil {
+		return fmt.Errorf("failed to create collection: %s", err)
 	}
 
 	d.SetId(obj.Name)
@@ -253,9 +253,9 @@ func readCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	id := d.Id()
 
-	obj, err := collections.Get(*client, id)
+	obj, err := collection.Get(*client, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read collection: %s", err)
 	}
 
 	saveCollection(d, *obj)
@@ -268,8 +268,8 @@ func updateCollection(d *schema.ResourceData, meta interface{}) error {
 	id := d.Id()
 	obj := parseCollection(d, id)
 
-	if err := collections.Update(*client, obj); err != nil {
-		return err
+	if err := collection.Update(*client, obj); err != nil {
+		return fmt.Errorf("failed to update collection: %s", err)
 	}
 
 	return readCollection(d, meta)
@@ -279,9 +279,8 @@ func deleteCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	id := d.Id()
 
-	err := collections.Delete(*client, id)
-	if err != nil {
-		return err
+	if err := collection.Delete(*client, id); err != nil {
+		return fmt.Errorf("failed to update collection: %s", err)
 	}
 
 	d.SetId("")

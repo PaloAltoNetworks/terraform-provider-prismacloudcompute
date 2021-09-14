@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +15,7 @@ import (
 
 func TestAccCollectionConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccCollectionConfig")
-	var o collections.Collection
+	var o collection.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -26,14 +26,14 @@ func TestAccCollectionConfig(t *testing.T) {
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
@@ -42,7 +42,7 @@ func TestAccCollectionConfig(t *testing.T) {
 }
 
 func TestAccCollectionNetwork(t *testing.T) {
-	var o collections.Collection
+	var o collection.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -53,14 +53,14 @@ func TestAccCollectionNetwork(t *testing.T) {
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
@@ -69,7 +69,7 @@ func TestAccCollectionNetwork(t *testing.T) {
 }
 
 func TestAccCollectionAuditEvent(t *testing.T) {
-	var o collections.Collection
+	var o collection.Collection
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -80,14 +80,14 @@ func TestAccCollectionAuditEvent(t *testing.T) {
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
 			{
 				Config: testAccCollectionConfig(name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectionExists("prismacloudcompute_collections.test", &o),
+					testAccCheckCollectionExists("prismacloudcompute_collection.test", &o),
 					testAccCheckCollectionAttributes(&o, name, "description", "#000000"),
 				),
 			},
@@ -95,7 +95,7 @@ func TestAccCollectionAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckCollectionExists(n string, o *collections.Collection) resource.TestCheckFunc {
+func testAccCheckCollectionExists(n string, o *collection.Collection) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.Name)
 
@@ -110,7 +110,7 @@ func testAccCheckCollectionExists(n string, o *collections.Collection) resource.
 
 		client := testAccProvider.Meta().(*pcc.Client)
 		name := rs.Primary.ID
-		lo, err := collections.Get(*client, name)
+		lo, err := collection.Get(*client, name)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -120,7 +120,7 @@ func testAccCheckCollectionExists(n string, o *collections.Collection) resource.
 	}
 }
 
-func testAccCheckCollectionAttributes(o *collections.Collection, name string, description string, color string) resource.TestCheckFunc {
+func testAccCheckCollectionAttributes(o *collection.Collection, name string, description string, color string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.Name != name {
 			return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)
@@ -151,7 +151,7 @@ func testAccCollectionDestroy(s *terraform.State) error {
 
 		if rs.Primary.ID != "" {
 			name := rs.Primary.ID
-			if err := collections.Delete(*client, name); err == nil {
+			if err := collection.Delete(*client, name); err == nil {
 				return fmt.Errorf("Object %q still exists", name)
 			}
 		}

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -33,16 +33,10 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 				Optional: true,
 				Default:  policyTypeRuntimeHost,
 			},
-			"owner": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "Policy owner",
-				Default:     "",
-			},
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Rules in the policies.",
+				Description: "Rules in the policy.",
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -52,7 +46,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Restrictions/suppression for suspected anti-malware.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"allowedprocesses": {
+									"allowed_processes": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "A list of paths for files and processes to skip during anti-malware checks.",
@@ -60,17 +54,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"cryptominer": {
+									"crypto_miner": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"customfeed": {
+									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"deniedprocesses": {
+									"denied_processes": {
 										Type:        schema.TypeMap,
 										Optional:    true,
 										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
@@ -92,52 +86,52 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"detectcompilergeneratedbinary": {
+									"detect_compiler_generated_binary": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Represents what happens when a compiler service writes a binary.",
 									},
-									"encryptedbinaries": {
+									"encrypted_binaries": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"executionflowhijack": {
+									"execution_flow_hijack": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"reverseshell": {
+									"reverse_shell": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"serviceunknownoriginbinary": {
+									"service_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"skipsshtracking": {
+									"skip_ssh_tracking": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"suspiciouselfheaders": {
+									"suspicious_elf_headers": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"tempfsproc": {
+									"temp_filesystem_processes": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"userunknownoriginbinary": {
+									"user_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -147,7 +141,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"wildfireanalysis": {
+									"wildfire_analysis": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -163,7 +157,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
-						"customrules": {
+						"custom_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "List of custom runtime rules.",
@@ -220,12 +214,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"denylisteffect": {
+									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -233,12 +227,20 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"fileintegrityrules": {
+						"file_integrity_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "file integrity monitoring rules..",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"allowed_processes": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "The processes to ignore Filesystem events caused by these processes DO NOT generate file integrity events.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 									"exclusions": {
 										Type:        schema.TypeList,
 										Optional:    true,
@@ -256,14 +258,6 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Path to monitor.",
-									},
-									"procwhitelist": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The processes to ignore Filesystem events caused by these processes DO NOT generate file integrity events.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
 									},
 									"read": {
 										Type:        schema.TypeBool,
@@ -289,32 +283,32 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Indicates how to perform host forensic.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"activitiesdisabled": {
+									"activities_disabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates if the host activity collection is enabled/disabled.",
 									},
-									"dockerenabled": {
+									"docker_enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates whether docker commands are collected.",
 									},
-									"readonlydockerenabled": {
+									"readonly_docker_enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates whether docker readonly commands are collected.",
 									},
-									"serviceactivitiesenabled": {
+									"service_activities_enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates whether activities from services are collected.",
 									},
-									"sshdenabled": {
+									"sshd_enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates whether ssh commands are collected.",
 									},
-									"sudoenabled": {
+									"sudo_enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
 										Description: "Indicates whether sudo commands are collected.",
@@ -322,7 +316,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 								},
 							},
 						},
-						"loginspectionrules": {
+						"log_inspection_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "List of log inspection rules.",
@@ -355,7 +349,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 							Description: "Represents the restrictions or suppression for networking.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"allowedoutboundips": {
+									"allowed_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Allow-listed IP addresses.",
@@ -363,12 +357,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"customfeed": {
+									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"deniedlisteningports": {
+									"denied_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of listening ports.",
@@ -392,7 +386,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"deniedoutboundips": {
+									"denied_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-list of IP addresses.",
@@ -400,7 +394,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											Type: schema.TypeString,
 										},
 									},
-									"deniedoutboundports": {
+									"denied_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "Deny-listed outbound ports.",
@@ -424,12 +418,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 											},
 										},
 									},
-									"denylisteffect": {
+									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
 									},
-									"intelligencefeed": {
+									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
 										Description: "Effect that will be used in the runtime rule.",
@@ -449,19 +443,46 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 	}
 }
 
-func parsePolicyRuntimeHost(d *schema.ResourceData, policyID string) policies.Policy {
-	return parsePolicy(d, policyID, "")
+func parsePolicyRuntimeHost(d *schema.ResourceData, policyId string) (*policy.Policy, error) {
+	parsedPolicy, err := parsePolicy(d, policyId, "")
+	if err != nil {
+		return nil, fmt.Errorf("error parsing %s policy: %s", policyId, err)
+	}
+	return parsedPolicy, nil
+}
+
+func flattenPolicyRuntimeHostRules(in []policy.Rule) []interface{} {
+	ans := make([]interface{}, 0, len(in))
+	for _, val := range in {
+		m := make(map[string]interface{})
+		m["antimalware"] = flattenAntiMalware(val.AntiMalware)
+		m["collections"] = flattenCollections(val.Collections)
+		m["custom_rule"] = flattenCustomRules(val.CustomRules)
+		m["disabled"] = val.Disabled
+		m["dns"] = flattenDns(val.Dns)
+		m["file_integrity_rule"] = flattenFileIntegrityRules(val.FileIntegrityRules)
+		m["forensic"] = flattenForensic(val.Forensic)
+		m["log_inspection_rule"] = flattenLogInspectionRules(val.LogInspectionRules)
+		m["name"] = val.Name
+		m["network"] = flattenNetwork(val.Network)
+		m["notes"] = val.Notes
+		ans = append(ans, m)
+	}
+	return ans
 }
 
 func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	obj := parsePolicyRuntimeHost(d, "")
+	parsedPolicy, err := parsePolicyRuntimeHost(d, "")
+	if err != nil {
+		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
+	}
 
-	if err := policies.Update(*client, policies.RuntimeHostEndpoint, obj); err != nil {
+	if err := policy.Update(*client, policy.RuntimeHostEndpoint, *parsedPolicy); err != nil {
 		return err
 	}
 
-	pol, err := policies.Get(*client, policies.RuntimeHostEndpoint)
+	pol, err := policy.Get(*client, policy.RuntimeHostEndpoint)
 	if err != nil {
 		return err
 	}
@@ -473,13 +494,13 @@ func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	obj, err := policies.Get(*client, policies.RuntimeHostEndpoint)
+	retrievedPolicy, err := policy.Get(*client, policy.RuntimeHostEndpoint)
 	if err != nil {
 		return err
 	}
 
 	d.Set("_id", policyTypeRuntimeHost)
-	if err := d.Set("rule", obj.Rules); err != nil {
+	if err := d.Set("rule", flattenPolicyRuntimeHostRules(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
 	}
 
@@ -489,9 +510,12 @@ func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	id := d.Id()
-	obj := parsePolicyRuntimeHost(d, id)
+	parsedPolicy, err := parsePolicyRuntimeHost(d, id)
+	if err != nil {
+		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
+	}
 
-	if err := policies.Update(*client, policies.RuntimeHostEndpoint, obj); err != nil {
+	if err := policy.Update(*client, policy.RuntimeHostEndpoint, *parsedPolicy); err != nil {
 		return err
 	}
 
@@ -499,16 +523,5 @@ func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 }
 
 func deletePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
-	/*	client := meta.(*pcc.Client)
-		id := d.Id()
-
-		err := policy.Delete(client, id)
-		if err != nil {
-			if err != pcc.ObjectNotFoundError {
-				return err
-			}
-		}*/
-
-	d.SetId("")
 	return nil
 }

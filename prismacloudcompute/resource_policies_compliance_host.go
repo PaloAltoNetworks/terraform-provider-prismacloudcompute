@@ -5,7 +5,7 @@ import (
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
@@ -33,7 +33,7 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 				Optional: true,
 				Default:  policyTypeComplianceHost,
 			},
-			"policytype": {
+			"policy_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  policyTypeComplianceHost,
@@ -44,12 +44,7 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 				Description: "List of policy rules.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"allcompliance": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: "Whether or not to report both failed and passed compliance checks.",
-						},
-						"blockmsg": {
+						"block_message": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Message to display for blocked requests.",
@@ -111,6 +106,11 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 							Optional:    true,
 							Description: "Free-form text field.",
 						},
+						"show_passed_checks": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: "Whether or not to report both failed and passed compliance checks.",
+						},
 						"verbose": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -123,26 +123,50 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 	}
 }
 
-func parsePolicyComplianceHost(d *schema.ResourceData, policyID string) policies.Policy {
-	policy := parsePolicy(d, policyID, d.Get("policytype").(string))
-	for _, v := range policy.Rules {
+func parsePolicyComplianceHost(d *schema.ResourceData, policyId string) (*policy.Policy, error) {
+	parsedPolicy, err := parsePolicy(d, policyId, d.Get("policy_type").(string))
+	if err != nil {
+		return nil, fmt.Errorf("error parsing %s policy: %s", policyId, err)
+	}
+	for _, v := range parsedPolicy.Rules {
 		v.Action = []string{""}
 		v.Group = []string{""}
-		v.License = policies.License{}
+		v.License = policy.License{}
 		v.Principal = []string{""}
 	}
-	return policy
+	return parsedPolicy, nil
+}
+
+func flattenPolicyComplianceHostRules(in []policy.Rule) []interface{} {
+	ans := make([]interface{}, 0, len(in))
+	for _, val := range in {
+		m := make(map[string]interface{})
+		m["block_message"] = val.BlockMsg
+		m["collections"] = flattenCollections(val.Collections)
+		m["conditions"] = flattenConditions(val.Condition)
+		m["disabled"] = val.Disabled
+		m["effect"] = val.Effect
+		m["name"] = val.Name
+		m["notes"] = val.Notes
+		m["show_passed_checks"] = val.AllCompliance
+		m["verbose"] = val.Verbose
+		ans = append(ans, m)
+	}
+	return ans
 }
 
 func createPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	obj := parsePolicyComplianceHost(d, "")
+	parsedPolicy, err := parsePolicyComplianceHost(d, "")
+	if err != nil {
+		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceHost, err)
+	}
 
-	if err := policies.Update(*client, policies.ComplianceHostEndpoint, obj); err != nil {
+	if err := policy.Update(*client, policy.ComplianceHostEndpoint, *parsedPolicy); err != nil {
 		return err
 	}
 
-	pol, err := policies.Get(*client, policies.ComplianceHostEndpoint)
+	pol, err := policy.Get(*client, policy.ComplianceHostEndpoint)
 	if err != nil {
 		return err
 	}
@@ -154,14 +178,14 @@ func createPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error 
 func readPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	obj, err := policies.Get(*client, policies.ComplianceHostEndpoint)
+	retrievedPolicy, err := policy.Get(*client, policy.ComplianceHostEndpoint)
 	if err != nil {
 		return err
 	}
 
 	d.Set("_id", policyTypeComplianceHost)
-	d.Set("policytype", policyTypeComplianceHost)
-	if err := d.Set("rule", obj.Rules); err != nil {
+	d.Set("policy_type", policyTypeComplianceHost)
+	if err := d.Set("rule", flattenPolicyComplianceHostRules(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
 	}
 
@@ -171,9 +195,12 @@ func readPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 func updatePolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	id := d.Id()
-	obj := parsePolicyComplianceHost(d, id)
+	parsedPolicy, err := parsePolicyComplianceHost(d, id)
+	if err != nil {
+		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceHost, err)
+	}
 
-	if err := policies.Update(*client, policies.ComplianceHostEndpoint, obj); err != nil {
+	if err := policy.Update(*client, policy.ComplianceHostEndpoint, *parsedPolicy); err != nil {
 		return err
 	}
 
@@ -181,16 +208,5 @@ func updatePolicyComplianceHost(d *schema.ResourceData, meta interface{}) error 
 }
 
 func deletePolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
-	/*	client := meta.(*pcc.Client)
-		id := d.Id()
-
-		err := policy.Delete(client, id)
-		if err != nil {
-			if err != pcc.ObjectNotFoundError {
-				return err
-			}
-		}*/
-
-	d.SetId("")
 	return nil
 }

@@ -11,7 +11,7 @@ terraform {
 provider "prismacloudcompute" {
   config_file = "creds.json"
 }
-/*
+
 resource "prismacloudcompute_ci_image_compliance_policy" "ruleset" {
   rule {
     name        = "Default - alert on critical and high"
@@ -1359,11 +1359,11 @@ resource "prismacloudcompute_ci_image_vulnerability_policy" "ruleset" {
     name        = "Default - alert all components"
     effect      = "alert"
     collections = ["All"]
-    alertthreshold = {
+    alert_threshold = {
       disabled = false
       value    = 0
     }
-    blockthreshold = {
+    block_threshold = {
       enabled = false
       value   = 0
     }
@@ -1375,7 +1375,7 @@ resource "prismacloudcompute_host_vulnerability_policy" "ruleset" {
     name        = "Default - alert all components"
     effect      = "alert"
     collections = ["All"]
-    alertthreshold = {
+    alert_threshold = {
       disabled = false
       value    = 0
     }
@@ -1387,52 +1387,58 @@ resource "prismacloudcompute_image_vulnerability_policy" "ruleset" {
     name        = "Default - ignore Twistlock components"
     effect      = "alert"
     collections = ["Prisma Cloud resources"]
-    alertthreshold = {
+    alert_threshold = {
       disabled = false
       value    = 4
     }
-    blockthreshold = {
+    block_threshold = {
       enabled = false
       value   = 0
     }
-    cverules {
+    cve_rule {
       description = "Not Affected"
       effect      = "ignore"
+      expiration  = {
+        date = "0001-01-01T00:00:00Z"
+        enabled = false
+      }
       id          = "CVE-2021-29923"
     }
-    cverules {
+    cve_rule {
       description = "Not Affected"
       effect      = "ignore"
+      expiration  = {
+        date = "0001-01-01T00:00:00Z"
+        enabled = false
+      }
       id          = "CVE-2021-36221"
     }
-    onlyfixed = true
+    only_fixed = true
   }
   rule {
     name        = "Default - alert all components"
     effect      = "alert"
     collections = ["All"]
-    alertthreshold = {
+    alert_threshold = {
       disabled = false
       value    = 0
     }
-    blockthreshold = {
+    block_threshold = {
       enabled = false
       value   = 0
     }
   }
 }
-*/
 
-resource "prismacloudcompute_settings_registry" "registry" {
-  specifications {
-    version = "2"
-    registry = ""
-    os = "linux"
-    cap = 5
-    scanners = 2
-    jfrogrepotypes = []
-    repository = "library/ubuntu"
-    tag = "20.04"
-    collections = ["All"]
-  }
-}
+# resource "prismacloudcompute_settings_registry" "registry" {
+#   specification {
+#     version = "2"
+#     registry = ""
+#     repository = "library/ubuntu"
+#     tag = "20.04"
+#     os = "linux"
+#     cap = 5
+#     scanners = 2
+#     collections = ["All"]
+#   }
+# }

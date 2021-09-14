@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
-
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 )
 
 func TestPolicyRuntimeHostConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyConfig")
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -39,7 +38,7 @@ func TestPolicyRuntimeHostConfig(t *testing.T) {
 }
 
 func TestPolicyRuntimeHostNetwork(t *testing.T) {
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -66,7 +65,7 @@ func TestPolicyRuntimeHostNetwork(t *testing.T) {
 }
 
 func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -92,7 +91,7 @@ func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
 	})
 }
 
-// func testPolicyRuntimeHostExists(n string, o *policies.Policy) resource.TestCheckFunc {
+// func testPolicyRuntimeHostExists(n string, o *policy.Policy) resource.TestCheckFunc {
 // 	return func(s *terraform.State) error {
 // 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -106,7 +105,7 @@ func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
 // 		}
 
 // 		client := testAccProvider.Meta().(*pcc.Client)
-// 		lo, err := policies.Get(*client, policies.RuntimeHostEndpoint)
+// 		lo, err := policy.Get(*client, policy.RuntimeHostEndpoint)
 // 		if err != nil {
 // 			return fmt.Errorf("Error in get: %s", err)
 // 		}
@@ -116,7 +115,7 @@ func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
 // 	}
 // }
 
-// func testPolicyRuntimeHostAttributes(o *policies.Policy, id string, learningDisabled bool) resource.TestCheckFunc {
+// func testPolicyRuntimeHostAttributes(o *policy.Policy, id string, learningDisabled bool) resource.TestCheckFunc {
 // 	return func(s *terraform.State) error {
 // 		if o.PolicyId != id {
 // 			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
@@ -143,7 +142,7 @@ func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
 
 // 			if rs.Primary.ID != "" {
 // 				name := rs.Primary.ID
-// 				if err := policies.Delete(client, name); err == nil {
+// 				if err := policy.Delete(client, name); err == nil {
 // 					return fmt.Errorf("Object %q still exists", name)
 // 				}
 // 			}

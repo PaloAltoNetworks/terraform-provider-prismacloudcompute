@@ -1,7 +1,7 @@
 package prismacloudcompute
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
@@ -12,10 +12,10 @@ import (
 
 func resourceRegistry() *schema.Resource {
 	return &schema.Resource{
-		Create: createRegistry,
-		Read:   readRegistry,
-		Update: updateRegistry,
-		Delete: deleteRegistry,
+		Create: createRegistrySettings,
+		Read:   readRegistrySettings,
+		Update: updateRegistrySettings,
+		Delete: deleteRegistrySettings,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -28,21 +28,11 @@ func resourceRegistry() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"harborscannerurlsuffix": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "URL suffix for the harbor scanner.",
-			},
-			"webhookurlsuffix": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: "URL suffix for the webhook.",
-			},
-			"specifications": {
+			"specification": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of specifications.",
-				Elem: &schema.Resource {
+				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cap": {
 							Type:        schema.TypeInt,
@@ -58,128 +48,11 @@ func resourceRegistry() *schema.Resource {
 							},
 						},
 						"credential": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: "Credential contains external provider authentication data",
-							Elem: &schema.Resource {
-								Schema: map[string]*schema.Schema{
-									"_id": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Unique ID for the credential.",
-									},
-									"accountguid": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Account identifier (e.g., username, access key, account GUID, etc.).",
-									},
-									"accountid": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Account identifier (e.g., username, access key, account GUID, etc.).",
-									},
-									"apitoken": {
-										Type:        schema.TypeMap,
-										Optional:    true,
-										Description: "Secret contains the plain and encrypted version of a value (the plain version is never stored in the DB)",
-										Elem: &schema.Resource {
-											Schema: map[string]*schema.Schema{
-												"encrypted": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: "Encrypted value for the secret.",
-												},
-												"plain": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: "Plain text value for the secret. Note: marshalling to JSON will convert to an encrypted value.",
-												},
-											},
-										},
-									},
-									"cacert": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "CA certificate for certificate-based authentication.",
-									},
-									"created": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Created when the credential was created (or the account ID was changed for AWS).",
-									},
-									"description": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Description of the credential.",
-									},
-									"external": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates if the credential is external (true) or not (false).",
-									},
-									"lastmodified": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Datetime when the credential was last modified.",
-									},
-									"owner": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "User who created or modified the credential.",
-									},
-									"rolearn": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "Amazon Resource Name (ARN) of the role to assume.",
-									},
-									"secret": {
-										Type:        schema.TypeMap,
-										Optional:    true,
-										Description: "Secret contains the plain and encrypted version of a value (the plain version is never stored in the DB).",
-										Elem: &schema.Resource {
-											Schema: map[string]*schema.Schema{
-												"encrypted": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: "Encrypted value for the secret.",
-												},
-												"plain": {
-													Type:        schema.TypeString,
-													Optional:    true,
-													Description: "Plain text value for the secret. Note: marshalling to JSON will convert to an encrypted value.",
-												},
-											},
-										},
-									},
-									"skipverify": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "SkipVerify if should skip certificate verification in tls communication.",
-									},
-									"type": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "The credential type.",
-									},
-									"url": {
-										Type:        schema.TypeString,
-										Optional:    true,
-										Description: "The server base URL.",
-									},
-									"useawsrole": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates if authentication should be done with the instance's attached credentials (EC2 IAM Role).",
-									},
-								},
-							},
-						},
-						"credentialid": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "ID of the credentials in the credentials store to use for authenticating with the registry.",
 						},
-						"excludedrepositories": {
+						"excluded_repositories": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Repositories to exclude from scanning.",
@@ -187,17 +60,20 @@ func resourceRegistry() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
-						"excludedtags": {
-							Type:        schema.TypeString,
+						"excluded_tags": {
+							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "Tags to exclude from scanning.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 						},
-						"harbordeploymentsecurity": {
+						"harbor_deployment_security": {
 							Type:        schema.TypeBool,
 							Optional:    true,
 							Description: "Indicates whether the Prisma Cloud plugin uses temporary tokens provided by Harbor to scan images in projects where Harbor's deployment security setting is enabled.",
 						},
-						"jfrogrepotypes": {
+						"jfrog_repo_types": {
 							Type:        schema.TypeList,
 							Optional:    true,
 							Description: "JFrog Artifactory repository types to scan.",
@@ -208,12 +84,12 @@ func resourceRegistry() *schema.Resource {
 						"namespace": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "IBM Bluemix namespace https://console.bluemix.net/docs/services/Regis.",
+							Description: "IBM Bluemix namespace.",
 						},
 						"os": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "RegistryOSType specifies the registry images base OS type.",
+							Description: "The registry images base OS type.",
 						},
 						"registry": {
 							Type:        schema.TypeString,
@@ -240,11 +116,11 @@ func resourceRegistry() *schema.Resource {
 							Optional:    true,
 							Description: "Registry type. Determines the protocol Prisma Cloud uses to communicate with the registry.",
 						},
-						"versionpattern": {
+						"version_pattern": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Pattern heuristic for quickly filtering images by tags without having to query all images for modification dates.",
-						},						
+						},
 					},
 				},
 			},
@@ -252,211 +128,107 @@ func resourceRegistry() *schema.Resource {
 	}
 }
 
-func parseRegistry(d *schema.ResourceData, id string) registry.Registry {
-	ans := registry.Registry{}
-	if d.Get("harborscannerurlsuffix") != nil {
-		ans.HarborScannerUrlSuffix = d.Get("harborscannerurlsuffix").(string)
+func parseRegistry(d *schema.ResourceData) registry.Registry {
+	return registry.Registry{
+		Specifications: parseRegistrySpecification(d.Get("specification").([]interface{})),
 	}
-	if d.Get("specifications") != nil && len(d.Get("specifications").([]interface{})) > 0 {
-		ans.Specifications = getSpecifications(d.Get("specifications").([]interface{}))
-	}
-	if d.Get("webhookurlsuffix") != nil {
-		ans.WebhookUrlSuffix = d.Get("webhookurlsuffix").(string)
-	}
+}
 
+func parseRegistrySpecification(specifications []interface{}) []registry.Specification {
+	ans := make([]registry.Specification, 0, len(specifications))
+	for _, v := range specifications {
+		m := v.(map[string]interface{})
+		ans = append(ans, registry.Specification{
+			Cap:                      m["cap"].(int),
+			Collections:              parseStringArray(m["collections"].([]interface{})),
+			CredentialId:             m["credential"].(string),
+			ExcludedRepositories:     parseStringArray(m["excluded_repositories"].([]interface{})),
+			ExcludedTags:             parseStringArray(m["excluded_tags"].([]interface{})),
+			HarborDeploymentSecurity: m["harbor_deployment_security"].(bool),
+			JfrogRepoTypes:           parseStringArray(m["jfrog_repo_types"].([]interface{})),
+			Namespace:                m["namespace"].(string),
+			Os:                       m["os"].(string),
+			Tag:                      m["tag"].(string),
+			Registry:                 m["registry"].(string),
+			Repository:               m["repository"].(string),
+			Scanners:                 m["scanners"].(int),
+			Version:                  m["version"].(string),
+			VersionPattern:           m["version_pattern"].(string),
+		})
+	}
 	return ans
 }
 
-func saveRegistry(d *schema.ResourceData, obj registry.Registry) {
-	d.Set("harborScannerUrlSuffix", obj.HarborScannerUrlSuffix)
-	if err := d.Set("specifications", obj.Specifications); err != nil {
-		log.Printf("[WARN] Error setting 'specifications' for %q: %s", d.Id(), err)
+func flattenRegistrySpecification(s []registry.Specification) []interface{} {
+	ans := make([]interface{}, 0, len(s))
+	for _, v := range s {
+		m := make(map[string]interface{})
+		m["cap"] = v.Cap
+		m["collections"] = v.Collections
+		m["credential"] = v.CredentialId
+		m["excluded_repositories"] = v.ExcludedRepositories
+		m["excluded_tags"] = v.ExcludedTags
+		m["harbor_deployment_security"] = v.HarborDeploymentSecurity
+		m["jfrog_repo_types"] = v.JfrogRepoTypes
+		m["namespace"] = v.Namespace
+		m["os"] = v.Os
+		m["tag"] = v.Tag
+		m["registry"] = v.Registry
+		m["repository"] = v.Repository
+		m["scanners"] = v.Scanners
+		m["version"] = v.Version
+		m["version_pattern"] = v.VersionPattern
+		ans = append(ans, m)
 	}
-	d.Set("webhookUrlSuffix", obj.WebhookUrlSuffix)
+	return ans
 }
 
-func createRegistry(d *schema.ResourceData, meta interface{}) error {
+func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	obj := parseRegistry(d, "")
+	obj := parseRegistry(d)
 
 	if err := registry.Update(*client, obj); err != nil {
-		log.Printf("Failed to create Registry: %s\n", err)
-		return err
+		return fmt.Errorf("failed to create registry: %s", err)
 	}
 
-	reg, err := registry.Get(*client)
-	if err != nil {
-		return err
-	}
-
-	d.SetId(reg.WebhookUrlSuffix)
-	return readRegistry(d, meta)	
+	d.SetId("registrySettings")
+	return readRegistrySettings(d, meta)
 }
 
-func readRegistry(d *schema.ResourceData, meta interface{}) error {
+func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
 	obj, err := registry.Get(*client)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read registry: %s", err)
 	}
 
-	saveRegistry(d, obj)
+	if err := d.Set("specification", flattenRegistrySpecification(obj.Specifications)); err != nil {
+		return fmt.Errorf("failed setting 'specification' for %s: %s", d.Id(), err)
+	}
 
 	return nil
 }
 
-func updateRegistry(d *schema.ResourceData, meta interface{}) error {
+func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id := d.Id()
-	obj := parseRegistry(d, id)
+	obj := parseRegistry(d)
 
 	if err := registry.Update(*client, obj); err != nil {
-		return err
+		return fmt.Errorf("failed to update registry: %s", err)
 	}
 
-	return readRegistry(d, meta)
+	return readRegistrySettings(d, meta)
 }
 
-func deleteRegistry(d *schema.ResourceData, meta interface{}) error {
-/*	client := meta.(*pcc.Client)
-	id := d.Id()
-
-	err := registry.Delete(*client, id)
-	if err != nil {
-		return err
+func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	obj := registry.Registry{
+		Specifications: make([]registry.Specification, 0),
 	}
-*/
+	if err := registry.Update(*client, obj); err != nil {
+		return fmt.Errorf("failed to delete registry: %s", err)
+	}
 	d.SetId("")
 	return nil
 }
-
-func getSpecifications(specs []interface{}) []registry.Specification {
-	specsArray := []registry.Specification{}
-		
-	for i := 0; i < len(specs); i++ {
-		specItem := specs[i].(map[string]interface{})
-		spec := registry.Specification{}
-
-		if specItem["cap"] != nil {
-			spec.Cap = specItem["cap"].(int)
-		}
-
-		if specItem["collections"] != nil {
-			spec.Collections = parseStringArray(specItem["collections"].([]interface{}))
-		}
-		if specItem["credential"] != nil {
-			credItem := specItem["credential"].(map[string]interface{})
-			cred := registry.Credential{}
-				
-			if credItem["accountguid"] != nil {
-				cred.AccountGUID = credItem["accountguid"].(string)
-			}
-			if credItem["accountid"] != nil {
-				cred.AccountID = credItem["accountid"].(string)
-			}
-			if credItem["apitoken"] != nil {
-				apiTokenItem := credItem["apitoken"]
-				cred.ApiToken = getStringResult(apiTokenItem)
-			}
-			if credItem["cacert"] != nil {
-				cred.CaCert = credItem["cacert"].(string)
-			}
-			if credItem["created"] != nil {
-				cred.Created = credItem["created"].(string)
-			}
-			if credItem["description"] != nil {
-				cred.Description = credItem["description"].(string)
-			}
-			if credItem["external"] != nil {
-				cred.External = credItem["external"].(bool)
-			}
-			if credItem["_id"] != nil {
-				cred.Id = credItem["_id"].(string)
-			}
-			if credItem["lastmodified"] != nil {
-				cred.LastModified = credItem["lastmodified"].(string)
-			}
-			if credItem["owner"] != nil {
-				cred.Owner = credItem["owner"].(string)
-			}
-			if credItem["rolearn"] != nil {
-				cred.RoleArn = credItem["rolearn"].(string)
-			}
-			if credItem["secret"] != nil {
-				secretItem := credItem["secret"].(string)
-				cred.Secret = getStringResult(secretItem )
-			}
-			if credItem["skipverify"] != nil {
-				cred.RoleArn = credItem["skipverify"].(string)
-			}
-			if credItem["type"] != nil {
-				cred.SkipVerify = credItem["type"].(bool)
-			}
-			if credItem["url"] != nil {
-				cred.Url = credItem["url"].(string)
-			}
-			if credItem["useawsrole"] != nil {
-				cred.UseAWSRole = credItem["useawsrole"].(bool)
-			}
-			
-			spec.Credential = cred
-		}
-		if specItem["credentialid"] != nil {
-			spec.CredentialID = specItem["credentialid"].(string)
-		}
-		if specItem["excludedrepositories"] != nil {
-			spec.ExcludedRepositories = parseStringArray(specItem["excludedrepositories"].([]interface{}))
-		}
-		if specItem["excludedtags"] != nil {
-			spec.ExcludedTags = specItem["excludedtags"].(string)
-		}
-		if specItem["harbordeploymentsecurity"] != nil {
-			spec.HarborDeploymentSecurity = specItem["harbordeploymentsecurity"].(bool)
-		}
-		if specItem["jfrogrepotypes"] != nil {
-			spec.JfrogRepoTypes = parseStringArray(specItem["jfrogrepotypes"].([]interface{}))
-		}
-		if specItem["namespace"] != nil {
-			spec.Namespace = specItem["namespace"].(string)
-		}
-		if specItem["os"] != nil {
-			spec.Os = specItem["os"].(string)
-		}
-		if specItem["tag"] != nil {
-			spec.Tag = specItem["tag"].(string)
-		}
-		if specItem["registry"] != nil {
-			spec.Registry = specItem["registry"].(string)
-		}
-		if specItem["repository"] != nil {
-			spec.Repository = specItem["repository"].(string)
-		}
-		if specItem["scanners"] != nil {
-			spec.Scanners = specItem["scanners"].(int)
-		}
-		if specItem["version"] != nil {
-			spec.Version = specItem["version"].(string)
-		}
-		if specItem["versionpattern"] != nil {
-			spec.VersionPattern = specItem["versionpattern"].(string)
-		}
-		
-		specsArray = append(specsArray, spec)
-	}
-	
-	return specsArray
-}
-
-func getStringResult(stringResultItem interface{}) registry.StringResult {
-	item := stringResultItem.(map[string]interface{})
-	stringResult := registry.StringResult{}
-	
-	if item["encrypted"] != nil {
-		stringResult.Encrypted = item["encrypted"].(string)
-	}
-	if item["plain"] != nil {
-		stringResult.Plain = item["plain"].(string)
-	}
-	return stringResult
-}				

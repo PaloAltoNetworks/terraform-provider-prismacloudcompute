@@ -2,132 +2,147 @@ package prismacloudcompute
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/collections"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 )
 
 const (
-	policyTypeComplianceCIImages    = "ciImagesCompliance"
+	policyTypeComplianceCiImages    = "ciImagesCompliance"
 	policyTypeComplianceContainer   = "containerCompliance"
 	policyTypeComplianceHost        = "hostCompliance"
 	policyTypeRuntimeContainer      = "containerRuntime"
 	policyTypeRuntimeHost           = "hostRuntime"
-	policyTypeVulnerabilityCIImages = "ciImagesVulnerability"
+	policyTypeVulnerabilityCiImages = "ciImagesVulnerability"
 	policyTypeVulnerabilityHost     = "hostVulnerability"
 	policyTypeVulnerabilityImages   = "containerVulnerability"
 )
 
-func parsePolicy(d *schema.ResourceData, policyID, policyType string) policies.Policy {
-	policy := policies.Policy{
-		PolicyId:   policyID,
+func parsePolicy(d *schema.ResourceData, policyId, policyType string) (*policy.Policy, error) {
+	parsedPolicy := policy.Policy{
+		PolicyId:   policyId,
 		PolicyType: policyType,
 	}
 
-	if d.Get("learningdisabled") != nil {
-		policy.LearningDisabled = d.Get("learningdisabled").(bool)
+	if d.Get("learning_disabled") != nil {
+		parsedPolicy.LearningDisabled = d.Get("learning_disabled").(bool)
 	}
 
 	if d.Get("rule") != nil {
-		policy.Rules = parseRules(d.Get("rule").([]interface{}))
+		parsedRules, err := parseRules(d.Get("rule").([]interface{}))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing rules: %s", err)
+		}
+		parsedPolicy.Rules = parsedRules
 	} else {
-		policy.Rules = []policies.Rule{}
+		parsedPolicy.Rules = make([]policy.Rule, 0)
 	}
 
-	return policy
+	return &parsedPolicy, nil
 }
 
-func parseRules(rules []interface{}) []policies.Rule {
-	rulesList := make([]policies.Rule, 0, len(rules))
+func parseRules(rules []interface{}) ([]policy.Rule, error) {
+	ruleSlice := make([]policy.Rule, 0)
+
 	if len(rules) > 0 {
-		for i := 0; i < len(rules); i++ {
-			item := rules[i].(map[string]interface{})
+		for _, v := range rules {
+			item := v.(map[string]interface{})
+			rule := policy.Rule{}
 
-			rule := policies.Rule{}
-
-			if item["alertthreshold"] != nil {
-				thresholdInterface := item["alertthreshold"]
-				rule.AlertThreshold = getThreshold(thresholdInterface)
+			if item["advanced_protection"] != nil {
+				rule.AdvancedProtection = item["advanced_protection"].(bool)
 			}
-			if item["antimalware"] != nil {
-				antiMalwareSet := item["antimalware"]
-				antiMalwareItem := antiMalwareSet.(map[string]interface{})
 
-				rule.AntiMalware = policies.AntiMalware{}
-				if antiMalwareItem["allowedprocesses"] != nil {
-					rule.AntiMalware.AllowedProcesses = antiMalwareItem["allowedprocesses"].([]string)
+			if item["alert_threshold"] != nil {
+				parsedThreshold, err := parseThreshold(item["alert_threshold"].(map[string]interface{}))
+				if err != nil {
+					return nil, fmt.Errorf("error parsing threshold: %s", err)
 				}
-				if antiMalwareItem["cryptominer"] != nil {
-					rule.AntiMalware.CryptoMiner = antiMalwareItem["cryptominer"].(string)
+				rule.AlertThreshold = *parsedThreshold
+			}
+
+			if item["antimalware"] != nil {
+				anitMalware := item["antimalware"].(map[string]interface{})
+				if anitMalware["allowed_processes"] != nil {
+					rule.AntiMalware.AllowedProcesses = anitMalware["allowed_processes"].([]string)
 				}
-				if antiMalwareItem["customfeed"] != nil {
-					rule.AntiMalware.CustomFeed = antiMalwareItem["customfeed"].(string)
+				if anitMalware["crypto_miner"] != nil {
+					rule.AntiMalware.CryptoMiner = anitMalware["crypto_miner"].(string)
 				}
-				if antiMalwareItem["deniedprocesses"] != nil {
-					deniedProcessesString := antiMalwareItem["deniedprocesses"].(string)
+				if anitMalware["custom_feed"] != nil {
+					rule.AntiMalware.CustomFeed = anitMalware["custom_feed"].(string)
+				}
+				if anitMalware["denied_processes"] != nil {
+					deniedProcessesString := anitMalware["denied_processes"].(string)
 					if deniedProcessesString != "" {
-						var deniedProcesses policies.DeniedProcesses
+						var deniedProcesses policy.DeniedProcesses
 						if err := json.Unmarshal([]byte(deniedProcessesString), &deniedProcesses); err != nil {
 							panic(err)
 						}
 						rule.AntiMalware.DeniedProcesses = deniedProcesses
 					}
 				}
-				if antiMalwareItem["detectcompilergeneratedbinary"] != nil {
-					rule.AntiMalware.DetectCompilerGeneratedBinary = antiMalwareItem["detectcompilergeneratedbinary"].(bool)
+				if anitMalware["detect_compiler_generated_binary"] != nil {
+					rule.AntiMalware.DetectCompilerGeneratedBinary = anitMalware["detect_compiler_generated_binary"].(bool)
 				}
-				if antiMalwareItem["encryptedbinaries"] != nil {
-					rule.AntiMalware.EncryptedBinaries = antiMalwareItem["encryptedbinaries"].(string)
+				if anitMalware["encrypted_binaries"] != nil {
+					rule.AntiMalware.EncryptedBinaries = anitMalware["encrypted_binaries"].(string)
 				}
-				if antiMalwareItem["executionflowhijack"] != nil {
-					rule.AntiMalware.ExecutionFlowHijack = antiMalwareItem["executionflowhijack"].(string)
+				if anitMalware["execution_flow_hijack"] != nil {
+					rule.AntiMalware.ExecutionFlowHijack = anitMalware["execution_flow_hijack"].(string)
 				}
-				if antiMalwareItem["intelligencefeed"] != nil {
-					rule.AntiMalware.IntelligenceFeed = antiMalwareItem["intelligencefeed"].(string)
+				if anitMalware["intelligence_feed"] != nil {
+					rule.AntiMalware.IntelligenceFeed = anitMalware["intelligence_feed"].(string)
 				}
-				if antiMalwareItem["reverseshell"] != nil {
-					rule.AntiMalware.ReverseShell = antiMalwareItem["reverseshell"].(string)
+				if anitMalware["reverse_shell"] != nil {
+					rule.AntiMalware.ReverseShell = anitMalware["reverse_shell"].(string)
 				}
-				if antiMalwareItem["serviceunknownoriginbinary"] != nil {
-					rule.AntiMalware.ServiceUnknownOriginBinary = antiMalwareItem["serviceunknownoriginbinary"].(string)
+				if anitMalware["service_unknown_origin_binary"] != nil {
+					rule.AntiMalware.ServiceUnknownOriginBinary = anitMalware["service_unknown_origin_binary"].(string)
 				}
-				if antiMalwareItem["skipsshtracking"] != nil {
-					rule.AntiMalware.SkipSSHTracking = antiMalwareItem["skipsshtracking"].(bool)
+				if anitMalware["skip_ssh_tracking"] != nil {
+					rule.AntiMalware.SkipSshTracking = anitMalware["skip_ssh_tracking"].(bool)
 				}
-				if antiMalwareItem["suspiciouselfheaders"] != nil {
-					rule.AntiMalware.SuspiciousELFHeaders = antiMalwareItem["suspiciouselfheaders"].(string)
+				if anitMalware["suspicious_elf_headers"] != nil {
+					rule.AntiMalware.SuspiciousElfHeaders = anitMalware["suspicious_elf_headers"].(string)
 				}
-				if antiMalwareItem["tempfsproc"] != nil {
-					rule.AntiMalware.TempFSProc = antiMalwareItem["tempfsproc"].(string)
+				if anitMalware["temp_filesystem_processes"] != nil {
+					rule.AntiMalware.TempFsProc = anitMalware["temp_filesystem_processes"].(string)
 				}
-				if antiMalwareItem["userunknownoriginbinary"] != nil {
-					rule.AntiMalware.UserUnknownOriginBinary = antiMalwareItem["userunknownoriginbinary"].(string)
+				if anitMalware["user_unknown_origin_binary"] != nil {
+					rule.AntiMalware.UserUnknownOriginBinary = anitMalware["user_unknown_origin_binary"].(string)
 				}
-				if antiMalwareItem["webshell"] != nil {
-					rule.AntiMalware.WebShell = antiMalwareItem["webshell"].(string)
+				if anitMalware["webshell"] != nil {
+					rule.AntiMalware.WebShell = anitMalware["webshell"].(string)
 				}
-				if antiMalwareItem["wildfireanalysis"] != nil {
-					rule.AntiMalware.WildFireAnalysis = antiMalwareItem["wildfireanalysis"].(string)
+				if anitMalware["wildfire_analysis"] != nil {
+					rule.AntiMalware.WildFireAnalysis = anitMalware["wildfire_analysis"].(string)
 				}
-			}
-			if item["blockthreshold"] != nil {
-				thresholdInterface := item["blockthreshold"]
-				rule.BlockThreshold = getThreshold(thresholdInterface)
 			}
 
-			if item["advancedprotection"] != nil {
-				rule.AdvancedProtection = item["advancedprotection"].(bool)
+			if item["block_message"] != nil {
+				rule.BlockMsg = item["block_message"].(string)
 			}
-			if item["cloudmetadataenforcement"] != nil {
-				rule.CloudMetadataEnforcement = item["cloudmetadataenforcement"].(bool)
+
+			if item["block_threshold"] != nil {
+				parsedThreshold, err := parseThreshold(item["block_threshold"].(map[string]interface{}))
+				if err != nil {
+					return nil, fmt.Errorf("error parsing threshold: %s", err)
+				}
+				rule.BlockThreshold = *parsedThreshold
+			}
+
+			if item["cloud_metadata_enforcement"] != nil {
+				rule.CloudMetadataEnforcement = item["cloud_metadata_enforcement"].(bool)
 			}
 
 			if item["collections"] != nil {
 				colls := parseStringArray(item["collections"].([]interface{}))
 				for _, v := range colls {
-					coll := collections.Collection{Name: v}
+					coll := collection.Collection{Name: v}
 					rule.Collections = append(rule.Collections, coll)
 				}
 			}
@@ -136,12 +151,12 @@ func parseRules(rules []interface{}) []policies.Rule {
 				len(item["conditions"].([]interface{})) > 0 &&
 				item["conditions"].([]interface{})[0] != nil {
 				presentCondition := item["conditions"].([]interface{})[0].(map[string]interface{})
-				condition := policies.Condition{}
+				condition := policy.Condition{}
 
 				if presentCondition["compliance_check"] != nil {
 					complianceChecks := presentCondition["compliance_check"].(*schema.Set).List()
 					for _, v := range complianceChecks {
-						condition.Vulnerabilities = append(condition.Vulnerabilities, policies.Vulnerability{
+						condition.Vulnerabilities = append(condition.Vulnerabilities, policy.Vulnerability{
 							Block: v.(map[string]interface{})["block"].(bool),
 							Id:    v.(map[string]interface{})["id"].(int),
 						})
@@ -149,14 +164,15 @@ func parseRules(rules []interface{}) []policies.Rule {
 					rule.Condition = condition
 				}
 			}
-			if item["customrules"] != nil {
-				custRules := item["customrules"].([]interface{})
-				rule.CustomRules = make([]policies.CustomRule, 0, len(custRules))
+
+			if item["custom_rule"] != nil {
+				custRules := item["custom_rule"].([]interface{})
+				rule.CustomRules = make([]policy.CustomRule, 0, len(custRules))
 				if len(custRules) > 0 {
 					for i := 0; i < len(custRules); i++ {
 						custRuleItem := custRules[i].(map[string]interface{})
 
-						custRule := policies.CustomRule{
+						custRule := policy.CustomRule{
 							Id:     custRuleItem["_id"].(int),
 							Action: custRuleItem["action"].([]string),
 							Effect: custRuleItem["effect"].(string),
@@ -166,23 +182,23 @@ func parseRules(rules []interface{}) []policies.Rule {
 				}
 			}
 
-			if item["cverules"] != nil && len(item["cverules"].([]interface{})) > 0 {
-				cveRules := item["cverules"].([]interface{})
+			if item["cve_rule"] != nil && len(item["cve_rule"].([]interface{})) > 0 {
+				cveRules := item["cve_rule"].([]interface{})
 				for _, v := range cveRules {
-					cveRule := policies.CveRule{}
+					cveRule := policy.CveRule{}
 					if v.(map[string]interface{})["description"] != nil {
 						cveRule.Description = v.(map[string]interface{})["description"].(string)
 					}
 					if v.(map[string]interface{})["effect"] != nil {
 						cveRule.Effect = v.(map[string]interface{})["effect"].(string)
 					}
-					cveRuleExpiration := policies.Expiration{}
+					cveRuleExpiration := policy.Expiration{}
 					if v.(map[string]interface{})["expiration"] != nil {
 						if v.(map[string]interface{})["expiration"].(map[string]interface{})["date"] != nil {
 							cveRuleExpiration.Date = v.(map[string]interface{})["expiration"].(map[string]interface{})["date"].(string)
 						}
 						if v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"] != nil {
-							cveRuleExpiration.Enabled = v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"].(bool)
+							cveRuleExpiration.Enabled, _ = strconv.ParseBool(v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"].(string))
 						}
 					}
 					cveRule.Expiration = cveRuleExpiration
@@ -199,30 +215,27 @@ func parseRules(rules []interface{}) []policies.Rule {
 			}
 
 			if item["dns"] != nil {
-				dnsSet := item["dns"]
-				dnsItem := dnsSet.(map[string]interface{})
-
-				rule.Dns = policies.Dns{}
-				if dnsItem["blacklist"] != nil {
-					rule.Dns.Blacklist = dnsItem["blacklist"].([]string)
+				dns := item["dns"].(map[string]interface{})
+				if dns["denylist"] != nil {
+					rule.Dns.Blacklist = dns["denylist"].([]string)
 				}
-				if dnsItem["effect"] != nil {
-					rule.Dns.Effect = dnsItem["effect"].(string)
+				if dns["effect"] != nil {
+					rule.Dns.Effect = dns["effect"].(string)
 				}
-				if dnsItem["whitelist"] != nil {
-					rule.Dns.Whitelist = dnsItem["whitelist"].([]string)
+				if dns["allowlist"] != nil {
+					rule.Dns.Whitelist = dns["allowlist"].([]string)
 				}
-				if dnsItem["allow"] != nil {
-					rule.Dns.Allow = dnsItem["allow"].([]string)
+				if dns["allow"] != nil {
+					rule.Dns.Allow = dns["allow"].([]string)
 				}
-				if dnsItem["deny"] != nil {
-					rule.Dns.Deny = dnsItem["deny"].([]string)
+				if dns["deny"] != nil {
+					rule.Dns.Deny = dns["deny"].([]string)
 				}
-				if dnsItem["denylisteffect"] != nil {
-					rule.Dns.DenyListEffect = dnsItem["denylisteffect"].(string)
+				if dns["deny_effect"] != nil {
+					rule.Dns.DenyListEffect = dns["deny_effect"].(string)
 				}
-				if dnsItem["intelligencefeed"] != nil {
-					rule.Dns.IntelligenceFeed = dnsItem["intelligencefeed"].(string)
+				if dns["intelligence_feed"] != nil {
+					rule.Dns.IntelligenceFeed = dns["intelligence_feed"].(string)
 				}
 			}
 
@@ -230,344 +243,566 @@ func parseRules(rules []interface{}) []policies.Rule {
 				rule.Effect = item["effect"].(string)
 			}
 
+			if item["file_integrity_rule"] != nil {
+				fileIntegrityRules := item["file_integrity_rule"].([]interface{})
+				rule.FileIntegrityRules = make([]policy.FileIntegrityRule, 0, len(fileIntegrityRules))
+				for _, v := range fileIntegrityRules {
+					presentFileIntegrityRule := v.(map[string]interface{})
+					fileIntegrityRule := policy.FileIntegrityRule{}
+					if presentFileIntegrityRule["allowed_processes"] != nil {
+						fileIntegrityRule.ProcWhitelist = presentFileIntegrityRule["allowed_processes"].([]string)
+					}
+					if presentFileIntegrityRule["dir"] != nil {
+						fileIntegrityRule.Dir = presentFileIntegrityRule["dir"].(bool)
+					}
+					if presentFileIntegrityRule["exclusions"] != nil {
+						fileIntegrityRule.Exclusions = presentFileIntegrityRule["exclusions"].([]string)
+					}
+					if presentFileIntegrityRule["metadata"] != nil {
+						fileIntegrityRule.Metadata = presentFileIntegrityRule["metadata"].(bool)
+					}
+					if presentFileIntegrityRule["path"] != nil {
+						fileIntegrityRule.Path = presentFileIntegrityRule["path"].(string)
+					}
+					if presentFileIntegrityRule["read"] != nil {
+						fileIntegrityRule.Read = presentFileIntegrityRule["read"].(bool)
+					}
+					if presentFileIntegrityRule["recursive"] != nil {
+						fileIntegrityRule.Recursive = presentFileIntegrityRule["recursive"].(bool)
+					}
+					if presentFileIntegrityRule["write"] != nil {
+						fileIntegrityRule.Write = presentFileIntegrityRule["write"].(bool)
+					}
+					rule.FileIntegrityRules = append(rule.FileIntegrityRules, fileIntegrityRule)
+				}
+			}
+
 			if item["filesystem"] != nil {
-				fileSysSet := item["filesystem"]
-				fileSysItem := fileSysSet.(map[string]interface{})
+				filesystem := item["filesystem"].(map[string]interface{})
+				if filesystem["allowlist"] != nil {
+					rule.Filesystem.Whitelist = filesystem["allowlist"].([]string)
+				}
+				if filesystem["backdoor_files"] != nil {
+					rule.Filesystem.BackdoorFiles = filesystem["backdoor_files"].(bool)
+				}
+				if filesystem["check_new_files"] != nil {
+					rule.Filesystem.CheckNewFiles = filesystem["check_new_files"].(bool)
+				}
+				if filesystem["denylist"] != nil {
+					rule.Filesystem.Blacklist = filesystem["denylist"].([]string)
+				}
+				if filesystem["effect"] != nil {
+					rule.Filesystem.Effect = filesystem["effect"].(string)
+				}
+				if filesystem["skip_encrypted_binaries"] != nil {
+					rule.Filesystem.SkipEncryptedBinaries = filesystem["skip_encrypted_binaries"].(bool)
+				}
+				if filesystem["suspicious_elf_headers"] != nil {
+					rule.Filesystem.SuspiciousElfHeaders = filesystem["suspicious_elf_headers"].(bool)
+				}
+			}
 
-				rule.Filesystem = policies.Filesystem{}
-				if fileSysItem["backdoorFiles"] != nil {
-					rule.Filesystem.BackdoorFiles = fileSysItem["backdoorFiles"].(bool)
-				}
-				if fileSysItem["blacklist"] != nil {
-					rule.Filesystem.Blacklist = fileSysItem["blacklist"].([]string)
-				}
-				if fileSysItem["checknewfiles"] != nil {
-					rule.Filesystem.CheckNewFiles = fileSysItem["checknewfiles"].(bool)
-				}
-				if fileSysItem["effect"] != nil {
-					rule.Filesystem.Effect = fileSysItem["effect"].(string)
-				}
-				if fileSysItem["skipencryptedbinaries"] != nil {
-					rule.Filesystem.SkipEncryptedBinaries = fileSysItem["skipencryptedbinaries"].(bool)
-				}
-				if fileSysItem["suspiciouselfheaders"] != nil {
-					rule.Filesystem.SuspiciousELFHeaders = fileSysItem["suspiciouselfheaders"].(bool)
-				}
-				if fileSysItem["whitelist"] != nil {
-					rule.Filesystem.Whitelist = fileSysItem["whitelist"].([]string)
-				}
-			}
-			if item["kubernetesenforcement"] != nil {
-				rule.KubernetesEnforcement = item["kubernetesenforcement"].(bool)
-			}
-			if item["fileintegrityrules"] != nil {
-				fileIntegrityRulesSet := item["fileintegrityrules"].([]interface{})
-				if len(fileIntegrityRulesSet) > 0 {
-					fileIntegrityRulesItem := fileIntegrityRulesSet[0].(map[string]interface{})
-
-					rule.FileIntegrityRules = []policies.FileIntegrityRules{}
-					if fileIntegrityRulesItem["dir"] != nil {
-						rule.FileIntegrityRules[0].Dir = fileIntegrityRulesItem["dir"].(bool)
-					}
-					if fileIntegrityRulesItem["exclusions"] != nil {
-						rule.FileIntegrityRules[0].Exclusions = fileIntegrityRulesItem["exclusions"].([]string)
-					}
-					if fileIntegrityRulesItem["metadata"] != nil {
-						rule.FileIntegrityRules[0].Metadata = fileIntegrityRulesItem["metadata"].(bool)
-					}
-					if fileIntegrityRulesItem["path"] != nil {
-						rule.FileIntegrityRules[0].Path = fileIntegrityRulesItem["path"].(string)
-					}
-					if fileIntegrityRulesItem["procwhitelist"] != nil {
-						rule.FileIntegrityRules[0].ProcWhitelist = fileIntegrityRulesItem["procwhitelist"].([]string)
-					}
-					if fileIntegrityRulesItem["read"] != nil {
-						rule.FileIntegrityRules[0].Read = fileIntegrityRulesItem["read"].(bool)
-					}
-					if fileIntegrityRulesItem["recursive"] != nil {
-						rule.FileIntegrityRules[0].Recursive = fileIntegrityRulesItem["recursive"].(bool)
-					}
-					if fileIntegrityRulesItem["write"] != nil {
-						rule.FileIntegrityRules[0].Write = fileIntegrityRulesItem["write"].(bool)
-					}
-				}
-			}
 			if item["forensic"] != nil {
-				forensicSet := item["forensic"]
-				forensicItem := forensicSet.(map[string]interface{})
-				rule.Forensic = policies.Forensic{}
-				if forensicItem["activitiesdisabled"] != nil {
-					activitiesDisabled, err := strconv.ParseBool(forensicItem["activitiesdisabled"].(string))
+				forensic := item["forensic"].(map[string]interface{})
+				if forensic["activities_disabled"] != nil {
+					activitiesDisabled, err := strconv.ParseBool(forensic["activities_disabled"].(string))
 					if err == nil {
 						rule.Forensic.ActivitiesDisabled = activitiesDisabled
 					}
 				}
-				if forensicItem["dockerenabled"] != nil {
-					dockerEnabled, err := strconv.ParseBool(forensicItem["dockerenabled"].(string))
+				if forensic["docker_enabled"] != nil {
+					dockerEnabled, err := strconv.ParseBool(forensic["docker_enabled"].(string))
 					if err == nil {
 						rule.Forensic.DockerEnabled = dockerEnabled
 					}
 				}
-				if forensicItem["readOnlydockerenabled"] != nil {
-					readonlyDockerEnabled, err := strconv.ParseBool(forensicItem["readOnlydockerenabled"].(string))
+				if forensic["readOnlydockerenabled"] != nil {
+					readonlyDockerEnabled, err := strconv.ParseBool(forensic["readOnlydockerenabled"].(string))
 					if err == nil {
 						rule.Forensic.ReadonlyDockerEnabled = readonlyDockerEnabled
 					}
 				}
-				if forensicItem["serviceactivitiesenabled"] != nil {
-					serviceActivitiesEnabled, err := strconv.ParseBool(forensicItem["serviceactivitiesenabled"].(string))
+				if forensic["service_activities_enabled"] != nil {
+					serviceActivitiesEnabled, err := strconv.ParseBool(forensic["service_activities_enabled"].(string))
 					if err == nil {
 						rule.Forensic.ServiceActivitiesEnabled = serviceActivitiesEnabled
 					}
 				}
-				if forensicItem["sshdenabled"] != nil {
-					sshdEnabled, err := strconv.ParseBool(forensicItem["sshdenabled"].(string))
+				if forensic["sshd_enabled"] != nil {
+					sshdEnabled, err := strconv.ParseBool(forensic["sshd_enabled"].(string))
 					if err == nil {
 						rule.Forensic.SshdEnabled = sshdEnabled
 					}
 				}
-				if forensicItem["sudoenabled"] != nil {
-					sudoEnabled, err := strconv.ParseBool(forensicItem["sudoenabled"].(string))
+				if forensic["sudo_enabled"] != nil {
+					sudoEnabled, err := strconv.ParseBool(forensic["sudo_enabled"].(string))
 					if err == nil {
 						rule.Forensic.SudoEnabled = sudoEnabled
 					}
 				}
 			}
-			if item["loginspectionrules"] != nil {
-				logInspectionRulesSet := item["loginspectionrules"].([]interface{})
-				if len(logInspectionRulesSet) > 0 {
-					logInspectionRulesItem := logInspectionRulesSet[0].(map[string]interface{})
-					if logInspectionRulesItem["path"] != nil {
-						rule.LogInspectionRules[0].Path = logInspectionRulesItem["path"].(string)
+
+			if item["grace_days"] != nil {
+				rule.GraceDays = item["grace_days"].(int)
+			}
+
+			if item["kubernetes_enforcement"] != nil {
+				rule.KubernetesEnforcement = item["kubernetes_enforcement"].(bool)
+			}
+
+			if item["log_inspection_rule"] != nil {
+				logInspectionRules := item["log_inspection_rule"].([]interface{})
+				rule.LogInspectionRules = make([]policy.LogInspectionRule, 0, len(logInspectionRules))
+				for _, v := range logInspectionRules {
+					presentLogInspectionRules := v.(map[string]interface{})
+					logInspectionRule := policy.LogInspectionRule{}
+					if presentLogInspectionRules["path"] != nil {
+						logInspectionRule.Path = presentLogInspectionRules["path"].(string)
 					}
-					if logInspectionRulesItem["regex"] != nil {
-						rule.LogInspectionRules[0].Regex = logInspectionRulesItem["regex"].([]string)
+					if presentLogInspectionRules["regex"] != nil {
+						logInspectionRule.Regex = presentLogInspectionRules["regex"].([]string)
 					}
+					rule.LogInspectionRules = append(rule.LogInspectionRules, logInspectionRule)
 				}
 			}
-			if item["modified"] != nil {
-				rule.Modified = item["modified"].(string)
-			}
+
 			if item["name"] != nil {
 				rule.Name = item["name"].(string)
 			}
+
 			if item["network"] != nil {
-				networkSet := item["network"]
-				networkItem := networkSet.(map[string]interface{})
-				rule.Network = policies.Network{}
-				if networkItem["blacklistips"] != nil {
-					rule.Network.BlacklistIPs = networkItem["blacklistips"].([]string)
+				network := item["network"].(map[string]interface{})
+				if network["allowed_outbound_ips"] != nil {
+					rule.Network.WhitelistIps = network["allowed_outbound_ips"].([]string)
+					rule.Network.AllowedOutboundIps = network["allowed_outbound_ips"].([]string)
 				}
-
-				if networkItem["blacklistlisteningports"] != nil {
-					blacklistListenPorts := networkItem["blacklistlisteningports"].([]interface{})
-					rule.Network.BlacklistListeningPorts = make([]policies.ListPort, 0, len(blacklistListenPorts))
-					if len(blacklistListenPorts) > 0 {
-						for i := 0; i < len(blacklistListenPorts); i++ {
-							rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, getListPort(blacklistListenPorts[i]))
-						}
+				if network["allowed_listening_port"] != nil {
+					allowedListeningPorts := network["allowed_listening_port"].([]interface{})
+					rule.Network.WhitelistListeningPorts = make([]policy.ListPort, 0, len(allowedListeningPorts))
+					for _, v := range allowedListeningPorts {
+						allowedListeningPort := parseListPort(v.(map[string]interface{}))
+						rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, allowedListeningPort)
 					}
 				}
-
-				if networkItem["blacklistoutboundports"] != nil {
-					blacklistOutPorts := networkItem["blacklistoutboundports"].([]interface{})
-					rule.Network.BlacklistOutboundPorts = make([]policies.ListPort, 0, len(blacklistOutPorts))
-					if len(blacklistOutPorts) > 0 {
-						for i := 0; i < len(blacklistOutPorts); i++ {
-							rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, getListPort(blacklistOutPorts[i]))
-						}
+				if network["allowed_outbound_port"] != nil {
+					allowedOutboundPorts := network["allowed_outbound_port"].([]interface{})
+					rule.Network.WhitelistOutboundPorts = make([]policy.ListPort, 0, len(allowedOutboundPorts))
+					for _, v := range allowedOutboundPorts {
+						allowedOutboundPort := parseListPort(v.(map[string]interface{}))
+						rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, allowedOutboundPort)
 					}
 				}
-				if networkItem["detectportscan"] != nil {
-					rule.Network.DetectPortScan = networkItem["detectportscan"].(bool)
+				if network["custom_feed"] != nil {
+					rule.Network.CustomFeed = network["custom_feed"].(string)
 				}
-				if networkItem["effect"] != nil {
-					rule.Network.Effect = networkItem["effect"].(string)
+				if network["deny_effect"] != nil {
+					rule.Network.DenyListEffect = network["deny_effect"].(string)
 				}
-				if networkItem["skipmodifiedproc"] != nil {
-					rule.Network.SkipModifiedProc = networkItem["skipmodifiedproc"].(bool)
-				}
-				if networkItem["skiprawsockets"] != nil {
-					rule.Network.SkipRawSockets = networkItem["skiprawsockets"].(bool)
-				}
-				if networkItem["whitelistips"] != nil {
-					rule.Network.WhitelistIPs = networkItem["whitelistips"].([]string)
-				}
-
-				if networkItem["whitelistlisteningports"] != nil {
-					whitelistListenPorts := networkItem["whitelistlisteningports"].([]interface{})
-					rule.Network.WhitelistListeningPorts = make([]policies.ListPort, 0, len(whitelistListenPorts))
-					if len(whitelistListenPorts) > 0 {
-						for i := 0; i < len(whitelistListenPorts); i++ {
-							rule.Network.WhitelistListeningPorts = append(rule.Network.WhitelistListeningPorts, getListPort(whitelistListenPorts[i]))
-						}
+				if network["denied_listening_port"] != nil {
+					deniedListeningPorts := network["denied_listening_port"].([]interface{})
+					rule.Network.BlacklistListeningPorts = make([]policy.ListPort, 0, len(deniedListeningPorts))
+					rule.Network.DeniedListeningPorts = make([]policy.ListPort, 0, len(deniedListeningPorts))
+					for _, v := range deniedListeningPorts {
+						deniedListeningPort := parseListPort(v.(map[string]interface{}))
+						rule.Network.BlacklistListeningPorts = append(rule.Network.BlacklistListeningPorts, deniedListeningPort)
+						rule.Network.DeniedListeningPorts = append(rule.Network.DeniedListeningPorts, deniedListeningPort)
 					}
 				}
-
-				if networkItem["whitelistoutboundports"] != nil {
-					whitelistOutPorts := networkItem["whitelistoutboundports"].([]interface{})
-					rule.Network.WhitelistOutboundPorts = make([]policies.ListPort, 0, len(whitelistOutPorts))
-					if len(whitelistOutPorts) > 0 {
-						for i := 0; i < len(whitelistOutPorts); i++ {
-							rule.Network.WhitelistOutboundPorts = append(rule.Network.WhitelistOutboundPorts, getListPort(whitelistOutPorts[i]))
-						}
+				if network["denied_outbound_ips"] != nil {
+					rule.Network.BlacklistIps = network["denied_outbound_ips"].([]string)
+					rule.Network.DeniedOutboundIps = network["denied_outbound_ips"].([]string)
+				}
+				if network["denied_outbound_port"] != nil {
+					deniedOutboundPorts := network["denied_outbound_port"].([]interface{})
+					rule.Network.BlacklistOutboundPorts = make([]policy.ListPort, 0, len(deniedOutboundPorts))
+					rule.Network.DeniedOutboundPorts = make([]policy.ListPort, 0, len(deniedOutboundPorts))
+					for _, v := range deniedOutboundPorts {
+						deniedOutboundPort := parseListPort(v.(map[string]interface{}))
+						rule.Network.BlacklistOutboundPorts = append(rule.Network.BlacklistOutboundPorts, deniedOutboundPort)
+						rule.Network.DeniedOutboundPorts = append(rule.Network.DeniedOutboundPorts, deniedOutboundPort)
 					}
 				}
-				if networkItem["allowedoutboundips"] != nil {
-					rule.Network.AllowedOutboundIPs = networkItem["allowedoutboundips"].([]string)
+				if network["detect_port_scan"] != nil {
+					rule.Network.DetectPortScan = network["detect_port_scan"].(bool)
 				}
-				if networkItem["customfeed"] != nil {
-					rule.Network.CustomFeed = networkItem["customfeed"].(string)
+				if network["effect"] != nil {
+					rule.Network.Effect = network["effect"].(string)
 				}
-				if networkItem["deniedlisteningports"] != nil {
-					deniedListeningPorts := networkItem["deniedlisteningports"].([]interface{})
-					rule.Network.DeniedListeningPorts = make([]policies.ListPort, 0, len(deniedListeningPorts))
-					if len(deniedListeningPorts) > 0 {
-						for i := 0; i < len(deniedListeningPorts); i++ {
-							rule.Network.DeniedListeningPorts = append(rule.Network.DeniedListeningPorts, getListPort(deniedListeningPorts[i]))
-						}
-					}
+				if network["intelligence_feed"] != nil {
+					rule.Network.IntelligenceFeed = network["intelligence_feed"].(string)
 				}
-				if networkItem["deniedoutboundips"] != nil {
-					rule.Network.DeniedOutboundIPs = networkItem["deniedoutboundips"].([]string)
+				if network["skip_modified_processes"] != nil {
+					rule.Network.SkipModifiedProc = network["skip_modified_processes"].(bool)
 				}
-				if networkItem["deniedoutboundports"] != nil {
-					deniedOutboundPorts := networkItem["deniedoutboundports"].([]interface{})
-					rule.Network.DeniedOutboundPorts = make([]policies.ListPort, 0, len(deniedOutboundPorts))
-					if len(deniedOutboundPorts) > 0 {
-						for i := 0; i < len(deniedOutboundPorts); i++ {
-							rule.Network.DeniedOutboundPorts = append(rule.Network.DeniedOutboundPorts, getListPort(deniedOutboundPorts[i]))
-						}
-					}
-				}
-				if networkItem["denylisteffect"] != nil {
-					rule.Network.DenyListEffect = networkItem["denylisteffect"].(string)
-				}
-				if networkItem["intelligencefeed"] != nil {
-					rule.Network.IntelligenceFeed = networkItem["intelligencefeed"].(string)
+				if network["skip_raw_sockets"] != nil {
+					rule.Network.SkipRawSockets = network["skip_raw_sockets"].(bool)
 				}
 			}
+
 			if item["notes"] != nil {
 				rule.Notes = item["notes"].(string)
 			}
-			if item["onlyfixed"] != nil {
-				rule.OnlyFixed = item["onlyfixed"].(bool)
+
+			if item["only_fixed"] != nil {
+				rule.OnlyFixed = item["only_fixed"].(bool)
 			}
-			if item["previousname"] != nil {
-				rule.PreviousName = item["previousname"].(string)
-			}
+
 			if item["processes"] != nil {
-				processSet := item["processes"]
-				processItem := processSet.(map[string]interface{})
-
-				rule.Processes = policies.Processes{}
-
-				if processItem["blacklist"] != nil {
-					rule.Processes.Blacklist = processItem["blacklist"].([]string)
+				processes := item["processes"].(map[string]interface{})
+				if processes["allowlist"] != nil {
+					rule.Processes.Whitelist = processes["allowlist"].([]string)
 				}
-				if processItem["blockallbinaries"] != nil {
-					rule.Processes.BlockAllBinaries = processItem["blockallbinaries"].(bool)
+				if processes["block_all_processes"] != nil {
+					rule.Processes.BlockAllBinaries = processes["block_all_processes"].(bool)
 				}
-				if processItem["checkcryptominers"] != nil {
-					rule.Processes.CheckCryptoMiners = processItem["checkcryptominers"].(bool)
+				if processes["crypto_miners"] != nil {
+					rule.Processes.CheckCryptoMiners = processes["crypto_miners"].(bool)
 				}
-				if processItem["checklateralmovement"] != nil {
-					rule.Processes.CheckLateralMovement = processItem["checklateralmovement"].(bool)
+				if processes["check_lateral_movement"] != nil {
+					rule.Processes.CheckLateralMovement = processes["check_lateral_movement"].(bool)
 				}
-				if processItem["checknewbinaries"] != nil {
-					rule.Processes.CheckNewBinaries = processItem["checknewbinaries"].(bool)
+				if processes["check_new_binaries"] != nil {
+					rule.Processes.CheckNewBinaries = processes["check_new_binaries"].(bool)
 				}
-				if processItem["checkparentchild"] != nil {
-					rule.Processes.CheckParentChild = processItem["checkparentchild"].(bool)
+				if processes["check_parent_child"] != nil {
+					rule.Processes.CheckParentChild = processes["check_parent_child"].(bool)
 				}
-				if processItem["checksuidbinaries"] != nil {
-					rule.Processes.CheckSuidBinaries = processItem["checksuidbinaries"].(bool)
+				if processes["check_suid_binaries"] != nil {
+					rule.Processes.CheckSuidBinaries = processes["check_suid_binaries"].(bool)
 				}
-				if processItem["effect"] != nil {
-					rule.Processes.Effect = processItem["effect"].(string)
+				if processes["denylist"] != nil {
+					rule.Processes.Blacklist = processes["denylist"].([]string)
 				}
-				if processItem["skipmodified"] != nil {
-					rule.Processes.SkipModified = processItem["skipmodified"].(bool)
+				if processes["effect"] != nil {
+					rule.Processes.Effect = processes["effect"].(string)
 				}
-				if processItem["skipreverseshell"] != nil {
-					rule.Processes.SkipReverseShell = processItem["skipreverseshell"].(bool)
+				if processes["skip_modified"] != nil {
+					rule.Processes.SkipModified = processes["skip_modified"].(bool)
 				}
-				if processItem["whitelist"] != nil {
-					rule.Processes.Whitelist = processItem["whitelist"].([]string)
+				if processes["skip_reverse_shell"] != nil {
+					rule.Processes.SkipReverseShell = processes["skip_reverse_shell"].(bool)
 				}
 			}
 
 			if item["tags"] != nil && len(item["tags"].([]interface{})) > 0 {
 				tags := item["tags"].([]interface{})
+				rule.Tags = make([]policy.Tag, 0, len(tags))
 				for _, v := range tags {
-					tag := policies.Tag{}
-					if v.(map[string]interface{})["description"] != nil {
-						tag.Description = v.(map[string]interface{})["description"].(string)
+					presentTag := v.(map[string]interface{})
+					tag := policy.Tag{}
+					if presentTag["description"] != nil {
+						tag.Description = presentTag["description"].(string)
 					}
-					if v.(map[string]interface{})["effect"] != nil {
-						tag.Effect = v.(map[string]interface{})["effect"].(string)
+					if presentTag["effect"] != nil {
+						tag.Effect = presentTag["effect"].(string)
 					}
-					tagExpiration := policies.Expiration{}
-					if v.(map[string]interface{})["expiration"] != nil {
-						if v.(map[string]interface{})["expiration"].(map[string]interface{})["date"] != nil {
-							tagExpiration.Date = v.(map[string]interface{})["expiration"].(map[string]interface{})["date"].(string)
+					if presentTag["expiration"] != nil {
+						presentTagExpiration := presentTag["expiration"].(map[string]interface{})
+						tagExpiration := policy.Expiration{}
+						if presentTagExpiration["date"] != nil {
+							tagExpiration.Date = presentTagExpiration["date"].(string)
 						}
-						if v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"] != nil {
-							tagExpiration.Enabled = v.(map[string]interface{})["expiration"].(map[string]interface{})["enabled"].(bool)
+						if presentTagExpiration["enabled"] != nil {
+							tagExpiration.Enabled, _ = strconv.ParseBool(presentTagExpiration["enabled"].(string))
 						}
+						tag.Expiration = tagExpiration
 					}
-					tag.Expiration = tagExpiration
-					if v.(map[string]interface{})["name"] != nil {
-						tag.Name = v.(map[string]interface{})["name"].(string)
+					if presentTag["name"] != nil {
+						tag.Name = presentTag["name"].(string)
 					}
-
 					rule.Tags = append(rule.Tags, tag)
 				}
 			}
 
-			if item["wildfireanalysis"] != nil {
-				rule.WildFireAnalysis = item["wildfireanalysis"].(string)
+			if item["wildfire_analysis"] != nil {
+				rule.WildFireAnalysis = item["wildfire_analysis"].(string)
 			}
 
-			rulesList = append(rulesList, rule)
+			ruleSlice = append(ruleSlice, rule)
 		}
 	}
 
-	return rulesList
+	return ruleSlice, nil
 }
 
-func getListPort(listPortInterface interface{}) policies.ListPort {
-	listPortItem := listPortInterface.(map[string]interface{})
-
-	listPort := policies.ListPort{
-		Deny:  listPortItem["deny"].(bool),
-		End:   listPortItem["end"].(int),
-		Start: listPortItem["start"].(int),
-	}
-	return listPort
+func flattenAlertThreshold(t policy.Threshold) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["disabled"] = strconv.FormatBool(t.Disabled)
+	ans["value"] = strconv.Itoa(t.Value)
+	return ans
 }
 
-func getThreshold(thresholdInterface interface{}) policies.Threshold {
-	thresholdItem := thresholdInterface.(map[string]interface{})
+func flattenAntiMalware(a policy.AntiMalware) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["allowed_processes"] = a.AllowedProcesses
+	ans["crypto_miner"] = a.CryptoMiner
+	ans["custom_feed"] = a.CustomFeed
+	ans["denied_processes"] = flattenDeniedProcesses(a.DeniedProcesses)
+	ans["detect_compiler_generated_binary"] = a.DetectCompilerGeneratedBinary
+	ans["encrypted_binaries"] = a.EncryptedBinaries
+	ans["execution_flow_hijack"] = a.ExecutionFlowHijack
+	ans["intelligence_feed"] = a.IntelligenceFeed
+	ans["reverse_shell"] = a.ReverseShell
+	ans["service_unknown_origin_binary"] = a.ServiceUnknownOriginBinary
+	ans["skip_ssh_tracking"] = a.SkipSshTracking
+	ans["suspicious_elf_headers"] = a.SuspiciousElfHeaders
+	ans["temp_filesystem_processes"] = a.TempFsProc
+	ans["user_unknown_origin_binary"] = a.UserUnknownOriginBinary
+	ans["webshell"] = a.WebShell
+	ans["wildfire_analysis"] = a.WildFireAnalysis
+	return ans
+}
 
-	threshold := policies.Threshold{}
-	if thresholdItem["enabled"] != nil {
-		enbl, err := strconv.ParseBool(thresholdItem["enabled"].(string))
-		if err == nil {
-			threshold.Enabled = enbl
-		}
+func flattenBlockThreshold(t policy.Threshold) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["enabled"] = strconv.FormatBool(t.Enabled)
+	ans["value"] = strconv.Itoa(t.Value)
+	return ans
+}
+
+func flattenCollections(c []collection.Collection) []interface{} {
+	ans := make([]interface{}, 0, len(c))
+	for _, val := range c {
+		ans = append(ans, val.Name)
 	}
-	if thresholdItem["disabled"] != nil {
-		disbl, err := strconv.ParseBool(thresholdItem["disabled"].(string))
-		if err == nil {
-			threshold.Disabled = disbl
-		}
+	return ans
+}
+
+func flattenConditions(c policy.Condition) []interface{} {
+	ans := make([]interface{}, 0, 1)
+	m := make(map[string]interface{})
+	m["compliance_check"] = flattenVulnerabilities(c.Vulnerabilities)
+	ans = append(ans, m)
+	return ans
+}
+
+func flattenCustomRules(c []policy.CustomRule) []interface{} {
+	ans := make([]interface{}, 0, len(c))
+	for _, val := range c {
+		m := make(map[string]interface{})
+		m["action"] = val.Action
+		m["effect"] = val.Effect
+		m["id"] = val.Id
+		ans = append(ans, m)
 	}
-	if thresholdItem["value"] != nil {
-		val, err := strconv.Atoi(thresholdItem["value"].(string))
-		if err == nil {
-			threshold.Value = val
-		}
+	return ans
+}
+
+func flattenCveRules(c []policy.CveRule) []interface{} {
+	ans := make([]interface{}, 0, len(c))
+	for _, val := range c {
+		m := make(map[string]interface{})
+		m["description"] = val.Description
+		m["effect"] = val.Effect
+		m["expiration"] = flattenExpiration(val.Expiration)
+		m["id"] = val.Id
+		ans = append(ans, m)
 	}
-	return threshold
+	return ans
+}
+
+func flattenDeniedProcesses(d policy.DeniedProcesses) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["effect"] = d.Effect
+	ans["paths"] = d.Paths
+	return ans
+}
+
+func flattenDns(d policy.Dns) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["allow"] = d.Allow
+	ans["denylist"] = d.Blacklist
+	ans["deny"] = d.Deny
+	ans["deny_effect"] = d.DenyListEffect
+	ans["effect"] = d.Effect
+	ans["intelligence_feed"] = d.IntelligenceFeed
+	ans["allowlist"] = d.Whitelist
+	return ans
+}
+
+func flattenExpiration(e policy.Expiration) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["date"] = e.Date
+	ans["enabled"] = strconv.FormatBool(e.Enabled)
+	return ans
+}
+
+func flattenFileIntegrityRules(f []policy.FileIntegrityRule) []interface{} {
+	ans := make([]interface{}, 0, len(f))
+	for _, val := range f {
+		m := make(map[string]interface{})
+		m["dir"] = val.Dir
+		m["exclusions"] = val.Exclusions
+		m["metadata"] = val.Metadata
+		m["path"] = val.Path
+		m["allowed_processes"] = val.ProcWhitelist
+		m["read"] = val.Read
+		m["recursive"] = val.Recursive
+		m["write"] = val.Write
+		ans = append(ans, m)
+	}
+	return ans
+}
+
+func flattenFilesystem(f policy.Filesystem) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["backdoor_files"] = f.BackdoorFiles
+	ans["denylist"] = f.Blacklist
+	ans["check_new_files"] = f.CheckNewFiles
+	ans["effect"] = f.Effect
+	ans["skip_encrypted_binaries"] = f.SkipEncryptedBinaries
+	ans["suspicious_elf_headers"] = f.SuspiciousElfHeaders
+	ans["allowlist"] = f.Whitelist
+	return ans
+}
+
+func flattenForensic(f policy.Forensic) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["activities_disabled"] = f.ActivitiesDisabled
+	ans["docker_enabled"] = f.DockerEnabled
+	ans["readOnlydockerenabled"] = f.ReadonlyDockerEnabled
+	ans["service_activities_enabled"] = f.ServiceActivitiesEnabled
+	ans["sshd_enabled"] = f.SshdEnabled
+	ans["sudo_enabled"] = f.SudoEnabled
+	return ans
+}
+
+func flattenLogInspectionRules(l []policy.LogInspectionRule) []interface{} {
+	ans := make([]interface{}, 0, len(l))
+	for _, val := range l {
+		m := make(map[string]interface{})
+		m["path"] = val.Path
+		m["regex"] = val.Regex
+		ans = append(ans, m)
+	}
+	return ans
+}
+
+func flattenNetwork(n policy.Network) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["date"] = n.AllowedOutboundIps
+	ans["date"] = n.BlacklistIps
+	ans["date"] = flattenPorts(n.BlacklistListeningPorts)
+	ans["date"] = flattenPorts(n.BlacklistOutboundPorts)
+	ans["date"] = n.CustomFeed
+	ans["date"] = flattenPorts(n.DeniedListeningPorts)
+	ans["date"] = n.DeniedOutboundIps
+	ans["date"] = flattenPorts(n.DeniedOutboundPorts)
+	ans["date"] = n.DenyListEffect
+	ans["date"] = n.DetectPortScan
+	ans["date"] = n.Effect
+	ans["date"] = n.IntelligenceFeed
+	ans["date"] = n.SkipModifiedProc
+	ans["date"] = n.SkipRawSockets
+	ans["date"] = n.WhitelistIps
+	ans["date"] = flattenPorts(n.WhitelistListeningPorts)
+	ans["date"] = flattenPorts(n.WhitelistOutboundPorts)
+	return ans
+}
+
+func flattenPorts(p []policy.ListPort) []interface{} {
+	ans := make([]interface{}, 0, len(p))
+	for _, val := range p {
+		m := make(map[string]interface{})
+		m["deny"] = val.Deny
+		m["end"] = val.End
+		m["start"] = val.Start
+		ans = append(ans, m)
+	}
+	return ans
+}
+
+func flattenProcesses(p policy.Processes) map[string]interface{} {
+	ans := make(map[string]interface{})
+	ans["denylist"] = p.Blacklist
+	ans["block_all_processes"] = p.BlockAllBinaries
+	ans["crypto_miners"] = p.CheckCryptoMiners
+	ans["check_lateral_movement"] = p.CheckLateralMovement
+	ans["check_new_binaries"] = p.CheckNewBinaries
+	ans["check_parent_child"] = p.CheckParentChild
+	ans["check_suid_binaries"] = p.CheckSuidBinaries
+	ans["effect"] = p.Effect
+	ans["skip_modified"] = p.SkipModified
+	ans["date"] = p.SkipReverseShell
+	ans["skip_reverse_shell"] = p.Whitelist
+	return ans
+}
+
+func flattenTags(t []policy.Tag) []interface{} {
+	ans := make([]interface{}, 0, len(t))
+	for _, val := range t {
+		m := make(map[string]interface{})
+		m["description"] = val.Description
+		m["effect"] = val.Effect
+		m["expiration"] = flattenExpiration(val.Expiration)
+		m["name"] = val.Name
+		ans = append(ans, m)
+	}
+	return ans
+}
+
+func flattenVulnerabilities(v []policy.Vulnerability) *schema.Set {
+	ans := schema.Set{
+		F: schema.HashResource(&schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"block": {
+					Type:        schema.TypeBool,
+					Optional:    true,
+					Description: "Whether or not to block if this check is failed. Setting to 'false' will only alert on failure.",
+				},
+				"id": {
+					Type:        schema.TypeInt,
+					Optional:    true,
+					Description: "Compliance check ID.",
+				},
+			},
+		}),
+	}
+	for _, val := range v {
+		m := make(map[string]interface{})
+		m["block"] = val.Block
+		m["id"] = val.Id
+		ans.Add(m)
+	}
+	return &ans
+}
+
+func parseListPort(listPort map[string]interface{}) policy.ListPort {
+	parsedListPort := policy.ListPort{}
+	if listPort["deny"] != nil {
+		parsedListPort.Deny = listPort["deny"].(bool)
+	}
+	if listPort["end"] != nil {
+		parsedListPort.End = listPort["end"].(int)
+	}
+	if listPort["start"] != nil {
+		parsedListPort.Start = listPort["start"].(int)
+	}
+	return parsedListPort
+}
+
+func parseThreshold(threshold map[string]interface{}) (*policy.Threshold, error) {
+	parsedThreshold := policy.Threshold{}
+	if threshold["enabled"] != nil {
+		enabled, err := strconv.ParseBool(threshold["enabled"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing threshold.enabled: %s", err)
+		}
+		parsedThreshold.Enabled = enabled
+	}
+	if threshold["disabled"] != nil {
+		disabled, err := strconv.ParseBool(threshold["disabled"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing threshold.disabled: %s", err)
+		}
+		parsedThreshold.Disabled = disabled
+	}
+	if threshold["value"] != nil {
+		value, err := strconv.Atoi(threshold["value"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing threshold.value: %s", err)
+		}
+		parsedThreshold.Value = value
+	}
+	return &parsedThreshold, nil
 }

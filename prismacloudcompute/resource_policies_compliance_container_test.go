@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/policies"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
@@ -15,7 +15,7 @@ import (
 
 func TestAccPolicyComplianceContainerConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyComplianceContainerConfig")
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccPolicyComplianceContainerConfig(t *testing.T) {
 }
 
 func TestAccPolicyComplianceContainerNetwork(t *testing.T) {
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccPolicyComplianceContainerNetwork(t *testing.T) {
 }
 
 func TestAccPolicyComplianceContainerAuditEvent(t *testing.T) {
-	var o policies.Policy
+	var o policy.Policy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccPolicyComplianceContainerAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckPolicyComplianceContainerExists(n string, o *policies.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceContainerExists(n string, o *policy.Policy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -109,7 +109,7 @@ func testAccCheckPolicyComplianceContainerExists(n string, o *policies.Policy) r
 		}
 
 		client := testAccProvider.Meta().(*pcc.Client)
-		lo, err := policies.Get(*client, policies.ComplianceContainerEndpoint)
+		lo, err := policy.Get(*client, policy.ComplianceContainerEndpoint)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,7 +119,7 @@ func testAccCheckPolicyComplianceContainerExists(n string, o *policies.Policy) r
 	}
 }
 
-func testAccCheckPolicyComplianceContainerAttributes(o *policies.Policy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceContainerAttributes(o *policy.Policy, id string, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.PolicyId != id {
 			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
@@ -146,7 +146,7 @@ func testAccPolicyComplianceContainerDestroy(s *terraform.State) error {
 
 			if rs.Primary.ID != "" {
 				name := rs.Primary.ID
-				if err := policies.Delete(client, name); err == nil {
+				if err := policy.Delete(client, name); err == nil {
 					return fmt.Errorf("Object %q still exists", name)
 				}
 			}
