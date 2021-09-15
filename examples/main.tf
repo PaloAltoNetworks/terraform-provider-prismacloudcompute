@@ -1,9 +1,8 @@
-# This points to the local provider built according to the README.md.
 terraform {
   required_providers {
     prismacloudcompute = {
-      source  = "paloaltonetworks.com/prismacloud/prismacloudcompute"
-      version = "0.0.1"
+      source = "PaloAltoNetworks/prismacloudcompute"
+      version = "~> 0.0"
     }
   }
 }
