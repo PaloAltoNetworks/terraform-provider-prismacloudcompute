@@ -163,8 +163,6 @@ func parseComplianceCiImagePolicy(d *schema.ResourceData) (*policy.CompliancePol
 			rule := val.(map[string]interface{})
 			parsedRule := policy.ComplianceRule{}
 
-			parsedRule.BlockMessage = rule["block_message"].(string)
-
 			collectionsList := rule["collections"].([]interface{})
 			parsedCollections := make([]collection.Collection, 0, len(collectionsList))
 			for _, val := range collectionsList {
@@ -197,7 +195,6 @@ func parseComplianceCiImagePolicy(d *schema.ResourceData) (*policy.CompliancePol
 			parsedRule.Effect = rule["effect"].(string)
 			parsedRule.Name = rule["name"].(string)
 			parsedRule.Notes = rule["notes"].(string)
-			parsedRule.ShowPassedChecks = rule["show_passed_checks"].(bool)
 			parsedRule.Verbose = rule["verbose"].(bool)
 
 			parsedRules = append(parsedRules, parsedRule)
