@@ -3,10 +3,10 @@ package prismacloudcompute
 import (
 	"log"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourcePoliciesRuntimeHost() *schema.Resource {
@@ -42,7 +42,8 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"antimalware": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Restrictions/suppression for suspected anti-malware.",
 							Elem: &schema.Resource{
@@ -66,19 +67,20 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 										Description: "Effect that will be used in the runtime rule.",
 									},
 									"denied_processes": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
+										MaxItems:    1,
 										Optional:    true,
 										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"effect": {
 													Type:        schema.TypeString,
-													Required:    false,
+													Optional:    true,
 													Description: "Effect that will be used in the runtime rule.",
 												},
 												"paths": {
 													Type:        schema.TypeList,
-													Required:    false,
+													Optional:    true,
 													Description: "Paths to alert/prevent when an event with one of the paths is triggered.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
@@ -410,7 +412,8 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 							},
 						},
 						"forensic": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Indicates how to perform host forensic.",
 							Elem: &schema.Resource{
@@ -664,16 +667,15 @@ func dataSourcePoliciesRuntimeHost() *schema.Resource {
 func dataSourcePoliciesRuntimeHostRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	i, err := policy.Get(*client, policy.RuntimeHostEndpoint)
+	i, err := policy.GetRuntimeHost(*client)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(i.PolicyId)
+	d.SetId(policyTypeRuntimeHost)
 
 	list := make([]interface{}, 0, 1)
 	list = append(list, map[string]interface{}{
-		"_id":   i.PolicyId,
 		"rules": i.Rules,
 	})
 

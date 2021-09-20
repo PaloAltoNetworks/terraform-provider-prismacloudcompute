@@ -2,21 +2,21 @@ package prismacloudcompute
 
 import (
 	"fmt"
-	"log"
 	"time"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourcePoliciesComplianceCiImages() *schema.Resource {
+func resourcePoliciesComplianceCiImage() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyComplianceCiImages,
-		Read:   readPolicyComplianceCiImages,
-		Update: updatePolicyComplianceCiImages,
-		Delete: deletePolicyComplianceCiImages,
+		Create: createPolicyComplianceCiImage,
+		Read:   readPolicyComplianceCiImage,
+		Update: updatePolicyComplianceCiImage,
+		Delete: deletePolicyComplianceCiImage,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -25,31 +25,16 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  policyTypeComplianceCiImages,
-			},
-			"policy_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  policyTypeComplianceCiImages,
-			},
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "List of policy rules.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"block_message": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "Message to display for blocked requests.",
-						},
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -66,7 +51,7 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"compliance_check": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "A compliance check. Omitted compliance checks are ignored.",
 										Elem: &schema.Resource{
@@ -107,11 +92,6 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 							Optional:    true,
 							Description: "Free-form text field.",
 						},
-						"show_passed_checks": {
-							Type:        schema.TypeBool,
-							Optional:    true,
-							Description: "Whether or not to report both failed and passed compliance checks.",
-						},
 						"verbose": {
 							Type:        schema.TypeBool,
 							Optional:    true,
@@ -124,91 +104,121 @@ func resourcePoliciesComplianceCiImages() *schema.Resource {
 	}
 }
 
-func parsePolicyComplianceCiImages(d *schema.ResourceData, policyId string) (*policy.Policy, error) {
-	parsedPolicy, err := parsePolicy(d, policyId, d.Get("policy_type").(string))
+func createPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	parsedPolicy, err := parseComplianceCiImagePolicy(d)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing %s policy: %s", policyId, err)
+		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
-	for _, val := range parsedPolicy.Rules {
-		val.Action = []string{""}
-		val.Group = []string{""}
-		val.License = policy.License{}
-		val.Principal = []string{""}
+
+	if err := policy.UpdateComplianceCiImage(*client, *parsedPolicy); err != nil {
+		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
-	log.Printf("[DEBUG] parsedPolicy: %+val", parsedPolicy)
-	return parsedPolicy, nil
+
+	d.SetId(policyTypeComplianceCiImage)
+	return readPolicyComplianceCiImage(d, meta)
 }
 
-func flattenPolicyComplianceCiImagesRules(in []policy.Rule) []interface{} {
+func readPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	retrievedPolicy, err := policy.GetComplianceCiImage(*client)
+	if err != nil {
+		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
+	}
+
+	if err := d.Set("rule", flattenPolicyComplianceCiImageRules(retrievedPolicy.Rules)); err != nil {
+		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
+	}
+	return nil
+}
+
+func updatePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	parsedPolicy, err := parseComplianceCiImagePolicy(d)
+	if err != nil {
+		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
+	}
+
+	if err := policy.UpdateComplianceCiImage(*client, *parsedPolicy); err != nil {
+		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
+	}
+
+	return readPolicyComplianceCiImage(d, meta)
+}
+
+func deletePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+	// TODO: reset to default policy
+	return nil
+}
+
+func parseComplianceCiImagePolicy(d *schema.ResourceData) (*policy.CompliancePolicy, error) {
+	parsedPolicy := policy.CompliancePolicy{
+		Type:  policyTypeComplianceCiImage,
+		Rules: make([]policy.ComplianceRule, 0),
+	}
+	if rules, ok := d.GetOk("rule"); ok {
+		rulesList := rules.([]interface{})
+		parsedRules := make([]policy.ComplianceRule, 0, len(rulesList))
+		for _, val := range rulesList {
+			rule := val.(map[string]interface{})
+			parsedRule := policy.ComplianceRule{}
+
+			parsedRule.BlockMessage = rule["block_message"].(string)
+
+			collectionsList := rule["collections"].([]interface{})
+			parsedCollections := make([]collection.Collection, 0, len(collectionsList))
+			for _, val := range collectionsList {
+				parsedCollection := collection.Collection{
+					Name: val.(string),
+				}
+				parsedCollections = append(parsedCollections, parsedCollection)
+			}
+			parsedRule.Collections = parsedCollections
+
+			conditionsList := rule["conditions"].([]interface{})
+			parsedConditions := policy.ComplianceConditions{}
+			for _, val := range conditionsList {
+				condition := val.(map[string]interface{})
+				complianceChecksList := condition["compliance_check"].([]interface{})
+				parsedComplianceChecks := make([]policy.ComplianceCheck, 0, len(complianceChecksList))
+				for _, val := range complianceChecksList {
+					complianceCheck := val.(map[string]interface{})
+					parsedComplianceCheck := policy.ComplianceCheck{
+						Block: complianceCheck["block"].(bool),
+						Id:    complianceCheck["id"].(int),
+					}
+					parsedComplianceChecks = append(parsedComplianceChecks, parsedComplianceCheck)
+				}
+				parsedConditions.Checks = parsedComplianceChecks
+			}
+			parsedRule.Conditions = parsedConditions
+
+			parsedRule.Disabled = rule["disabled"].(bool)
+			parsedRule.Effect = rule["effect"].(string)
+			parsedRule.Name = rule["name"].(string)
+			parsedRule.Notes = rule["notes"].(string)
+			parsedRule.ShowPassedChecks = rule["show_passed_checks"].(bool)
+			parsedRule.Verbose = rule["verbose"].(bool)
+
+			parsedRules = append(parsedRules, parsedRule)
+		}
+		parsedPolicy.Rules = parsedRules
+	}
+	return &parsedPolicy, nil
+}
+
+func flattenPolicyComplianceCiImageRules(in []policy.ComplianceRule) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		m["block_message"] = val.BlockMsg
 		m["collections"] = flattenCollections(val.Collections)
-		m["conditions"] = flattenConditions(val.Condition)
+		m["conditions"] = flattenComplianceConditions(val.Conditions)
 		m["disabled"] = val.Disabled
 		m["effect"] = val.Effect
 		m["name"] = val.Name
 		m["notes"] = val.Notes
-		m["show_passed_checks"] = val.AllCompliance
 		m["verbose"] = val.Verbose
 		ans = append(ans, m)
 	}
 	return ans
-}
-
-func createPolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyComplianceCiImages(d, "")
-	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImages, err)
-	}
-
-	if err := policy.Update(*client, policy.ComplianceCiImagesEndpoint, *parsedPolicy); err != nil {
-		return err
-	}
-
-	pol, err := policy.Get(*client, policy.ComplianceCiImagesEndpoint)
-	if err != nil {
-		return err
-	}
-
-	d.SetId(pol.PolicyId)
-	return readPolicyComplianceCiImages(d, meta)
-}
-
-func readPolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-
-	retrievedPolicy, err := policy.Get(*client, policy.ComplianceCiImagesEndpoint)
-	if err != nil {
-		return err
-	}
-
-	d.Set("_id", policyTypeComplianceCiImages)
-	d.Set("policy_type", policyTypeComplianceCiImages)
-	if err := d.Set("rule", flattenPolicyComplianceCiImagesRules(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
-	}
-
-	return nil
-}
-
-func updatePolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-	id := d.Id()
-	parsedPolicy, err := parsePolicyComplianceCiImages(d, id)
-	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImages, err)
-	}
-
-	if err := policy.Update(*client, policy.ComplianceCiImagesEndpoint, *parsedPolicy); err != nil {
-		return err
-	}
-
-	return readPolicyComplianceCiImages(d, meta)
-}
-
-func deletePolicyComplianceCiImages(d *schema.ResourceData, meta interface{}) error {
-	return nil
 }

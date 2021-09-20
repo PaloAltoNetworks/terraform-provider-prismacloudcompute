@@ -5,10 +5,10 @@ import (
 	"log"
 	"time"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCollection() *schema.Resource {
@@ -25,7 +25,7 @@ func resourceCollection() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
