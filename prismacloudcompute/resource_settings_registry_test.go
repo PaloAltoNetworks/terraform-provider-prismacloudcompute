@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"testing"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/settings/registry"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/settings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func TestAccRegistryConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccRegistryConfig")
-	var o registry.Registry
+	var o settings.RegistrySettings
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccRegistryConfig(t *testing.T) {
 }
 
 func TestAccRegistryNetwork(t *testing.T) {
-	var o registry.Registry
+	var o settings.RegistrySettings
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccRegistryNetwork(t *testing.T) {
 }
 
 func TestAccRegistryAuditEvent(t *testing.T) {
-	var o registry.Registry
+	var o settings.RegistrySettings
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccRegistryAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckRegistryExists(n string, o registry.Registry) resource.TestCheckFunc {
+func testAccCheckRegistryExists(n string, o settings.RegistrySettings) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.Name)
 
@@ -109,7 +109,7 @@ func testAccCheckRegistryExists(n string, o registry.Registry) resource.TestChec
 		}
 
 		client := testAccProvider.Meta().(*pcc.Client)
-		lo, err := registry.Get(*client)
+		lo, err := settings.GetRegistrySettings(*client)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,7 +119,7 @@ func testAccCheckRegistryExists(n string, o registry.Registry) resource.TestChec
 	}
 }
 
-func testAccCheckRegistryAttributes(o *registry.Registry, name string, description string, color string) resource.TestCheckFunc {
+func testAccCheckRegistryAttributes(o *settings.RegistrySettings, name string, description string, color string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// if o.Name != name {
 		// 	return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)

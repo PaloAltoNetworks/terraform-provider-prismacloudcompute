@@ -3,10 +3,10 @@ package prismacloudcompute
 import (
 	"log"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourcePoliciesComplianceContainer() *schema.Resource {
@@ -50,7 +50,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 							},
 						},
 						"alert_threshold": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "The compliance container policy alert threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
 							Elem: &schema.Resource{
@@ -89,7 +90,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 							Description: "Represents the block message in a policy.",
 						},
 						"block_threshold": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "The compliance container policy block threshold. Threshold values typically vary between 0 and 10 (non-inclusive).",
 							Elem: &schema.Resource{
@@ -239,7 +241,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 							},
 						},
 						"condition": {
-							Type:        schema.TypeMap,
+							Type:        schema.TypeList,
+							MaxItems:    1,
 							Optional:    true,
 							Description: "Rule conditions. Conditions only apply for their respective policy type.",
 							Elem: &schema.Resource{
@@ -255,7 +258,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 										Description: "If set to 'true', the condition applies only to read-only commands. For example: HTTP GET requests.",
 									},
 									"vulnerabilities": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
+										MaxItems:    1,
 										Optional:    true,
 										Description: "Block and scan severity-based compliance container conditions.",
 										Elem: &schema.Resource{
@@ -298,7 +302,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 										Description: "CVE ID",
 									},
 									"expiration": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
+										MaxItems:    1,
 										Optional:    true,
 										Description: "The compliance container expiration date.",
 										Elem: &schema.Resource{
@@ -340,95 +345,6 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 							Description: "Applicable groups.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
-							},
-						},
-						"license": {
-							Type:        schema.TypeMap,
-							Optional:    true,
-							Description: "The configuration of the compliance policy license.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"alertThreshold": {
-										Type:        schema.TypeMap,
-										Optional:    true,
-										Description: "The license severity threshold to indicate whether to perform an alert action. Threshold values typically vary between 0 and 10 (non-inclusive).",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"enabled": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "If set to 'true', the alert action is enabled.",
-												},
-												"disabled": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "disabled",
-												},
-												"value": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "The minimum severity score for which the alert action is enabled.",
-												},
-											},
-										},
-									},
-									"blockThreshold": {
-										Type:        schema.TypeMap,
-										Optional:    true,
-										Description: "The license severity threshold to indicate whether to perform a block action. Threshold values typically vary between 0 and 10 (non-inclusive).",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"enabled": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "If set to 'true', the block action is enabled.",
-												},
-												"disabled": {
-													Type:        schema.TypeBool,
-													Optional:    true,
-													Description: "disabled",
-												},
-												"value": {
-													Type:        schema.TypeInt,
-													Optional:    true,
-													Description: "The minimum severity score for which the block action is enabled.",
-												},
-											},
-										},
-									},
-									"critical": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The list of licenses with critical severity.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"high": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The list of licenses with high severity.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"low": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The list of licenses with low severity.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-									"medium": {
-										Type:        schema.TypeList,
-										Optional:    true,
-										Description: "The list of licenses with medium severity.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
 							},
 						},
 						"modified": {
@@ -486,7 +402,8 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 										Description: "Specifies the relevant action for a compliance container. Can be set to 'ignore', 'alert', or 'block'.",
 									},
 									"expiration": {
-										Type:        schema.TypeMap,
+										Type:        schema.TypeList,
+										MaxItems:    1,
 										Optional:    true,
 										Description: "The compliance container expiration date.",
 										Elem: &schema.Resource{
@@ -527,17 +444,16 @@ func dataSourcePoliciesComplianceContainer() *schema.Resource {
 func dataSourcePoliciesComplianceContainerRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	i, err := policy.Get(*client, policy.ComplianceContainerEndpoint)
+	i, err := policy.GetComplianceContainer(*client)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(i.PolicyId)
+	d.SetId(policyTypeComplianceContainer)
 
 	list := make([]interface{}, 0, 1)
 	list = append(list, map[string]interface{}{
-		"_id":        i.PolicyId,
-		"policyType": i.PolicyType,
+		"policyType": i.Type,
 		"rules":      i.Rules,
 	})
 

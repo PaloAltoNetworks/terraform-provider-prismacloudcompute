@@ -5,10 +5,10 @@ import (
 	"encoding/base64"
 	"log"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceCollections() *schema.Resource {

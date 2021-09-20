@@ -3,10 +3,10 @@ package prismacloudcompute
 import (
 	"log"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourcePoliciesRuntimeContainer() *schema.Resource {
@@ -553,16 +553,15 @@ func dataSourcePoliciesRuntimeContainer() *schema.Resource {
 func dataSourcePoliciesRuntimeContainerRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 
-	i, err := policy.Get(*client, policy.RuntimeContainerEndpoint)
+	i, err := policy.GetRuntimeContainer(*client)
 	if err != nil {
 		return err
 	}
 
-	d.SetId(i.PolicyId)
+	d.SetId(policyTypeRuntimeContainer)
 
 	list := make([]interface{}, 0, 1)
 	list = append(list, map[string]interface{}{
-		"_id":               i.PolicyId,
 		"learning_disabled": i.LearningDisabled,
 		"rules":             i.Rules,
 	})

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesComplianceContainer() *schema.Resource {
@@ -24,20 +25,10 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
-			"_id": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  policyTypeComplianceContainer,
-			},
-			"policy_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  policyTypeComplianceContainer,
-			},
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -65,7 +56,7 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"compliance_check": {
-										Type:        schema.TypeSet,
+										Type:        schema.TypeList,
 										Optional:    true,
 										Description: "A compliance check. Omitted compliance checks are ignored.",
 										Elem: &schema.Resource{
@@ -123,90 +114,123 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 	}
 }
 
-func parsePolicyComplianceContainer(d *schema.ResourceData, policyId string) (*policy.Policy, error) {
-	parsedPolicy, err := parsePolicy(d, policyId, d.Get("policy_type").(string))
-	if err != nil {
-		return nil, fmt.Errorf("error parsing %s policy: %s", policyId, err)
-	}
-	for _, v := range parsedPolicy.Rules {
-		v.Action = []string{""}
-		v.Group = []string{""}
-		v.License = policy.License{}
-		v.Principal = []string{""}
-	}
-	return parsedPolicy, nil
-}
-
-func flattenPolicyComplianceContainerRules(in []policy.Rule) []interface{} {
-	ans := make([]interface{}, 0, len(in))
-	for _, val := range in {
-		m := make(map[string]interface{})
-		m["block_message"] = val.BlockMsg
-		m["collections"] = flattenCollections(val.Collections)
-		m["conditions"] = flattenConditions(val.Condition)
-		m["disabled"] = val.Disabled
-		m["effect"] = val.Effect
-		m["name"] = val.Name
-		m["notes"] = val.Notes
-		m["show_passed_checks"] = val.AllCompliance
-		m["verbose"] = val.Verbose
-		ans = append(ans, m)
-	}
-	return ans
-}
-
 func createPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyComplianceContainer(d, "")
+	parsedPolicy, err := parseComplianceContainerPolicy(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
-	if err := policy.Update(*client, policy.ComplianceContainerEndpoint, *parsedPolicy); err != nil {
-		return err
+	if err := policy.UpdateComplianceContainer(*client, *parsedPolicy); err != nil {
+		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
-	pol, err := policy.Get(*client, policy.ComplianceContainerEndpoint)
-	if err != nil {
-		return err
-	}
-
-	d.SetId(pol.PolicyId)
+	d.SetId(policyTypeComplianceContainer)
 	return readPolicyComplianceContainer(d, meta)
 }
 
 func readPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-
-	retrievedPolicy, err := policy.Get(*client, policy.ComplianceContainerEndpoint)
+	retrievedPolicy, err := policy.GetComplianceContainer(*client)
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
-	d.Set("_id", policyTypeComplianceContainer)
-	d.Set("policy_type", policyTypeComplianceContainer)
 	if err := d.Set("rule", flattenPolicyComplianceContainerRules(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error setting rule for resource %s: %s", d.Id(), err)
+		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
 	}
-
 	return nil
 }
 
 func updatePolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id := d.Id()
-	parsedPolicy, err := parsePolicyComplianceContainer(d, id)
+	parsedPolicy, err := parseComplianceContainerPolicy(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
-	if err := policy.Update(*client, policy.ComplianceContainerEndpoint, *parsedPolicy); err != nil {
-		return err
+	if err := policy.UpdateComplianceContainer(*client, *parsedPolicy); err != nil {
+		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
 	return readPolicyComplianceContainer(d, meta)
 }
 
 func deletePolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
+	// TODO: reset to default policy
 	return nil
+}
+
+func parseComplianceContainerPolicy(d *schema.ResourceData) (*policy.CompliancePolicy, error) {
+	parsedPolicy := policy.CompliancePolicy{
+		Type:  policyTypeComplianceContainer,
+		Rules: make([]policy.ComplianceRule, 0),
+	}
+	if rules, ok := d.GetOk("rule"); ok {
+		rulesList := rules.([]interface{})
+		parsedRules := make([]policy.ComplianceRule, 0, len(rulesList))
+		for _, val := range rulesList {
+			rule := val.(map[string]interface{})
+			parsedRule := policy.ComplianceRule{}
+
+			parsedRule.BlockMessage = rule["block_message"].(string)
+
+			collectionsList := rule["collections"].([]interface{})
+			parsedCollections := make([]collection.Collection, 0, len(collectionsList))
+			for _, val := range collectionsList {
+				parsedCollection := collection.Collection{
+					Name: val.(string),
+				}
+				parsedCollections = append(parsedCollections, parsedCollection)
+			}
+			parsedRule.Collections = parsedCollections
+
+			conditionsList := rule["conditions"].([]interface{})
+			parsedConditions := policy.ComplianceConditions{}
+			for _, val := range conditionsList {
+				condition := val.(map[string]interface{})
+				complianceChecksList := condition["compliance_check"].([]interface{})
+				parsedComplianceChecks := make([]policy.ComplianceCheck, 0, len(complianceChecksList))
+				for _, val := range complianceChecksList {
+					complianceCheck := val.(map[string]interface{})
+					parsedComplianceCheck := policy.ComplianceCheck{
+						Block: complianceCheck["block"].(bool),
+						Id:    complianceCheck["id"].(int),
+					}
+					parsedComplianceChecks = append(parsedComplianceChecks, parsedComplianceCheck)
+				}
+				parsedConditions.Checks = parsedComplianceChecks
+			}
+			parsedRule.Conditions = parsedConditions
+
+			parsedRule.Disabled = rule["disabled"].(bool)
+			parsedRule.Effect = rule["effect"].(string)
+			parsedRule.Name = rule["name"].(string)
+			parsedRule.Notes = rule["notes"].(string)
+			parsedRule.ShowPassedChecks = rule["show_passed_checks"].(bool)
+			parsedRule.Verbose = rule["verbose"].(bool)
+
+			parsedRules = append(parsedRules, parsedRule)
+		}
+		parsedPolicy.Rules = parsedRules
+	}
+	return &parsedPolicy, nil
+}
+
+func flattenPolicyComplianceContainerRules(in []policy.ComplianceRule) []interface{} {
+	ans := make([]interface{}, 0, len(in))
+	for _, val := range in {
+		m := make(map[string]interface{})
+		m["block_message"] = val.BlockMessage
+		m["collections"] = flattenCollections(val.Collections)
+		m["conditions"] = flattenComplianceConditions(val.Conditions)
+		m["disabled"] = val.Disabled
+		m["effect"] = val.Effect
+		m["name"] = val.Name
+		m["notes"] = val.Notes
+		m["show_passed_checks"] = val.ShowPassedChecks
+		m["verbose"] = val.Verbose
+		ans = append(ans, m)
+	}
+	return ans
 }

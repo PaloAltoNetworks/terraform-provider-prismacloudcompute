@@ -6,14 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Provider returns a terraform.ResourceProvider.
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"console_url": {
@@ -51,28 +50,28 @@ func Provider() terraform.ResourceProvider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"prismacloudcompute_collection":                    resourceCollection(),
-			"prismacloudcompute_ci_image_compliance_policy":    resourcePoliciesComplianceCiImages(),
+			"prismacloudcompute_ci_image_compliance_policy":    resourcePoliciesComplianceCiImage(),
 			"prismacloudcompute_container_compliance_policy":   resourcePoliciesComplianceContainer(),
 			"prismacloudcompute_host_compliance_policy":        resourcePoliciesComplianceHost(),
 			"prismacloudcompute_container_runtime_policy":      resourcePoliciesRuntimeContainer(),
 			"prismacloudcompute_host_runtime_policy":           resourcePoliciesRuntimeHost(),
-			"prismacloudcompute_ci_image_vulnerability_policy": resourcePoliciesVulnerabilityCiImages(),
+			"prismacloudcompute_ci_image_vulnerability_policy": resourcePoliciesVulnerabilityCiImage(),
 			"prismacloudcompute_host_vulnerability_policy":     resourcePoliciesVulnerabilityHost(),
-			"prismacloudcompute_image_vulnerability_policy":    resourcePoliciesVulnerabilityImages(),
-			"prismacloudcompute_settings_registry":    resourceRegistry(),
+			"prismacloudcompute_image_vulnerability_policy":    resourcePoliciesVulnerabilityImage(),
+			"prismacloudcompute_settings_registry":             resourceRegistry(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"prismacloudcompute_collections":                   dataSourceCollections(),
-			"prismacloudcompute_ci_image_compliance_policy":    dataSourcePoliciesComplianceCiImages(),
+			"prismacloudcompute_ci_image_compliance_policy":    dataSourcePoliciesComplianceCiImage(),
 			"prismacloudcompute_container_compliance_policy":   dataSourcePoliciesComplianceContainer(),
 			"prismacloudcompute_host_compliance_policy":        dataSourcePoliciesComplianceHost(),
 			"prismacloudcompute_container_runtime_policy":      dataSourcePoliciesRuntimeContainer(),
 			"prismacloudcompute_host_runtime_policy":           dataSourcePoliciesRuntimeHost(),
-			"prismacloudcompute_ci_image_vulnerability_policy": dataSourcePoliciesVulnerabilityCiImages(),
+			"prismacloudcompute_ci_image_vulnerability_policy": dataSourcePoliciesVulnerabilityCiImage(),
 			"prismacloudcompute_host_vulnerability_policy":     dataSourcePoliciesVulnerabilityHost(),
-			"prismacloudcompute_image_vulnerability_policy":    dataSourcePoliciesVulnerabilityImages(),
-			"prismacloudcompute_settings_registry":    dataSourceRegistry(),
+			"prismacloudcompute_image_vulnerability_policy":    dataSourcePoliciesVulnerabilityImage(),
+			"prismacloudcompute_settings_registry":             dataSourceRegistry(),
 		},
 
 		ConfigureFunc: configure,

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	pcc "github.com/paloaltonetworks/prisma-cloud-compute-go"
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/settings/registry"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/settings"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceRegistry() *schema.Resource {
@@ -24,7 +24,7 @@ func resourceRegistry() *schema.Resource {
 		},
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -128,44 +128,91 @@ func resourceRegistry() *schema.Resource {
 	}
 }
 
-func parseRegistry(d *schema.ResourceData) registry.Registry {
-	return registry.Registry{
+func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	parsedRegstry := parseRegistry(d)
+	if err := settings.UpdateRegistrySettings(*client, parsedRegstry); err != nil {
+		return fmt.Errorf("failed to create registry: %s", err)
+	}
+
+	d.SetId("registrySettings")
+	return readRegistrySettings(d, meta)
+}
+
+func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	retrievedRegistry, err := settings.GetRegistrySettings(*client)
+	if err != nil {
+		return fmt.Errorf("failed to read registry: %s", err)
+	}
+
+	if err := d.Set("specification", flattenRegistrySpecification(retrievedRegistry.Specifications)); err != nil {
+		return fmt.Errorf("failed to read registry: %s", err)
+	}
+
+	return nil
+}
+
+func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	parsedRegistry := parseRegistry(d)
+	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
+		return fmt.Errorf("failed to update registry: %s", err)
+	}
+
+	return readRegistrySettings(d, meta)
+}
+
+func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+	client := meta.(*pcc.Client)
+	defaults := settings.RegistrySettings{
+		Specifications: make([]settings.RegistrySpecification, 0),
+	}
+	if err := settings.UpdateRegistrySettings(*client, defaults); err != nil {
+		return fmt.Errorf("failed to delete registry: %s", err)
+	}
+	d.SetId("")
+	return nil
+}
+
+func parseRegistry(d *schema.ResourceData) settings.RegistrySettings {
+	return settings.RegistrySettings{
 		Specifications: parseRegistrySpecification(d.Get("specification").([]interface{})),
 	}
 }
 
-func parseRegistrySpecification(specifications []interface{}) []registry.Specification {
-	ans := make([]registry.Specification, 0, len(specifications))
-	for _, v := range specifications {
-		m := v.(map[string]interface{})
-		ans = append(ans, registry.Specification{
-			Cap:                      m["cap"].(int),
-			Collections:              parseStringArray(m["collections"].([]interface{})),
-			CredentialId:             m["credential"].(string),
-			ExcludedRepositories:     parseStringArray(m["excluded_repositories"].([]interface{})),
-			ExcludedTags:             parseStringArray(m["excluded_tags"].([]interface{})),
-			HarborDeploymentSecurity: m["harbor_deployment_security"].(bool),
-			JfrogRepoTypes:           parseStringArray(m["jfrog_repo_types"].([]interface{})),
-			Namespace:                m["namespace"].(string),
-			Os:                       m["os"].(string),
-			Tag:                      m["tag"].(string),
-			Registry:                 m["registry"].(string),
-			Repository:               m["repository"].(string),
-			Scanners:                 m["scanners"].(int),
-			Version:                  m["version"].(string),
-			VersionPattern:           m["version_pattern"].(string),
+func parseRegistrySpecification(specifications []interface{}) []settings.RegistrySpecification {
+	parsedRegistrySpecifications := make([]settings.RegistrySpecification, 0, len(specifications))
+	for _, val := range specifications {
+		presentRegistrySpecification := val.(map[string]interface{})
+		parsedRegistrySpecifications = append(parsedRegistrySpecifications, settings.RegistrySpecification{
+			Cap:                      presentRegistrySpecification["cap"].(int),
+			Collections:              parseStringArray(presentRegistrySpecification["collections"].([]interface{})),
+			Credential:               presentRegistrySpecification["credential"].(string),
+			ExcludedRepositories:     parseStringArray(presentRegistrySpecification["excluded_repositories"].([]interface{})),
+			ExcludedTags:             parseStringArray(presentRegistrySpecification["excluded_tags"].([]interface{})),
+			HarborDeploymentSecurity: presentRegistrySpecification["harbor_deployment_security"].(bool),
+			JfrogRepoTypes:           parseStringArray(presentRegistrySpecification["jfrog_repo_types"].([]interface{})),
+			Namespace:                presentRegistrySpecification["namespace"].(string),
+			Os:                       presentRegistrySpecification["os"].(string),
+			Tag:                      presentRegistrySpecification["tag"].(string),
+			Registry:                 presentRegistrySpecification["registry"].(string),
+			Repository:               presentRegistrySpecification["repository"].(string),
+			Scanners:                 presentRegistrySpecification["scanners"].(int),
+			Version:                  presentRegistrySpecification["version"].(string),
+			VersionPattern:           presentRegistrySpecification["version_pattern"].(string),
 		})
 	}
-	return ans
+	return parsedRegistrySpecifications
 }
 
-func flattenRegistrySpecification(s []registry.Specification) []interface{} {
+func flattenRegistrySpecification(s []settings.RegistrySpecification) []interface{} {
 	ans := make([]interface{}, 0, len(s))
 	for _, v := range s {
 		m := make(map[string]interface{})
 		m["cap"] = v.Cap
 		m["collections"] = v.Collections
-		m["credential"] = v.CredentialId
+		m["credential"] = v.Credential
 		m["excluded_repositories"] = v.ExcludedRepositories
 		m["excluded_tags"] = v.ExcludedTags
 		m["harbor_deployment_security"] = v.HarborDeploymentSecurity
@@ -181,54 +228,4 @@ func flattenRegistrySpecification(s []registry.Specification) []interface{} {
 		ans = append(ans, m)
 	}
 	return ans
-}
-
-func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-	obj := parseRegistry(d)
-
-	if err := registry.Update(*client, obj); err != nil {
-		return fmt.Errorf("failed to create registry: %s", err)
-	}
-
-	d.SetId("registrySettings")
-	return readRegistrySettings(d, meta)
-}
-
-func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-
-	obj, err := registry.Get(*client)
-	if err != nil {
-		return fmt.Errorf("failed to read registry: %s", err)
-	}
-
-	if err := d.Set("specification", flattenRegistrySpecification(obj.Specifications)); err != nil {
-		return fmt.Errorf("failed setting 'specification' for %s: %s", d.Id(), err)
-	}
-
-	return nil
-}
-
-func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-	obj := parseRegistry(d)
-
-	if err := registry.Update(*client, obj); err != nil {
-		return fmt.Errorf("failed to update registry: %s", err)
-	}
-
-	return readRegistrySettings(d, meta)
-}
-
-func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*pcc.Client)
-	obj := registry.Registry{
-		Specifications: make([]registry.Specification, 0),
-	}
-	if err := registry.Update(*client, obj); err != nil {
-		return fmt.Errorf("failed to delete registry: %s", err)
-	}
-	d.SetId("")
-	return nil
 }

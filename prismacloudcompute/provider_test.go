@@ -5,8 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -14,7 +13,7 @@ const (
 )
 
 var (
-	testAccProviders map[string]terraform.ResourceProvider
+	testAccProviders map[string]*schema.Provider
 	testAccProvider  *schema.Provider
 	// sessionTimeoutOrig, sessionTimeout int
 )
@@ -38,14 +37,14 @@ var (
 
 func TestProvider(t *testing.T) {
 	fmt.Printf("\n\nStart Provider TestProvider()\n")
-	if err := Provider().(*schema.Provider).InternalValidate(); err != nil {
+	if err := Provider().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 }
 
 func TestProvider_impl(t *testing.T) {
 	fmt.Printf("\n\nStart Provider TestProvider_impl()\n")
-	var _ terraform.ResourceProvider = Provider()
+	var _ *schema.Provider = Provider()
 }
 
 func testAccPreCheck(t *testing.T) {
