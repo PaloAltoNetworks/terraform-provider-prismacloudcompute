@@ -1,8 +1,7 @@
 terraform {
   required_providers {
     prismacloudcompute = {
-      source = "PaloAltoNetworks/prismacloudcompute"
-      version = "~> 0.0"
+      source = "paloaltonetworks.com/prismacloud/prismacloudcompute"
     }
   }
 }
@@ -10,7 +9,7 @@ terraform {
 provider "prismacloudcompute" {
   config_file = "creds.json"
 }
-
+/*
 resource "prismacloudcompute_ci_image_compliance_policy" "ruleset" {
   rule {
     name        = "Default - alert on critical and high"
@@ -1428,7 +1427,7 @@ resource "prismacloudcompute_image_vulnerability_policy" "ruleset" {
     }
   }
 }
-
+*/
 # resource "prismacloudcompute_settings_registry" "registry" {
 #   specification {
 #     version = "2"
@@ -1441,3 +1440,73 @@ resource "prismacloudcompute_image_vulnerability_policy" "ruleset" {
 #     collections = ["All"]
 #   }
 # }
+
+
+resource "prismacloudcompute_users" "users" {
+    username = "test"
+    password = "test"
+    role = "devSecOps"
+    authtype = "basic"
+    permissions {
+        project = "Central Console"
+        collections = ["Prisma Cloud resources"]
+    }
+}
+
+resource "prismacloudcompute_groups" "groups" {
+    permissions {
+        project = "Central Console"
+        collections = []
+    }
+#    collections = []
+#    ldap_admin_group = false
+    groupname = "test"
+    user {
+        username = "test"
+    }
+    ldapgroup = false
+    samlgroup = false
+    oauthgroup = false
+    oidcgroup = false
+#    projects = []
+}
+
+resource "prismacloudcompute_rbac_roles" "rbacroles" {
+    name = "test"
+      permissions {
+        name = "monitorVuln"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorCompliance"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorCodeRepos"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorImages"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorHosts"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorServerless"
+        readwrite = false
+      }
+      permissions {
+        name = "monitorCloud"
+        readwrite = false
+      }
+      permissions {
+        name = "accessUI"
+        readwrite = false
+      }
+      permissions {
+        name = "user"
+        readwrite = true
+   }
+}
