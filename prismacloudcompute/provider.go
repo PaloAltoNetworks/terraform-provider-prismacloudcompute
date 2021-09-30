@@ -62,6 +62,7 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_users":             resourceUsers(),
 			"prismacloudcompute_groups":             resourceGroups(),
 			"prismacloudcompute_rbac_roles":             resourceRbacRoles(),
+			"prismacloudcompute_credentials":             resourceCredentials(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -78,6 +79,7 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_users":             dataSourceUsers(),
 			"prismacloudcompute_groups":             dataSourceGroups(),
 			"prismacloudcompute_rbac_roles":             dataSourceRbacRoles(),
+			"prismacloudcompute_credentials":             dataSourceCredentials(),
 		},
 
 		ConfigureFunc: configure,

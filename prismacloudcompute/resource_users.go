@@ -12,10 +12,10 @@ import (
 
 func resourceUsers() *schema.Resource {
 	return &schema.Resource{
-		Create: createUsers,
-		Read:   readUsers,
-		Update: updateUsers,
-		Delete: deleteUsers,
+		Create: createUser,
+		Read:   readUser,
+		Update: updateUser,
+		Delete: deleteUser,
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(10 * time.Minute),
@@ -74,29 +74,30 @@ func resourceUsers() *schema.Resource {
 	}
 }
 
-func createUsers(d *schema.ResourceData, meta interface{}) error {
+func createUser(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedUser, err := parseUsers(d)
+	parsedUser, err := parseUser(d)
 	if err != nil {
 		return fmt.Errorf("error creating user: %s", err)
 	}
 
-	if err := auth.UpdateUsers(*client, *parsedUser); err != nil {
+	if err := auth.UpdateUser(*client, parsedUser); err != nil {
 		return fmt.Errorf("error creating user: %s", err)
 	}
 
-	d.SetId(policyTypeUsers)
-	return readUsers(d, meta)
+	d.SetId(parsedUser.Username)
+	return readUser(d, meta)
 }
 
-func readUsers(d *schema.ResourceData, meta interface{}) error {
+func readUser(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	retrievedUser, err := auth.GetUsers(*client)
+	userList, err := auth.GetUsers(*client)
+	retrievedUser := userList[0]
 	if err != nil {
 		return fmt.Errorf("error reading user: %s", err)
 	}
 
-	if err := d.Set("authType", retrievedUser.AuthType); err != nil {
+	if err := d.Set("authtype", retrievedUser.AuthType); err != nil {
 		return fmt.Errorf("error reading %s authType: %s", retrievedUser.AuthType, err)
 	}
 	if err := d.Set("password", retrievedUser.Password); err != nil {
@@ -111,49 +112,48 @@ func readUsers(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("username", retrievedUser.Username); err != nil {
 		return fmt.Errorf("error reading %s username: %s", retrievedUser.Username, err)
 	}
-}
-
-type UserPermission struct {
-	Collections []string `json:"collections,omitempty"`
-	Project     string   `json:"project,omitempty"`
-}
-
 
 	return nil
 }
 
-func updateUsers(d *schema.ResourceData, meta interface{}) error {
+func updateUser(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedUser, err := parseUsers(d)
+	parsedUser, err := parseUser(d)
 	if err != nil {
 		return fmt.Errorf("error updating user: %s", err)
 	}
 
-	if err := auth.UpdateUsers(*client, *parsedUser); err != nil {
+	if err := auth.UpdateUser(*client, parsedUser); err != nil {
 		return fmt.Errorf("error updating user: %s", err)
 	}
 
-	return readUsers(d, meta)
+	return readUser(d, meta)
 }
 
-func deleteUsers(d *schema.ResourceData, meta interface{}) error {
+func deleteUser(d *schema.ResourceData, meta interface{}) error {
 	// TODO: reset to default user
+	client := meta.(*pcc.Client)
+	id := d.Id()
+
+	if err := auth.DeleteUser(*client, id); err != nil {
+		return fmt.Errorf("failed to update credential: %s", err)
+	}
+
+	d.SetId("")
 	return nil
 }
 
-func parseUsers(d *schema.ResourceData) (*user.User, error) {
-	parsedUser := user.User{}
+func parseUser(d *schema.ResourceData) (auth.User, error) {
+	parsedUser := auth.User{}
 	
-	if d.Get("authType") != nil {
-		parsedUser.AuthType = d.Get("authType").(string)
+	if d.Get("authtype") != nil {
+		parsedUser.AuthType = d.Get("authtype").(string)
 	}
 	if d.Get("password") != nil {
 		parsedUser.Password = d.Get("password").(string)
 	}
 	if d.Get("permissions") != nil && len(d.Get("permissions").([]interface{})) > 0 {
-		parsedUser.Permissions = flattenUserPermissions(d.Get("permissions").([]interface{}))
-	} else {
-		parsedUser.Permissions = {}
+		parsedUser.Permissions = convertUserPermissions(d.Get("permissions").([]interface{}))
 	}
 	if d.Get("role") != nil {
 		parsedUser.Role = d.Get("role").(string)
@@ -162,15 +162,31 @@ func parseUsers(d *schema.ResourceData) (*user.User, error) {
 		parsedUser.Username = d.Get("username").(string)
 	}
 
-	return parsedUser
+	return parsedUser, nil
 }
 
-func flattenUserPermissions(in []user.UserPermission) []interface{} {
+func flattenUserPermissions(in []auth.UserPermission) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		m["collections"] = flattenCollections(val.Collections)
-		m["project"] = val.Project
+		val["collections"] = parseStringArray(m.Collections)
+		val["project"] = m.Project
+		ans = append(ans, m)
+	}
+	return ans
+}
+
+func convertUserPermissions(in []interface{}) []auth.UserPermission {
+	ans := make([]auth.UserPermission, 0, len(in))
+	for _, val := range in {
+		m := auth.UserPermission{}
+		valMap := val.(map[string]interface{})
+		if valMap["collections"] != nil {
+			m.Collections = parseStringArray(valMap["collections"].([]interface {}))
+		}
+		if valMap["project"] != nil {
+			m.Project = valMap["project"].(string)
+		}
 		ans = append(ans, m)
 	}
 	return ans

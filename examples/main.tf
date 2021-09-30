@@ -1510,3 +1510,16 @@ resource "prismacloudcompute_rbac_roles" "rbacroles" {
         readwrite = true
    }
 }
+
+resource "prismacloudcompute_credentials" "credentials" {
+    secret = {
+      encrypted = ""
+      plain = "test"
+    }
+//    serviceaccount {}
+    type = "basic"
+    description = ""
+    skipverify = false
+    id = "test"
+    accountid = "test"
+}
