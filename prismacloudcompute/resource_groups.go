@@ -3,6 +3,7 @@ package prismacloudcompute
 import (
 	"fmt"
 	"time"
+	"strings"
 
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/auth"
@@ -85,7 +86,7 @@ func resourceGroups() *schema.Resource {
 				Optional:    true,
 				Description: "Indicates if the group is a SAML group (true) or not (false).",
 			},			
-			"user": {
+			"users": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Users in the group.",
@@ -105,13 +106,13 @@ func resourceGroups() *schema.Resource {
 
 func createGroup(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedGroup, err := parseGroups(d)
+	parsedGroup, err := parseGroup(d)
 	if err != nil {
 		return fmt.Errorf("error parsing group for create: %s", err)
 	}
 
 	if err := auth.UpdateGroup(*client, parsedGroup); err != nil {
-		return fmt.Errorf("error creating group: %s %s", err)
+		return fmt.Errorf("error creating group: %s %s", err, parsedGroup.Name)
 	}
 
 	d.SetId(parsedGroup.Id)
@@ -151,14 +152,14 @@ func readGroup(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("samlgroup", firstGroup.SamlGroup); err != nil {
 		return fmt.Errorf("error reading %s samlGroup: %s", firstGroup.SamlGroup, err)
 	}
-	if err := d.Set("user", flattenGroupUser(firstGroup.Users)); err != nil {
+	if err := d.Set("users", flattenGroupUsers(firstGroup.Users)); err != nil {
 	}
 	return nil
 }
 
 func updateGroup(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedGroup, err := parseGroups(d)
+	parsedGroup, err := parseGroup(d)
 	if err != nil {
 		return fmt.Errorf("error parsing group for update: %s", err)
 	}
@@ -183,7 +184,7 @@ func deleteGroup(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func parseGroups(d *schema.ResourceData) (auth.Group, error) {
+func parseGroup(d *schema.ResourceData) (auth.Group, error) {
 	parsedGroup := auth.Group{}
 	
 	if d.Get("groupid") != nil {
@@ -210,8 +211,8 @@ func parseGroups(d *schema.ResourceData) (auth.Group, error) {
 	if d.Get("samlgroup") != nil {
 		parsedGroup.SamlGroup = d.Get("samlgroup").(bool)
 	}
-	if d.Get("user") != nil && len(d.Get("user").([]interface{})) > 0 {
-		parsedGroup.Users = convertGroupUser(d.Get("user").([]interface{}))
+	if d.Get("users") != nil && len(d.Get("users").([]interface{})) > 0 {
+		parsedGroup.Users = convertGroupUsers(d.Get("users").([]interface{}))
 	}
 
 	return parsedGroup, nil
@@ -221,7 +222,7 @@ func flattenGroupPermissions(in []auth.GroupPermission) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		m["collections"] = val.Collections
+		m["collections"] = strings.Join(val.Collections, ",")
 		m["project"] = val.Project
 		ans = append(ans, m)
 	}
@@ -244,7 +245,7 @@ func convertGroupPermissions(in []interface{}) []auth.GroupPermission {
 	return ans
 }
 
-func flattenGroupUser(in []auth.GroupUser) []interface{} {
+func flattenGroupUsers(in []auth.GroupUser) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
@@ -254,7 +255,7 @@ func flattenGroupUser(in []auth.GroupUser) []interface{} {
 	return ans
 }
 
-func convertGroupUser(in []interface{}) []auth.GroupUser {
+func convertGroupUsers(in []interface{}) []auth.GroupUser {
 	ans := make([]auth.GroupUser, 0, len(in))
 	for _, val := range in {
 		valMap := val.(map[string]interface{})

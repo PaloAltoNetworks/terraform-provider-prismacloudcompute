@@ -73,7 +73,7 @@ func dataSourceGroups() *schema.Resource {
 				Optional:    true,
 				Description: "Indicates if the group is a SAML group (true) or not (false).",
 			},			
-			"user": {
+			"users": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Users in the group.",
@@ -111,7 +111,7 @@ func dataSourceGroupsRead(d *schema.ResourceData, meta interface{}) error {
 			"permissions": val.Permissions,
 			"role": val.Role,
 			"samlGroup": val.SamlGroup,
-			"user": val.Users,
+			"users": val.Users,
 		})
 	}
 

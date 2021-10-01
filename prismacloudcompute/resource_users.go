@@ -3,6 +3,7 @@ package prismacloudcompute
 import (
 	"fmt"
 	"time"
+	"strings"
 
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/auth"
@@ -78,11 +79,11 @@ func createUser(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedUser, err := parseUser(d)
 	if err != nil {
-		return fmt.Errorf("error creating user: %s", err)
+		return fmt.Errorf("error parsing user: %s", err)
 	}
 
 	if err := auth.UpdateUser(*client, parsedUser); err != nil {
-		return fmt.Errorf("error creating user: %s", err)
+		return fmt.Errorf("error creating user: %s %s", err, parsedUser.Username)
 	}
 
 	d.SetId(parsedUser.Username)
@@ -120,7 +121,7 @@ func updateUser(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedUser, err := parseUser(d)
 	if err != nil {
-		return fmt.Errorf("error updating user: %s", err)
+		return fmt.Errorf("error parsing user for update: %s", err)
 	}
 
 	if err := auth.UpdateUser(*client, parsedUser); err != nil {
@@ -169,8 +170,8 @@ func flattenUserPermissions(in []auth.UserPermission) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		val["collections"] = parseStringArray(m.Collections)
-		val["project"] = m.Project
+		m["collections"] = strings.Join(val.Collections, ",")
+		m["project"] = val.Project
 		ans = append(ans, m)
 	}
 	return ans

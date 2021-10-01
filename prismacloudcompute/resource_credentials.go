@@ -171,11 +171,11 @@ func createCredentials(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedCredential, err := parseCredentials(d)
 	if err != nil {
-		return fmt.Errorf("error creating credential: %s", err)
+		return fmt.Errorf("error parsing credential: %s", err)
 	}
 
 	if err := auth.UpdateCredential(*client, parsedCredential); err != nil {
-		return fmt.Errorf("error creating credential: %s %s", err, parsedCredential.Id)
+		return fmt.Errorf("error creating credential: %s %s", err, parsedCredential.AccountID)
 	}
 
 	d.SetId(parsedCredential.Id)
@@ -250,7 +250,7 @@ func updateCredentials(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedCredential, err := parseCredentials(d)
 	if err != nil {
-		return fmt.Errorf("error updating credential: %s", err)
+		return fmt.Errorf("error parsing credential for update: %s", err)
 	}
 
 	if err := auth.UpdateCredential(*client, parsedCredential); err != nil {

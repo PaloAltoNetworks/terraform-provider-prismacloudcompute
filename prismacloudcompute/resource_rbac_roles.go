@@ -65,11 +65,11 @@ func createRbacRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedRole, err := parseRbacRole(d)
 	if err != nil {
-		return fmt.Errorf("error creating role: %s", err)
+		return fmt.Errorf("error parsing role: %s", err)
 	}
 
 	if err := auth.UpdateRole(*client, parsedRole); err != nil {
-		return fmt.Errorf("error creating role: %s", err)
+		return fmt.Errorf("error creating role: %s %s", err, parsedRole.Name)
 	}
 
 	d.SetId(parsedRole.Name)
@@ -101,7 +101,7 @@ func updateRbacRole(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedRole, err := parseRbacRole(d)
 	if err != nil {
-		return fmt.Errorf("error updating role: %s", err)
+		return fmt.Errorf("error parsing rold for update: %s", err)
 	}
 
 	if err := auth.UpdateRole(*client, parsedRole); err != nil {

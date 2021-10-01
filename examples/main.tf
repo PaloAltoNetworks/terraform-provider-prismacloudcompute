@@ -1461,7 +1461,7 @@ resource "prismacloudcompute_groups" "groups" {
 #    collections = []
 #    ldap_admin_group = false
     groupname = "test"
-    user {
+    users {
         username = "test"
     }
     ldapgroup = false
