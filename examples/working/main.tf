@@ -1428,16 +1428,3 @@ resource "prismacloudcompute_image_vulnerability_policy" "ruleset" {
     }
   }
 }
-
-# resource "prismacloudcompute_settings_registry" "registry" {
-#   specification {
-#     version = "2"
-#     registry = ""
-#     repository = "library/ubuntu"
-#     tag = "20.04"
-#     os = "linux"
-#     cap = 5
-#     scanners = 2
-#     collections = ["All"]
-#   }
-# }
