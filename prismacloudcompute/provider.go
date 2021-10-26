@@ -59,27 +59,18 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_host_vulnerability_policy":     resourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":    resourcePoliciesVulnerabilityImage(),
 			"prismacloudcompute_settings_registry":             resourceRegistry(),
-			"prismacloudcompute_users":             resourceUsers(),
-			"prismacloudcompute_groups":             resourceGroups(),
-			"prismacloudcompute_rbac_roles":             resourceRbacRoles(),
-			"prismacloudcompute_credentials":             resourceCredentials(),
+			"prismacloudcompute_users":                         resourceUsers(),
+			"prismacloudcompute_groups":                        resourceGroups(),
+			"prismacloudcompute_rbac_roles":                    resourceRbacRoles(),
+			"prismacloudcompute_credentials":                   resourceCredentials(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"prismacloudcompute_collections":                   dataSourceCollections(),
-			"prismacloudcompute_ci_image_compliance_policy":    dataSourcePoliciesComplianceCiImage(),
-			"prismacloudcompute_container_compliance_policy":   dataSourcePoliciesComplianceContainer(),
-			"prismacloudcompute_host_compliance_policy":        dataSourcePoliciesComplianceHost(),
-			"prismacloudcompute_container_runtime_policy":      dataSourcePoliciesRuntimeContainer(),
-			"prismacloudcompute_host_runtime_policy":           dataSourcePoliciesRuntimeHost(),
-			"prismacloudcompute_ci_image_vulnerability_policy": dataSourcePoliciesVulnerabilityCiImage(),
-			"prismacloudcompute_host_vulnerability_policy":     dataSourcePoliciesVulnerabilityHost(),
-			"prismacloudcompute_image_vulnerability_policy":    dataSourcePoliciesVulnerabilityImage(),
-			"prismacloudcompute_settings_registry":             dataSourceRegistry(),
-			"prismacloudcompute_users":             dataSourceUsers(),
-			"prismacloudcompute_groups":             dataSourceGroups(),
-			"prismacloudcompute_rbac_roles":             dataSourceRbacRoles(),
-			"prismacloudcompute_credentials":             dataSourceCredentials(),
+			"prismacloudcompute_collections": dataSourceCollections(),
+			"prismacloudcompute_users":       dataSourceUsers(),
+			"prismacloudcompute_groups":      dataSourceGroups(),
+			"prismacloudcompute_rbac_roles":  dataSourceRbacRoles(),
+			"prismacloudcompute_credentials": dataSourceCredentials(),
 		},
 
 		ConfigureFunc: configure,
@@ -88,8 +79,8 @@ func Provider() *schema.Provider {
 
 func configure(d *schema.ResourceData) (interface{}, error) {
 	var config pcc.Credentials
-	if d.Get("config_file") != nil {
-		configFile, err := os.Open(d.Get("config_file").(string))
+	if val, ok := d.GetOk("config_file"); ok {
+		configFile, err := os.Open(val.(string))
 		if err != nil {
 			fmt.Printf("error opening config file: %v", err)
 		}
@@ -106,18 +97,18 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	// if d.Get("console_url") != nil {
-	// 	config.ConsoleURL = d.Get("console_url").(string)
-	// }
-	// if d.Get("username") != nil {
-	// 	config.Username = d.Get("username").(string)
-	// }
-	// if d.Get("password") != nil {
-	// 	config.ConsoleURL = d.Get("password").(string)
-	// }
-	// if d.Get("skip_cert_verification") != nil {
-	// 	config.SkipCertVerification = d.Get("skip_cert_verification").(bool)
-	// }
+	if val, ok := d.GetOk("console_url"); ok {
+		config.ConsoleURL = val.(string)
+	}
+	if val, ok := d.GetOk("username"); ok {
+		config.Username = val.(string)
+	}
+	if val, ok := d.GetOk("password"); ok {
+		config.ConsoleURL = val.(string)
+	}
+	if val, ok := d.GetOk("skip_cert_verification"); ok {
+		config.SkipCertVerification = val.(bool)
+	}
 
 	client, err := pcc.APIClient(config.ConsoleURL, config.Username, config.Password, config.SkipCertVerification)
 	if err != nil {
