@@ -15,9 +15,10 @@
     ```bash
     export GOPATH=$(go env GOPATH)
     ```
-1. Clone this repository and navigate to its directory.
+1. Fetch the repository and navigate to its directory.
     ```bash
-    git clone git@github.com:PaloAltoNetworks/terraform-provider-prismacloudcompute.git $GOPATH/src/github.com/terraform-providers/terraform-provider-prismacloudcompute && cd $_
+    go get github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute
+    cd ~/go/src/github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute
     ```
 2. Install the provider.
 This also moves the compiled binary to the appropriate location.

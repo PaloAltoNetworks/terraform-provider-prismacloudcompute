@@ -2,12 +2,11 @@ package prismacloudcompute
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/settings"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceRegistry() *schema.Resource {
@@ -17,12 +16,6 @@ func resourceRegistry() *schema.Resource {
 		Update: updateRegistrySettings,
 		Delete: deleteRegistrySettings,
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
-
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -31,18 +24,18 @@ func resourceRegistry() *schema.Resource {
 			"specification": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "List of specifications.",
+				Description: "Registry scanning specifications.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"cap": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Description: "Specifies the maximum number of images from each repo to fetch and scan, sorted by most recently modified.",
+							Description: "The maximum number of images to scan from each repository, sorted by most recently modified.",
 						},
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "Specifies the set of Defenders in-scope for working on a scan job.",
+							Description: "The set of Defenders available for scanning.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -50,7 +43,7 @@ func resourceRegistry() *schema.Resource {
 						"credential": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "ID of the credentials in the credentials store to use for authenticating with the registry.",
+							Description: "The name of the credential from the credentials store to use for authenticating with the registry.",
 						},
 						"excluded_repositories": {
 							Type:        schema.TypeList,
@@ -71,7 +64,7 @@ func resourceRegistry() *schema.Resource {
 						"harbor_deployment_security": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "Indicates whether the Prisma Cloud plugin uses temporary tokens provided by Harbor to scan images in projects where Harbor's deployment security setting is enabled.",
+							Description: "Use temporary tokens provided by Harbor to scan images in projects with the deployment security setting enabled.",
 						},
 						"jfrog_repo_types": {
 							Type:        schema.TypeList,
@@ -84,22 +77,22 @@ func resourceRegistry() *schema.Resource {
 						"namespace": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "IBM Bluemix namespace.",
+							Description: "IBM Cloud namespace.",
 						},
 						"os": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The registry images base OS type.",
+							Description: "The base OS of the registry images.",
 						},
 						"registry": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Registry address (e.g., https://gcr.io)..",
+							Description: "Registry address.",
 						},
 						"repository": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Repositories to scan.",
+							Description: "Repositories to scan. Pattern matching is supported.",
 						},
 						"scanners": {
 							Type:        schema.TypeInt,
@@ -109,17 +102,17 @@ func resourceRegistry() *schema.Resource {
 						"tag": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Tags to scan.",
+							Description: "Tags to scan. Pattern matching is supported.",
 						},
-						"version": {
+						"type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Registry type. Determines the protocol Prisma Cloud uses to communicate with the registry.",
+							Description: "Registry type.",
 						},
 						"version_pattern": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Pattern heuristic for quickly filtering images by tags without having to query all images for modification dates.",
+							Description: "Pattern used by the scanner to identify the latest tags without querying the registry for additional metadata. If a pattern specifies both date and version, date takes precedence over version.",
 						},
 					},
 				},
@@ -130,8 +123,11 @@ func resourceRegistry() *schema.Resource {
 
 func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRegstry := parseRegistry(d)
-	if err := settings.UpdateRegistrySettings(*client, parsedRegstry); err != nil {
+	parsedRegistry := settings.RegistrySettings{
+		Specifications: convert.SchemaToRegistrySpecification(d),
+	}
+
+	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
 		return fmt.Errorf("failed to create registry: %s", err)
 	}
 
@@ -146,7 +142,7 @@ func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to read registry: %s", err)
 	}
 
-	if err := d.Set("specification", flattenRegistrySpecification(retrievedRegistry.Specifications)); err != nil {
+	if err := d.Set("specification", convert.RegistrySpecificationToSchema(retrievedRegistry.Specifications)); err != nil {
 		return fmt.Errorf("failed to read registry: %s", err)
 	}
 
@@ -155,7 +151,10 @@ func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 
 func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRegistry := parseRegistry(d)
+	parsedRegistry := settings.RegistrySettings{
+		Specifications: convert.SchemaToRegistrySpecification(d),
+	}
+
 	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
 		return fmt.Errorf("failed to update registry: %s", err)
 	}
@@ -173,59 +172,4 @@ func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.SetId("")
 	return nil
-}
-
-func parseRegistry(d *schema.ResourceData) settings.RegistrySettings {
-	return settings.RegistrySettings{
-		Specifications: parseRegistrySpecification(d.Get("specification").([]interface{})),
-	}
-}
-
-func parseRegistrySpecification(specifications []interface{}) []settings.RegistrySpecification {
-	parsedRegistrySpecifications := make([]settings.RegistrySpecification, 0, len(specifications))
-	for _, val := range specifications {
-		presentRegistrySpecification := val.(map[string]interface{})
-		parsedRegistrySpecifications = append(parsedRegistrySpecifications, settings.RegistrySpecification{
-			Cap:                      presentRegistrySpecification["cap"].(int),
-			Collections:              parseStringArray(presentRegistrySpecification["collections"].([]interface{})),
-			Credential:               presentRegistrySpecification["credential"].(string),
-			ExcludedRepositories:     parseStringArray(presentRegistrySpecification["excluded_repositories"].([]interface{})),
-			ExcludedTags:             parseStringArray(presentRegistrySpecification["excluded_tags"].([]interface{})),
-			HarborDeploymentSecurity: presentRegistrySpecification["harbor_deployment_security"].(bool),
-			JfrogRepoTypes:           parseStringArray(presentRegistrySpecification["jfrog_repo_types"].([]interface{})),
-			Namespace:                presentRegistrySpecification["namespace"].(string),
-			Os:                       presentRegistrySpecification["os"].(string),
-			Tag:                      presentRegistrySpecification["tag"].(string),
-			Registry:                 presentRegistrySpecification["registry"].(string),
-			Repository:               presentRegistrySpecification["repository"].(string),
-			Scanners:                 presentRegistrySpecification["scanners"].(int),
-			Version:                  presentRegistrySpecification["version"].(string),
-			VersionPattern:           presentRegistrySpecification["version_pattern"].(string),
-		})
-	}
-	return parsedRegistrySpecifications
-}
-
-func flattenRegistrySpecification(s []settings.RegistrySpecification) []interface{} {
-	ans := make([]interface{}, 0, len(s))
-	for _, v := range s {
-		m := make(map[string]interface{})
-		m["cap"] = v.Cap
-		m["collections"] = v.Collections
-		m["credential"] = v.Credential
-		m["excluded_repositories"] = v.ExcludedRepositories
-		m["excluded_tags"] = v.ExcludedTags
-		m["harbor_deployment_security"] = v.HarborDeploymentSecurity
-		m["jfrog_repo_types"] = v.JfrogRepoTypes
-		m["namespace"] = v.Namespace
-		m["os"] = v.Os
-		m["tag"] = v.Tag
-		m["registry"] = v.Registry
-		m["repository"] = v.Repository
-		m["scanners"] = v.Scanners
-		m["version"] = v.Version
-		m["version_pattern"] = v.VersionPattern
-		ans = append(ans, m)
-	}
-	return ans
 }

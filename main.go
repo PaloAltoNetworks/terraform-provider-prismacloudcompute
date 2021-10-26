@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/terraform-providers/terraform-provider-prismacloudcompute/prismacloudcompute"
 )
 
 func main() {

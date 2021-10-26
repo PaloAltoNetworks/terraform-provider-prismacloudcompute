@@ -2,12 +2,11 @@ package prismacloudcompute
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert/runtime"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesRuntimeContainer() *schema.Resource {
@@ -17,12 +16,6 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 		Update: updatePolicyRuntimeContainer,
 		Delete: deletePolicyRuntimeContainer,
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
-
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -31,30 +24,30 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 			"learning_disabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "If set to 'true', automatic behavioural learning is enabled.",
+				Description: "Whether or not to disable automatic behavioral learning.",
 				Default:     false,
 			},
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Rules in the policy.",
+				Description: "Rules that make up the policy.",
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"advanced_protection": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "Prisma Cloud advanced threat protection",
+							Description: "Whether or not to enable advanced protection.",
 						},
 						"cloud_metadata_enforcement": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "Suspicious queries to cloud provider APIs",
+							Description: "Whether or not to enable cloud metadata access monitoring.",
 						},
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of collections used to scope the rule.",
+							Description: "Collections used to scope the rule.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -66,22 +59,19 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action": {
-										Type:        schema.TypeList,
+										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The action to perform if the custom rule applies. Can be set to 'audit', 'incident'.",
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
+										Description: "The action to perform if the custom rule applies. Can be set to 'audit' or 'incident'.",
 									},
 									"effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The effect to be used for the custom rule. Can be set to 'block', 'prevent', 'alert', 'allow', 'ban', or 'disable'.",
+										Description: "The effect to be used. Can be set to 'block', 'prevent', 'alert', or 'allow'.",
 									},
 									"id": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Custom rule ID.",
+										Description: "Custom rule number.",
 									},
 								},
 							},
@@ -89,19 +79,19 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 						"disabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "If set to 'true', the rule is currently disabled.",
+							Description: "Whether or not to disable the rule.",
 						},
 						"dns": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "The DNS runtime rule.",
+							Description: "DNS configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allowed domains (e.g. gmail.com, *.s3.amazon.com).",
+										Description: "Allowed domains. Wildcard prefixes are supported.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -109,7 +99,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"denied": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Denied domains (e.g. www.bad-url.com, *.bad-url.com).",
+										Description: "Denied domains. Wildcard prefixes are supported.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -117,7 +107,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The effect to be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', 'disable'.",
+										Description: "The effect to be used. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
 									},
 								},
 							},
@@ -126,13 +116,13 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Represents restrictions or suppression for filesystem changes.",
+							Description: "File system configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of allowed filesystem paths.",
+										Description: "List of allowed file system paths.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -140,12 +130,12 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"backdoor_files": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', monitors files that can create or persist backdoors (SSH or admin account config files).",
+										Description: "Whether or not to monitor files that can create or persist backdoors (SSH or admin account config files).",
 									},
 									"check_new_files": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', Detects changes to binaries and certificates.",
+										Description: "Whether or not to detect changes to binaries and certificates.",
 									},
 									"denied": {
 										Type:        schema.TypeList,
@@ -158,17 +148,17 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The effect that will be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
+										Description: "The effect to be used. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
 									},
 									"skip_encrypted_binaries": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', the encrypted binaries check will be skipped.",
+										Description: "Whether or not to skip encrypted binaries.",
 									},
 									"suspicious_elf_headers": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', enables malware detection based on suspicious ELF headers.",
+										Description: "Whether or not to detect suspicious ELF headers.",
 									},
 								},
 							},
@@ -176,40 +166,40 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 						"kubernetes_enforcement": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "Detects containers that attempt to compromise the orchestrator.",
+							Description: "Whether or not to detect attacks against the cluster.",
 						},
 						"name": {
 							Type:        schema.TypeString,
 							Required:    true,
-							Description: "Name of the rule.",
+							Description: "Unique name of the rule.",
 						},
 						"network": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Represents the restrictions and suppression for networking.",
+							Description: "Network configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allow-listed listening ports.",
+										Description: "List of allowed listening ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -217,7 +207,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"allowed_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allow-listed IP addresses.",
+										Description: "List of allowed outbound IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -225,23 +215,23 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"allowed_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allow-listed outbound ports.",
+										Description: "List of allowed outbound ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -249,23 +239,23 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"denied_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-listed listening ports.",
+										Description: "List of denied listening ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -273,7 +263,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"denied_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-listed IP addresses.",
+										Description: "List of denied outbound IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -281,23 +271,23 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"denied_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-listed outbound ports.",
+										Description: "List of denied outbound ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true', the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -305,22 +295,22 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect used in the runtime rule. Can be set to: 'block', 'prevent', 'alert', or 'disable'.",
+										Description: "The effect to be used. Can be set to 'block', 'alert', or 'disable'.",
 									},
 									"detect_port_scan": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', port scanning detection is enabled.",
+										Description: "Whether or not to detect port scans.",
 									},
 									"skip_modified_processes": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', Prisma Cloud can detect malicious networking activity from modified processes.",
+										Description: "Whether or not to skip network monitoring for modified processes.",
 									},
 									"skip_raw_sockets": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', raw socket detection will be skipped.",
+										Description: "Whether or not to skip raw socket detection.",
 									},
 								},
 							},
@@ -328,19 +318,19 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 						"notes": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "A free-form text description of the collection.",
+							Description: "Free-form text field.",
 						},
 						"processes": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Represents restrictions or suppression for running processes.",
+							Description: "Processes configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allow-list of processes.",
+										Description: "List of allowed processes.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -348,27 +338,27 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"check_crypto_miners": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', detect crypto miners.",
+										Description: "Whether or not to detect crypto miners.",
 									},
 									"check_lateral_movement": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', enables detection of processes that can be used for lateral movement exploits.",
+										Description: "Whether or not to detect processes that can be used for lateral movement exploits.",
 									},
 									"check_parent_child": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', enables check for parent-child relationship when comparing spawned processes in the model.",
+										Description: "Whether or not to check for parent-child relationship when comparing spawned processes in the model.",
 									},
 									"check_suid_binaries": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', enables check for process elevanting privileges (SUID bit).",
+										Description: "Whether or not to check for process-elevating privileges (SUID bit).",
 									},
 									"denied": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "List of processes to deny.",
+										Description: "List of denied processes.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -376,17 +366,17 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The effect to be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', 'disable'.",
+										Description: "The effect to be used. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
 									},
 									"skip_modified": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Processes started from modified binaries",
+										Description: "Whether or not to skip detection of processes started from modified binaries",
 									},
 									"skip_reverse_shell": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "If set to 'true', reverse shell detection is disabled.",
+										Description: "Whether or not skip detection of reverse shells.",
 									},
 								},
 							},
@@ -394,7 +384,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 						"wildfire_analysis": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "The effect that will be used in the runtime rule. Can be set to 'block', 'prevent', 'alert', or 'disable'.",
+							Description: "The effect to be used when WildFire analysis is enabled. Can be set to 'block', 'alert', or 'disable'.",
 						},
 					},
 				},
@@ -405,12 +395,16 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 
 func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyRuntimeContainer(d)
+	parsedRules, err := runtime.SchemaToRuntimeContainerRules(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
-	if err := policy.UpdateRuntimeContainer(*client, *parsedPolicy); err != nil {
+	parsedPolicy := policy.RuntimeContainerPolicy{
+		Rules: parsedRules,
+	}
+
+	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
@@ -426,7 +420,7 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("learning_disabled", retrievedPolicy.LearningDisabled)
-	if err := d.Set("rule", flattenPolicyRuntimeContainerRules(retrievedPolicy.Rules)); err != nil {
+	if err := d.Set("rule", runtime.RuntimeContainerRulesToSchema(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 	return nil
@@ -434,12 +428,16 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 
 func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyRuntimeContainer(d)
+	parsedRules, err := runtime.SchemaToRuntimeContainerRules(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
-	if err := policy.UpdateRuntimeContainer(*client, *parsedPolicy); err != nil {
+	parsedPolicy := policy.RuntimeContainerPolicy{
+		Rules: parsedRules,
+	}
+
+	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
@@ -449,221 +447,4 @@ func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 func deletePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	// TODO: reset to default policy
 	return nil
-}
-
-func parsePolicyRuntimeContainer(d *schema.ResourceData) (*policy.RuntimeContainerPolicy, error) {
-	parsedPolicy := policy.RuntimeContainerPolicy{
-		Rules: make([]policy.RuntimeContainerRule, 0),
-	}
-	if rules, ok := d.GetOk("rule"); ok {
-		rulesList := rules.([]interface{})
-		parsedRules := make([]policy.RuntimeContainerRule, 0, len(rulesList))
-		for _, val := range rulesList {
-			rule := val.(map[string]interface{})
-			parsedRule := policy.RuntimeContainerRule{}
-
-			parsedRule.AdvancedProtection = rule["advanced_protection"].(bool)
-			parsedRule.CloudMetadataEnforcement = rule["cloud_metadata_enforcement"].(bool)
-			parsedRule.Collections = parseCollections(rule["collections"].([]interface{}))
-			parsedRule.CustomRules = parseRuntimeContainerCustomRules(rule["custom_rule"].([]interface{}))
-			parsedRule.Disabled = rule["disabled"].(bool)
-			parsedRule.Dns = parseRuntimeContainerDns(rule["dns"].([]interface{}))
-			parsedRule.Filesystem = parseRuntimeContainerFilesystem(rule["filesystem"].([]interface{}))
-			parsedRule.KubernetesEnforcement = rule["kubernetes_enforcement"].(bool)
-			parsedRule.Name = rule["name"].(string)
-			parsedRule.Network = parseRuntimeContainerNetwork(rule["network"].([]interface{}))
-			parsedRule.Notes = rule["notes"].(string)
-			parsedRule.Processes = parseRuntimeContainerProcesses(rule["processes"].([]interface{}))
-			parsedRule.WildFireAnalysis = rule["wildfire_analysis"].(string)
-
-			parsedRules = append(parsedRules, parsedRule)
-		}
-		parsedPolicy.Rules = parsedRules
-	}
-	return &parsedPolicy, nil
-}
-
-func parseRuntimeContainerCustomRules(in []interface{}) []policy.RuntimeContainerCustomRule {
-	parsedCustomRules := make([]policy.RuntimeContainerCustomRule, 0, len(in))
-	for _, val := range in {
-		presentCustomRule := val.(map[string]interface{})
-		parsedCustomRule := policy.RuntimeContainerCustomRule{}
-		if presentCustomRule["action"] != nil {
-			parsedCustomRule.Action = presentCustomRule["action"].(string)
-		}
-		if presentCustomRule["effect"] != nil {
-			parsedCustomRule.Effect = presentCustomRule["effect"].(string)
-		}
-		if presentCustomRule["id"] != nil {
-			parsedCustomRule.Id = presentCustomRule["id"].(int)
-		}
-		parsedCustomRules = append(parsedCustomRules, parsedCustomRule)
-	}
-	return parsedCustomRules
-}
-
-func parseRuntimeContainerDns(in []interface{}) policy.RuntimeContainerDns {
-	parsedDns := policy.RuntimeContainerDns{}
-	if in[0] == nil {
-		return parsedDns
-	}
-	presentDns := in[0].(map[string]interface{})
-	if presentDns["allowed"] != nil {
-		parsedDns.Allowed = parseStringArray(presentDns["allowed"].([]interface{}))
-	}
-	if presentDns["denied"] != nil {
-		parsedDns.Denied = parseStringArray(presentDns["denied"].([]interface{}))
-	}
-	if presentDns["deny_effect"] != nil {
-		parsedDns.DenyEffect = presentDns["deny_effect"].(string)
-	}
-	return parsedDns
-}
-
-func parseRuntimeContainerFilesystem(in []interface{}) policy.RuntimeContainerFilesystem {
-	parsedFilesystem := policy.RuntimeContainerFilesystem{}
-	if in[0] == nil {
-		return parsedFilesystem
-	}
-	presentFilesystem := in[0].(map[string]interface{})
-	if presentFilesystem["allowed"] != nil {
-		parsedFilesystem.Allowed = parseStringArray(presentFilesystem["allowed"].([]interface{}))
-	}
-	if presentFilesystem["backdoor_files"] != nil {
-		parsedFilesystem.BackdoorFiles = presentFilesystem["backdoor_files"].(bool)
-	}
-	if presentFilesystem["check_new_files"] != nil {
-		parsedFilesystem.CheckNewFiles = presentFilesystem["check_new_files"].(bool)
-	}
-	if presentFilesystem["denied"] != nil {
-		parsedFilesystem.Denied = parseStringArray(presentFilesystem["denied"].([]interface{}))
-	}
-	if presentFilesystem["deny_effect"] != nil {
-		parsedFilesystem.DenyEffect = presentFilesystem["deny_effect"].(string)
-	}
-	if presentFilesystem["skip_encrypted_binaries"] != nil {
-		parsedFilesystem.SkipEncryptedBinaries = presentFilesystem["skip_encrypted_binaries"].(bool)
-	}
-	if presentFilesystem["suspicious_elf_headers"] != nil {
-		parsedFilesystem.SuspiciousElfHeaders = presentFilesystem["suspicious_elf_headers"].(bool)
-	}
-	return parsedFilesystem
-}
-
-func parseRuntimeContainerNetwork(in []interface{}) policy.RuntimeContainerNetwork {
-	parsedNetwork := policy.RuntimeContainerNetwork{}
-	if in[0] == nil {
-		return parsedNetwork
-	}
-	presentNetwork := in[0].(map[string]interface{})
-	if presentNetwork["allowed_listening_port"] != nil {
-		parsedNetwork.AllowedListeningPorts = parseRuntimeContainerPorts(presentNetwork["allowed_listening_port"].([]interface{}))
-	}
-	if presentNetwork["allowed_outbound_ips"] != nil {
-		parsedNetwork.AllowedOutboundIps = parseStringArray(presentNetwork["allowed_outbound_ips"].([]interface{}))
-	}
-	if presentNetwork["allowed_outbound_port"] != nil {
-		parsedNetwork.AllowedOutboundPorts = parseRuntimeContainerPorts(presentNetwork["allowed_outbound_port"].([]interface{}))
-
-	}
-	if presentNetwork["denied_listening_port"] != nil {
-		parsedNetwork.DeniedListeningPorts = parseRuntimeContainerPorts(presentNetwork["denied_listening_port"].([]interface{}))
-
-	}
-	if presentNetwork["denied_outbound_ips"] != nil {
-		parsedNetwork.DeniedOutboundIps = parseStringArray(presentNetwork["denied_outbound_ips"].([]interface{}))
-	}
-	if presentNetwork["denied_outbound_port"] != nil {
-		parsedNetwork.DeniedOutboundPorts = parseRuntimeContainerPorts(presentNetwork["denied_outbound_port"].([]interface{}))
-	}
-	if presentNetwork["deny_effect"] != nil {
-		parsedNetwork.DenyEffect = presentNetwork["deny_effect"].(string)
-	}
-	if presentNetwork["detect_port_scan"] != nil {
-		parsedNetwork.DetectPortScan = presentNetwork["detect_port_scan"].(bool)
-	}
-	if presentNetwork["skip_modified_processes"] != nil {
-		parsedNetwork.SkipModifiedProcesses = presentNetwork["skip_modified_processes"].(bool)
-	}
-	if presentNetwork["skip_raw_sockets"] != nil {
-		parsedNetwork.SkipRawSockets = presentNetwork["skip_raw_sockets"].(bool)
-	}
-	return parsedNetwork
-}
-
-func parseRuntimeContainerProcesses(in []interface{}) policy.RuntimeContainerProcesses {
-	parsedProcesses := policy.RuntimeContainerProcesses{}
-	if in[0] == nil {
-		return parsedProcesses
-	}
-	presentProcesses := in[0].(map[string]interface{})
-	if presentProcesses["allowed"] != nil {
-		parsedProcesses.Allowed = parseStringArray(presentProcesses["allowed"].([]interface{}))
-	}
-	if presentProcesses["check_crypto_miners"] != nil {
-		parsedProcesses.CheckCryptoMiners = presentProcesses["check_crypto_miners"].(bool)
-	}
-	if presentProcesses["check_lateral_movement"] != nil {
-		parsedProcesses.CheckLateralMovement = presentProcesses["check_lateral_movement"].(bool)
-	}
-	if presentProcesses["check_parent_child"] != nil {
-		parsedProcesses.CheckParentChild = presentProcesses["check_parent_child"].(bool)
-	}
-	if presentProcesses["check_suid_binaries"] != nil {
-		parsedProcesses.CheckSuidBinaries = presentProcesses["check_suid_binaries"].(bool)
-	}
-	if presentProcesses["denied"] != nil {
-		parsedProcesses.Denied = parseStringArray(presentProcesses["denied"].([]interface{}))
-	}
-	if presentProcesses["deny_effect"] != nil {
-		parsedProcesses.DenyEffect = presentProcesses["deny_effect"].(string)
-	}
-	if presentProcesses["skip_modified"] != nil {
-		parsedProcesses.SkipModified = presentProcesses["skip_modified"].(bool)
-	}
-	if presentProcesses["skip_reverse_shell"] != nil {
-		parsedProcesses.SkipReverseShell = presentProcesses["skip_reverse_shell"].(bool)
-	}
-	return parsedProcesses
-}
-
-func parseRuntimeContainerPorts(in []interface{}) []policy.RuntimeContainerPort {
-	parsedPorts := make([]policy.RuntimeContainerPort, 0, len(in))
-	for _, val := range in {
-		presentPort := val.(map[string]interface{})
-		parsedPort := policy.RuntimeContainerPort{}
-		if presentPort["deny"] != nil {
-			parsedPort.Deny = presentPort["deny"].(bool)
-		}
-		if presentPort["end"] != nil {
-			parsedPort.End = presentPort["end"].(int)
-		}
-		if presentPort["start"] != nil {
-			parsedPort.Start = presentPort["start"].(int)
-		}
-		parsedPorts = append(parsedPorts, parsedPort)
-	}
-	return parsedPorts
-}
-
-func flattenPolicyRuntimeContainerRules(in []policy.RuntimeContainerRule) []interface{} {
-	ans := make([]interface{}, 0, len(in))
-	for _, val := range in {
-		m := make(map[string]interface{})
-		m["advanced_protection"] = val.AdvancedProtection
-		m["cloud_metadata_enforcement"] = val.CloudMetadataEnforcement
-		m["collections"] = flattenCollections(val.Collections)
-		m["custom_rule"] = flattenRuntimeContainerCustomRules(val.CustomRules)
-		m["disabled"] = val.Disabled
-		m["dns"] = flattenRuntimeContainerDns(val.Dns)
-		m["filesystem"] = flattenRuntimeContainerFilesystem(val.Filesystem)
-		m["kubernetes_enforcement"] = val.KubernetesEnforcement
-		m["name"] = val.Name
-		m["network"] = flattenRuntimeContainerNetwork(val.Network)
-		m["notes"] = val.Notes
-		m["processes"] = flattenRuntimeContainerProcesses(val.Processes)
-		m["wildfire_analysis"] = val.WildFireAnalysis
-		ans = append(ans, m)
-	}
-	return ans
 }

@@ -2,8 +2,8 @@ package prismacloudcompute
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert/runtime"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 
@@ -17,12 +17,6 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 		Update: updatePolicyRuntimeHost,
 		Delete: deletePolicyRuntimeHost,
 
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(10 * time.Minute),
-			Update: schema.DefaultTimeout(10 * time.Minute),
-			Delete: schema.DefaultTimeout(5 * time.Minute),
-		},
-
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -31,21 +25,61 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Rules in the policy.",
+				Description: "Rules that make up the policy.",
 				MinItems:    1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"activities": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Activities configuration.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"disabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to disable host activity collection.",
+									},
+									"docker_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to collect docker commands.",
+									},
+									"readonly_docker_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to collect read-only docker commands.",
+									},
+									"service_activities_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to collect activity from services.",
+									},
+									"sshd_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to collect new SSH sessions.",
+									},
+									"sudo_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Description: "Whether or not to collect commands ran with sudo or su.",
+									},
+								},
+							},
+						},
 						"antimalware": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Restrictions/suppression for suspected anti-malware.",
+							Description: "Anti-malware configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed_processes": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "A list of paths for files and processes to skip during anti-malware checks.",
+										Description: "List of processes and files to allow during anti-malware checks.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -53,29 +87,29 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"crypto_miners": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when crypto miners are detected. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when malware from custom feeds is detected. Can be set to 'alert' or 'disable'.",
 									},
 									"denied_processes": {
 										Type:        schema.TypeList,
 										MaxItems:    1,
 										Optional:    true,
-										Description: "A rule containing paths of files and processes to alert/prevent and the required effect.",
+										Description: "Denied processes configuration.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"effect": {
 													Type:        schema.TypeString,
 													Optional:    true,
-													Description: "Effect that will be used in the runtime rule.",
+													Description: "The effect to be used. Can be set to 'prevent' or 'alert'.",
 												},
 												"paths": {
 													Type:        schema.TypeList,
 													Optional:    true,
-													Description: "Paths to alert/prevent when an event with one of the paths is triggered.",
+													Description: "List of processes and files to deny during anti-malware checks.",
 													Elem: &schema.Schema{
 														Type: schema.TypeString,
 													},
@@ -86,62 +120,62 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"detect_compiler_generated_binary": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Represents what happens when a compiler service writes a binary.",
+										Description: "Whether or not to detect compiler-generated binaries.",
 									},
 									"encrypted_binaries": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when encrypted or packed binaries are detected. Can be set to 'alert' or 'disable'.",
 									},
 									"execution_flow_hijack": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when execution flow hijacking is detected. Can be set to 'alert' or 'disable'.",
 									},
 									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when malware according to Prisma Cloud Compute is detected. Can be set to 'alert' or 'disable'.",
 									},
 									"reverse_shell": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when reverse shell attacks are detected. Can be set to 'alert' or 'disable'.",
 									},
 									"service_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when non-packaged binaries are created or ran by a service. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"skip_ssh_tracking": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "Whether or not to skip tracking of SSH events.",
 									},
 									"suspicious_elf_headers": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when binaries with suspicious ELF headers are detected. Can be set to 'alert' or 'disable'.",
 									},
 									"temp_filesystem_processes": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when processes are ran from a temporary file system. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"user_unknown_origin_binary": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when non-packaged binaries are created or ran by a user. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"webshell": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when webshell attacks are detected. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"wildfire_analysis": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when WildFire analysis is enabled. Can be set to 'alert' or 'disable'.",
 									},
 								},
 							},
@@ -149,7 +183,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"collections": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of collections used to scope the rule.",
+							Description: "Collections used to scope the rule.",
 							Elem: &schema.Schema{
 								Type: schema.TypeString,
 							},
@@ -157,7 +191,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"custom_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "List of custom runtime rules.",
+							Description: "List of custom rules.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"action": {
@@ -168,12 +202,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "The effect that will be used for a custom rule. Can be set to 'block', 'prevent', 'alert', 'allow', 'ban', or 'disable'.",
+										Description: "The effect to be used. Can be set to 'prevent', 'alert', or 'allow'.",
 									},
 									"id": {
 										Type:        schema.TypeInt,
 										Optional:    true,
-										Description: "Custom rule ID.",
+										Description: "Custom rule number.",
 									},
 								},
 							},
@@ -181,19 +215,19 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"disabled": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "If set to 'true', the rule is currently disabled.",
+							Description: "Whether or not to disable the rule.",
 						},
 						"dns": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "The DNS runtime rule",
+							Description: "DNS configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allowed domains (e.g. gmail.com, *.s3.amazon.com).",
+										Description: "Allowed domains. Wildcard prefixes are supported.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -201,7 +235,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"denied": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Denied domains (e.g. www.bad-url.com, *.bad-url.com).",
+										Description: "Denied domains. Wildcard prefixes are supported.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -209,12 +243,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when resolving suspicious domains according to Prisma Cloud Compute. Can be set to 'prevent', 'alert', or 'disable'.",
 									},
 								},
 							},
@@ -222,13 +256,13 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"file_integrity_rule": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "file integrity monitoring rules..",
+							Description: "List of file integrity rules.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed_processes": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "The processes to ignore Filesystem events caused by these processes DO NOT generate file integrity events.",
+										Description: "List of processes allowed to generate file system events on monitored files.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -236,7 +270,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"excluded_files": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Filenames that should be ignored while generating audits These filenames may contain a wildcad regex pattern, e.g. foo*.log, *.cache.",
+										Description: "List of file names to ignore. Pattern matching is supported.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -244,7 +278,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"metadata": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Indicates that metadata changes should be monitored (e.g. chmod, chown).",
+										Description: "Whether or not to monitor file metadata changes.",
 									},
 									"path": {
 										Type:        schema.TypeString,
@@ -254,57 +288,17 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"read": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Indicates that eads operations should be monitored.",
+										Description: "Whether or not to monitor file reads.",
 									},
 									"recursive": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Indicates that monitoring should be recursive.",
+										Description: "Whether or not to recursively monitor files starting at `path`.",
 									},
 									"write": {
 										Type:        schema.TypeBool,
 										Optional:    true,
-										Description: "Indicates that write operations should be monitored.",
-									},
-								},
-							},
-						},
-						"forensic": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Description: "Indicates how to perform host forensic.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"activities_disabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates if the host activity collection is enabled/disabled.",
-									},
-									"docker_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates whether docker commands are collected.",
-									},
-									"readonly_docker_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates whether docker readonly commands are collected.",
-									},
-									"service_activities_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates whether activities from services are collected.",
-									},
-									"sshd_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates whether ssh commands are collected.",
-									},
-									"sudo_enabled": {
-										Type:        schema.TypeBool,
-										Optional:    true,
-										Description: "Indicates whether sudo commands are collected.",
+										Description: "Whether or not to monitor file writes.",
 									},
 								},
 							},
@@ -318,12 +312,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"path": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "the log path.",
+										Description: "Path to the log file.",
 									},
 									"regex": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Regular expressions associated with the rule if it is a custom one.",
+										Description: "List of regular expressions to use when inspecting the log file.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -334,19 +328,19 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"name": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Name of the rule.",
+							Description: "Unique name of the rule.",
 						},
 						"network": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Represents the restrictions or suppression for networking.",
+							Description: "Network configuration.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"allowed_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Allow-listed IP addresses.",
+										Description: "List of allowed outbound IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -354,28 +348,28 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"custom_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when connecting to suspicious IPs according to custom feeds. Can be set to 'alert' or 'disable'.",
 									},
 									"denied_listening_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-list of listening ports.",
+										Description: "List of denied listening ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true' the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -383,7 +377,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"denied_outbound_ips": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-list of IP addresses.",
+										Description: "List of denied outbound IP addresses.",
 										Elem: &schema.Schema{
 											Type: schema.TypeString,
 										},
@@ -391,23 +385,23 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"denied_outbound_port": {
 										Type:        schema.TypeList,
 										Optional:    true,
-										Description: "Deny-listed outbound ports.",
+										Description: "List of denied outbound ports.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"deny": {
 													Type:        schema.TypeBool,
 													Optional:    true,
-													Description: "If set to 'true' the connection is denied.",
+													Description: "Whether or not to deny the connection.",
 												},
 												"end": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "end",
+													Description: "End of the port range.",
 												},
 												"start": {
 													Type:        schema.TypeInt,
 													Optional:    true,
-													Description: "start",
+													Description: "Start of the port range.",
 												},
 											},
 										},
@@ -415,12 +409,12 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 									"deny_effect": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used. Can be set to 'alert' or 'disable'.",
 									},
 									"intelligence_feed": {
 										Type:        schema.TypeString,
 										Optional:    true,
-										Description: "Effect that will be used in the runtime rule.",
+										Description: "The effect to be used when connecting to suspicious IPs according to Prisma Cloud Compute. Can be set to 'alert' or 'disable'.",
 									},
 								},
 							},
@@ -428,7 +422,7 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 						"notes": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "A free-form text description of the collection.",
+							Description: "Free-form text field.",
 						},
 					},
 				},
@@ -439,12 +433,16 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 
 func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyRuntimeHost(d)
+	parsedRules, err := runtime.SchemaToRuntimeHostRules(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
-	if err := policy.UpdateRuntimeHost(*client, *parsedPolicy); err != nil {
+	parsedPolicy := policy.RuntimeHostPolicy{
+		Rules: parsedRules,
+	}
+
+	if err := policy.UpdateRuntimeHost(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
@@ -459,7 +457,7 @@ func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
-	if err := d.Set("rule", flattenPolicyRuntimeHostRules(retrievedPolicy.Rules)); err != nil {
+	if err := d.Set("rule", runtime.RuntimeHostRulesToSchema(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
@@ -468,12 +466,16 @@ func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 
 func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedPolicy, err := parsePolicyRuntimeHost(d)
+	parsedRules, err := runtime.SchemaToRuntimeHostRules(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
-	if err := policy.UpdateRuntimeHost(*client, *parsedPolicy); err != nil {
+	parsedPolicy := policy.RuntimeHostPolicy{
+		Rules: parsedRules,
+	}
+
+	if err := policy.UpdateRuntimeHost(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
@@ -483,290 +485,4 @@ func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 func deletePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	// TODO: reset to default policy
 	return nil
-}
-
-func parsePolicyRuntimeHost(d *schema.ResourceData) (*policy.RuntimeHostPolicy, error) {
-	parsedPolicy := policy.RuntimeHostPolicy{
-		Rules: make([]policy.RuntimeHostRule, 0),
-	}
-	if rules, ok := d.GetOk("rule"); ok {
-		rulesList := rules.([]interface{})
-		parsedRules := make([]policy.RuntimeHostRule, 0, len(rulesList))
-		for _, val := range rulesList {
-			rule := val.(map[string]interface{})
-			parsedRule := policy.RuntimeHostRule{}
-
-			parsedRule.AntiMalware = parseRuntimeHostAntiMalware(rule["antimalware"].([]interface{}))
-			parsedRule.Collections = parseCollections(rule["collections"].([]interface{}))
-			parsedRule.CustomRules = parseRuntimeHostCustomRules(rule["custom_rule"].([]interface{}))
-			parsedRule.Disabled = rule["disabled"].(bool)
-			parsedRule.Dns = parseRuntimeHostDns(rule["dns"].([]interface{}))
-			parsedRule.FileIntegrityRules = parseRuntimeHostFileIntegrityRules(rule["file_integrity_rule"].([]interface{}))
-			parsedRule.Forensic = parseRuntimeHostForensic(rule["forensic"].([]interface{}))
-			parsedRule.LogInspectionRules = parseRuntimeHostLogInspectionRules(rule["log_inspection_rule"].([]interface{}))
-			parsedRule.Name = rule["name"].(string)
-			parsedRule.Network = parseRuntimeHostNetwork(rule["network"].([]interface{}))
-			parsedRule.Notes = rule["notes"].(string)
-
-			parsedRules = append(parsedRules, parsedRule)
-		}
-		parsedPolicy.Rules = parsedRules
-	}
-	return &parsedPolicy, nil
-}
-
-func parseRuntimeHostAntiMalware(in []interface{}) policy.RuntimeHostAntiMalware {
-	parsedAntiMalware := policy.RuntimeHostAntiMalware{}
-	if in[0] == nil {
-		return parsedAntiMalware
-	}
-	presentAntiMalware := in[0].(map[string]interface{})
-	if presentAntiMalware["allowed_processes"] != nil {
-		parsedAntiMalware.AllowedProcesses = parseStringArray(presentAntiMalware["allowed_processes"].([]interface{}))
-	}
-	if presentAntiMalware["crypto_miners"] != nil {
-		parsedAntiMalware.CryptoMiner = presentAntiMalware["crypto_miners"].(string)
-	}
-	if presentAntiMalware["custom_feed"] != nil {
-		parsedAntiMalware.CustomFeed = presentAntiMalware["custom_feed"].(string)
-	}
-	if presentAntiMalware["denied_processes"] != nil {
-		parsedAntiMalware.DeniedProcesses = parseRuntimeHostDeniedProcesses(presentAntiMalware["denied_processes"].([]interface{}))
-	}
-	if presentAntiMalware["detect_compiler_generated_binary"] != nil {
-		parsedAntiMalware.DetectCompilerGeneratedBinary = presentAntiMalware["detect_compiler_generated_binary"].(bool)
-	}
-	if presentAntiMalware["encrypted_binaries"] != nil {
-		parsedAntiMalware.EncryptedBinaries = presentAntiMalware["encrypted_binaries"].(string)
-	}
-	if presentAntiMalware["execution_flow_hijack"] != nil {
-		parsedAntiMalware.ExecutionFlowHijack = presentAntiMalware["execution_flow_hijack"].(string)
-	}
-	if presentAntiMalware["intelligence_feed"] != nil {
-		parsedAntiMalware.IntelligenceFeed = presentAntiMalware["intelligence_feed"].(string)
-	}
-	if presentAntiMalware["reverse_shell"] != nil {
-		parsedAntiMalware.ReverseShell = presentAntiMalware["reverse_shell"].(string)
-	}
-	if presentAntiMalware["service_unknown_origin_binary"] != nil {
-		parsedAntiMalware.ServiceUnknownOriginBinary = presentAntiMalware["service_unknown_origin_binary"].(string)
-	}
-	if presentAntiMalware["skip_ssh_tracking"] != nil {
-		parsedAntiMalware.SkipSshTracking = presentAntiMalware["skip_ssh_tracking"].(bool)
-	}
-	if presentAntiMalware["suspicious_elf_headers"] != nil {
-		parsedAntiMalware.SuspiciousElfHeaders = presentAntiMalware["suspicious_elf_headers"].(string)
-	}
-	if presentAntiMalware["temp_filesystem_processes"] != nil {
-		parsedAntiMalware.TempFsProcesses = presentAntiMalware["temp_filesystem_processes"].(string)
-	}
-	if presentAntiMalware["user_unknown_origin_binary"] != nil {
-		parsedAntiMalware.UserUnknownOriginBinary = presentAntiMalware["user_unknown_origin_binary"].(string)
-	}
-	if presentAntiMalware["webshell"] != nil {
-		parsedAntiMalware.WebShell = presentAntiMalware["webshell"].(string)
-	}
-	if presentAntiMalware["wildfire_analysis"] != nil {
-		parsedAntiMalware.WildFireAnalysis = presentAntiMalware["wildfire_analysis"].(string)
-	}
-	return parsedAntiMalware
-}
-
-func parseRuntimeHostCustomRules(in []interface{}) []policy.RuntimeHostCustomRule {
-	parsedCustomRules := make([]policy.RuntimeHostCustomRule, 0, len(in))
-	for _, val := range in {
-		presentCustomRule := val.(map[string]interface{})
-		parsedCustomRule := policy.RuntimeHostCustomRule{}
-		if presentCustomRule["action"] != nil {
-			parsedCustomRule.Action = presentCustomRule["action"].(string)
-		}
-		if presentCustomRule["effect"] != nil {
-			parsedCustomRule.Effect = presentCustomRule["effect"].(string)
-		}
-		if presentCustomRule["id"] != nil {
-			parsedCustomRule.Id = presentCustomRule["id"].(int)
-		}
-		parsedCustomRules = append(parsedCustomRules, parsedCustomRule)
-	}
-	return parsedCustomRules
-}
-
-func parseRuntimeHostDns(in []interface{}) policy.RuntimeHostDns {
-	parsedDns := policy.RuntimeHostDns{}
-	if in[0] == nil {
-		return parsedDns
-	}
-	presentDns := in[0].(map[string]interface{})
-	if presentDns["allowed"] != nil {
-		parsedDns.Allowed = parseStringArray(presentDns["allowed"].([]interface{}))
-	}
-	if presentDns["denied"] != nil {
-		parsedDns.Denied = parseStringArray(presentDns["denied"].([]interface{}))
-	}
-	if presentDns["deny_effect"] != nil {
-		parsedDns.DenyEffect = presentDns["deny_effect"].(string)
-	}
-	if presentDns["intelligence_feed"] != nil {
-		parsedDns.IntelligenceFeed = presentDns["intelligence_feed"].(string)
-	}
-	return parsedDns
-}
-
-func parseRuntimeHostFileIntegrityRules(in []interface{}) []policy.RuntimeHostFileIntegrityRule {
-	parsedFileIntegrityRules := make([]policy.RuntimeHostFileIntegrityRule, 0, len(in))
-	for _, val := range in {
-		presentFileIntegrityRule := val.(map[string]interface{})
-		parsedFileIntegrityRule := policy.RuntimeHostFileIntegrityRule{}
-		if presentFileIntegrityRule["allowed_processes"] != nil {
-			parsedFileIntegrityRule.AllowedProcesses = parseStringArray(presentFileIntegrityRule["allowed_processes"].([]interface{}))
-		}
-		if presentFileIntegrityRule["excluded_files"] != nil {
-			parsedFileIntegrityRule.ExcludedFiles = parseStringArray(presentFileIntegrityRule["excluded_files"].([]interface{}))
-		}
-		if presentFileIntegrityRule["metadata"] != nil {
-			parsedFileIntegrityRule.Metadata = presentFileIntegrityRule["metadata"].(bool)
-		}
-		if presentFileIntegrityRule["path"] != nil {
-			parsedFileIntegrityRule.Path = presentFileIntegrityRule["path"].(string)
-		}
-		if presentFileIntegrityRule["read"] != nil {
-			parsedFileIntegrityRule.Read = presentFileIntegrityRule["read"].(bool)
-		}
-		if presentFileIntegrityRule["recursive"] != nil {
-			parsedFileIntegrityRule.Recursive = presentFileIntegrityRule["recursive"].(bool)
-		}
-		if presentFileIntegrityRule["write"] != nil {
-			parsedFileIntegrityRule.Write = presentFileIntegrityRule["write"].(bool)
-		}
-		parsedFileIntegrityRules = append(parsedFileIntegrityRules, parsedFileIntegrityRule)
-	}
-	return parsedFileIntegrityRules
-}
-
-func parseRuntimeHostForensic(in []interface{}) policy.RuntimeHostForensic {
-	parsedForensic := policy.RuntimeHostForensic{}
-	if in[0] == nil {
-		return parsedForensic
-	}
-	presentForensic := in[0].(map[string]interface{})
-	if presentForensic["activities_disabled"] != nil {
-		parsedForensic.ActivitiesDisabled = presentForensic["activities_disabled"].(bool)
-	}
-	if presentForensic["docker_enabled"] != nil {
-		parsedForensic.DockerEnabled = presentForensic["docker_enabled"].(bool)
-	}
-	if presentForensic["readonly_docker_enabled"] != nil {
-		parsedForensic.ReadonlyDockerEnabled = presentForensic["readonly_docker_enabled"].(bool)
-	}
-	if presentForensic["service_activities_enabled"] != nil {
-		parsedForensic.ServiceActivitiesEnabled = presentForensic["service_activities_enabled"].(bool)
-	}
-	if presentForensic["sshd_enabled"] != nil {
-		parsedForensic.SshdEnabled = presentForensic["sshd_enabled"].(bool)
-	}
-	if presentForensic["sudo_enabled"] != nil {
-		parsedForensic.SudoEnabled = presentForensic["sudo_enabled"].(bool)
-	}
-	return parsedForensic
-}
-
-func parseRuntimeHostLogInspectionRules(in []interface{}) []policy.RuntimeHostLogInspectionRule {
-	parsedLogInspectionRules := make([]policy.RuntimeHostLogInspectionRule, 0, len(in))
-	for _, val := range in {
-		presentLogInspectionRule := val.(map[string]interface{})
-		parsedLogInspectionRule := policy.RuntimeHostLogInspectionRule{}
-		if presentLogInspectionRule["path"] != nil {
-			parsedLogInspectionRule.Path = presentLogInspectionRule["path"].(string)
-		}
-		if presentLogInspectionRule["regex"] != nil {
-			parsedLogInspectionRule.Regex = parseStringArray(presentLogInspectionRule["regex"].([]interface{}))
-		}
-		parsedLogInspectionRules = append(parsedLogInspectionRules, parsedLogInspectionRule)
-	}
-	return parsedLogInspectionRules
-}
-
-func parseRuntimeHostNetwork(in []interface{}) policy.RuntimeHostNetwork {
-	parsedNetwork := policy.RuntimeHostNetwork{}
-	if in[0] == nil {
-		return parsedNetwork
-	}
-	presentNetwork := in[0].(map[string]interface{})
-	if presentNetwork["allowed_outbound_ips"] != nil {
-		parsedNetwork.AllowedOutboundIps = parseStringArray(presentNetwork["allowed_outbound_ips"].([]interface{}))
-	}
-	if presentNetwork["custom_feed"] != nil {
-		parsedNetwork.CustomFeed = presentNetwork["custom_feed"].(string)
-	}
-	if presentNetwork["denied_listening_port"] != nil {
-		parsedNetwork.DeniedListeningPorts = parseRuntimeHostPorts(presentNetwork["denied_listening_port"].([]interface{}))
-
-	}
-	if presentNetwork["denied_outbound_ips"] != nil {
-		parsedNetwork.DeniedOutboundIps = parseStringArray(presentNetwork["denied_outbound_ips"].([]interface{}))
-	}
-	if presentNetwork["denied_outbound_port"] != nil {
-		parsedNetwork.DeniedOutboundPorts = parseRuntimeHostPorts(presentNetwork["denied_outbound_port"].([]interface{}))
-	}
-	if presentNetwork["deny_effect"] != nil {
-		parsedNetwork.DenyEffect = presentNetwork["deny_effect"].(string)
-	}
-	if presentNetwork["intelligence_feed"] != nil {
-		parsedNetwork.IntelligenceFeed = presentNetwork["intelligence_feed"].(string)
-	}
-	return parsedNetwork
-}
-
-func parseRuntimeHostDeniedProcesses(in []interface{}) policy.RuntimeHostDeniedProcesses {
-	parsedDeniedProcesses := policy.RuntimeHostDeniedProcesses{}
-	if in[0] == nil {
-		return parsedDeniedProcesses
-	}
-	presentDeniedProcesses := in[0].(map[string]interface{})
-	if presentDeniedProcesses["effect"] != nil {
-		parsedDeniedProcesses.Effect = presentDeniedProcesses["effect"].(string)
-	}
-	if presentDeniedProcesses["paths"] != nil {
-		parsedDeniedProcesses.Paths = parseStringArray(presentDeniedProcesses["paths"].([]interface{}))
-	}
-	return parsedDeniedProcesses
-}
-
-func parseRuntimeHostPorts(in []interface{}) []policy.RuntimeHostPort {
-	parsedPorts := make([]policy.RuntimeHostPort, 0, len(in))
-	for _, val := range in {
-		presentPort := val.(map[string]interface{})
-		parsedPort := policy.RuntimeHostPort{}
-		if presentPort["deny"] != nil {
-			parsedPort.Deny = presentPort["deny"].(bool)
-		}
-		if presentPort["end"] != nil {
-			parsedPort.End = presentPort["end"].(int)
-		}
-		if presentPort["start"] != nil {
-			parsedPort.Start = presentPort["start"].(int)
-		}
-		parsedPorts = append(parsedPorts, parsedPort)
-	}
-	return parsedPorts
-}
-
-func flattenPolicyRuntimeHostRules(in []policy.RuntimeHostRule) []interface{} {
-	ans := make([]interface{}, 0, len(in))
-	for _, val := range in {
-		m := make(map[string]interface{})
-		m["antimalware"] = flattenRuntimeHostAntiMalware(val.AntiMalware)
-		m["collections"] = flattenCollections(val.Collections)
-		m["custom_rule"] = flattenRuntimeHostCustomRules(val.CustomRules)
-		m["disabled"] = val.Disabled
-		m["dns"] = flattenRuntimeHostDns(val.Dns)
-		m["file_integrity_rule"] = flattenRuntimeHostFileIntegrityRules(val.FileIntegrityRules)
-		m["forensic"] = flattenRuntimeHostForensic(val.Forensic)
-		m["log_inspection_rule"] = flattenRuntimeHostLogInspectionRules(val.LogInspectionRules)
-		m["name"] = val.Name
-		m["network"] = flattenRuntimeHostNetwork(val.Network)
-		m["notes"] = val.Notes
-		ans = append(ans, m)
-	}
-	return ans
 }

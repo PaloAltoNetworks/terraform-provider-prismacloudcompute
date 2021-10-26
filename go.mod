@@ -1,4 +1,4 @@
-module github.com/terraform-providers/terraform-provider-prismacloudcompute
+module github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute
 
 go 1.17
 
