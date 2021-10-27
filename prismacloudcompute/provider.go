@@ -65,13 +65,7 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_credentials":                   resourceCredentials(),
 		},
 
-		DataSourcesMap: map[string]*schema.Resource{
-			"prismacloudcompute_collections": dataSourceCollections(),
-			"prismacloudcompute_users":       dataSourceUsers(),
-			"prismacloudcompute_groups":      dataSourceGroups(),
-			"prismacloudcompute_rbac_roles":  dataSourceRbacRoles(),
-			"prismacloudcompute_credentials": dataSourceCredentials(),
-		},
+		DataSourcesMap: map[string]*schema.Resource{},
 
 		ConfigureFunc: configure,
 	}
