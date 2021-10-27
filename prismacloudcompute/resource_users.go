@@ -92,7 +92,7 @@ func readUser(d *schema.ResourceData, meta interface{}) error {
 	d.Set("authtype", retrievedUser.AuthType)
 	d.Set("password", retrievedUser.Password)
 	if err := d.Set("permissions", convert.UserPermissionsToSchema(retrievedUser.Permissions)); err != nil {
-		return fmt.Errorf("failed to read user: %s", retrievedUser.Permissions, err)
+		return fmt.Errorf("failed to read user: %s", err)
 	}
 	d.Set("role", retrievedUser.Role)
 	d.Set("username", retrievedUser.Username)
