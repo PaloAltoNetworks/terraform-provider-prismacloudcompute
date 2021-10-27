@@ -130,9 +130,8 @@ func resourceCollection() *schema.Resource {
 func createCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedCollection := convert.SchemaToCollection(d)
-
-	if err := collection.Create(*client, parsedCollection); err != nil {
-		return fmt.Errorf("failed to create collection '%+v': %s", parsedCollection, err)
+	if err := collection.CreateCollection(*client, parsedCollection); err != nil {
+		return fmt.Errorf("error creating collection '%+v': %s", parsedCollection, err)
 	}
 
 	d.SetId(parsedCollection.Name)
@@ -141,45 +140,43 @@ func createCollection(d *schema.ResourceData, meta interface{}) error {
 
 func readCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id := d.Id()
-
-	retrievedCollection, err := collection.Get(*client, id)
+	retrievedCollection, err := collection.GetCollection(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 
 	if err := d.Set("account_ids", retrievedCollection.AccountIds); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("application_ids", retrievedCollection.AppIds); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("clusters", retrievedCollection.Clusters); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("code_repositories", retrievedCollection.CodeRepos); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	d.Set("color", retrievedCollection.Color)
 	if err := d.Set("containers", retrievedCollection.Containers); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	d.Set("description", retrievedCollection.Description)
 	if err := d.Set("functions", retrievedCollection.Functions); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("hosts", retrievedCollection.Hosts); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("images", retrievedCollection.Images); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("labels", retrievedCollection.Labels); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 	d.Set("name", retrievedCollection.Name)
 	if err := d.Set("namespaces", retrievedCollection.Namespaces); err != nil {
-		return fmt.Errorf("failed to read collection: %s", err)
+		return fmt.Errorf("error reading collection: %s", err)
 	}
 
 	return nil
@@ -189,8 +186,8 @@ func updateCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedCollection := convert.SchemaToCollection(d)
 
-	if err := collection.Update(*client, parsedCollection); err != nil {
-		return fmt.Errorf("failed to update collection: %s", err)
+	if err := collection.UpdateCollection(*client, parsedCollection); err != nil {
+		return fmt.Errorf("error updating collection: %s", err)
 	}
 
 	return readCollection(d, meta)
@@ -198,10 +195,8 @@ func updateCollection(d *schema.ResourceData, meta interface{}) error {
 
 func deleteCollection(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id := d.Id()
-
-	if err := collection.Delete(*client, id); err != nil {
-		return fmt.Errorf("failed to update collection: %s", err)
+	if err := collection.DeleteCollection(*client, d.Id()); err != nil {
+		return fmt.Errorf("error updating collection '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")

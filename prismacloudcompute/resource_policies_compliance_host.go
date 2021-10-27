@@ -3,7 +3,7 @@ package prismacloudcompute
 import (
 	"fmt"
 
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert/compliance"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
@@ -98,7 +98,7 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 
 func createPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := compliance.SchemaToComplianceDeployedRules(d)
+	parsedRules, err := convert.SchemaToComplianceDeployedRules(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceHost, err)
 	}
@@ -123,7 +123,7 @@ func readPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceHost, err)
 	}
 
-	if err := d.Set("rule", compliance.ComplianceDeployedRulesToSchema(retrievedPolicy.Rules)); err != nil {
+	if err := d.Set("rule", convert.ComplianceDeployedRulesToSchema(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceHost, err)
 	}
 	return nil
@@ -131,7 +131,7 @@ func readPolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 
 func updatePolicyComplianceHost(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := compliance.SchemaToComplianceDeployedRules(d)
+	parsedRules, err := convert.SchemaToComplianceDeployedRules(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceHost, err)
 	}

@@ -3,7 +3,7 @@ package prismacloudcompute
 import (
 	"fmt"
 
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert/compliance"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
@@ -88,7 +88,7 @@ func resourcePoliciesComplianceCiImage() *schema.Resource {
 
 func createPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := compliance.SchemaToComplianceCiRules(d)
+	parsedRules, err := convert.SchemaToComplianceCiRules(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
@@ -113,7 +113,7 @@ func readPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error
 		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
-	if err := d.Set("rule", compliance.ComplianceCiRulesToSchema(retrievedPolicy.Rules)); err != nil {
+	if err := d.Set("rule", convert.ComplianceCiRulesToSchema(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 	return nil
@@ -121,7 +121,7 @@ func readPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error
 
 func updatePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := compliance.SchemaToComplianceCiRules(d)
+	parsedRules, err := convert.SchemaToComplianceCiRules(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
 	}

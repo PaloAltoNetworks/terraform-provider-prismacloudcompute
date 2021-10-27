@@ -1,7 +1,6 @@
-package runtime
+package convert
 
 import (
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 )
@@ -17,7 +16,7 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 			parsedRule.AdvancedProtection = presentRule["advanced_protection"].(bool)
 			parsedRule.CloudMetadataEnforcement = presentRule["cloud_metadata_enforcement"].(bool)
 
-			parsedRule.Collections = convert.PolicySchemaToCollections(presentRule["collections"].([]interface{}))
+			parsedRule.Collections = PolicySchemaToCollections(presentRule["collections"].([]interface{}))
 
 			presentCustomRules := presentRule["custom_rule"].([]interface{})
 			parsedCustomRules := make([]policy.RuntimeContainerCustomRule, 0, len(presentCustomRules))
@@ -36,8 +35,8 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 			if presentRule["dns"].([]interface{})[0] != nil {
 				presentDns := presentRule["dns"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Dns = policy.RuntimeContainerDns{
-					Allowed:    convert.SchemaToStringSlice(presentDns["dns"].([]interface{})),
-					Denied:     convert.SchemaToStringSlice(presentDns["denied"].([]interface{})),
+					Allowed:    SchemaToStringSlice(presentDns["dns"].([]interface{})),
+					Denied:     SchemaToStringSlice(presentDns["denied"].([]interface{})),
 					DenyEffect: presentDns["deny_effect"].(string),
 				}
 			} else {
@@ -47,10 +46,10 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 			if presentRule["filesystem"].([]interface{})[0] != nil {
 				presentFilesystem := presentRule["filesystem"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Filesystem = policy.RuntimeContainerFilesystem{
-					Allowed:               convert.SchemaToStringSlice(presentFilesystem["allowed"].([]interface{})),
+					Allowed:               SchemaToStringSlice(presentFilesystem["allowed"].([]interface{})),
 					BackdoorFiles:         presentFilesystem["backdoor_files"].(bool),
 					CheckNewFiles:         presentFilesystem["check_new_files"].(bool),
-					Denied:                convert.SchemaToStringSlice(presentFilesystem["denied"].([]interface{})),
+					Denied:                SchemaToStringSlice(presentFilesystem["denied"].([]interface{})),
 					DenyEffect:            presentFilesystem["deny_effect"].(string),
 					SkipEncryptedBinaries: presentFilesystem["skip_encrypted_binaries"].(bool),
 					SuspiciousElfHeaders:  presentFilesystem["suspicious_elf_headers"].(bool),
@@ -66,10 +65,10 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 				presentNetwork := presentRule["network"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Network = policy.RuntimeContainerNetwork{
 					AllowedListeningPorts: schemaToRuntimeContainerPorts(presentNetwork["allowed_listening_port"].([]interface{})),
-					AllowedOutboundIps:    convert.SchemaToStringSlice(presentNetwork["allowed_outbound_ips"].([]interface{})),
+					AllowedOutboundIps:    SchemaToStringSlice(presentNetwork["allowed_outbound_ips"].([]interface{})),
 					AllowedOutboundPorts:  schemaToRuntimeContainerPorts(presentNetwork["allowed_outbound_port"].([]interface{})),
 					DeniedListeningPorts:  schemaToRuntimeContainerPorts(presentNetwork["denied_listening_port"].([]interface{})),
-					DeniedOutboundIps:     convert.SchemaToStringSlice(presentNetwork["denied_outbound_ips"].([]interface{})),
+					DeniedOutboundIps:     SchemaToStringSlice(presentNetwork["denied_outbound_ips"].([]interface{})),
 					DeniedOutboundPorts:   schemaToRuntimeContainerPorts(presentNetwork["denied_outbound_port"].([]interface{})),
 					DenyEffect:            presentNetwork["deny_effect"].(string),
 					DetectPortScan:        presentNetwork["detect_port_scan"].(bool),
@@ -85,12 +84,12 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 			if presentRule["processes"].([]interface{})[0] != nil {
 				presentProcesses := presentRule["processes"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Processes = policy.RuntimeContainerProcesses{
-					Allowed:              convert.SchemaToStringSlice(presentProcesses["allowed"].([]interface{})),
+					Allowed:              SchemaToStringSlice(presentProcesses["allowed"].([]interface{})),
 					CheckCryptoMiners:    presentProcesses["check_crypto_miners"].(bool),
 					CheckLateralMovement: presentProcesses["check_lateral_movement"].(bool),
 					CheckParentChild:     presentProcesses["check_parent_child"].(bool),
 					CheckSuidBinaries:    presentProcesses["check_suid_binaries"].(bool),
-					Denied:               convert.SchemaToStringSlice(presentProcesses["denied"].([]interface{})),
+					Denied:               SchemaToStringSlice(presentProcesses["denied"].([]interface{})),
 					DenyEffect:           presentProcesses["deny_effect"].(string),
 					SkipModified:         presentProcesses["skip_modified"].(bool),
 					SkipReverseShell:     presentProcesses["skip_reverse_shell"].(bool),
@@ -126,7 +125,7 @@ func RuntimeContainerRulesToSchema(in []policy.RuntimeContainerRule) []interface
 		m := make(map[string]interface{})
 		m["advanced_protection"] = val.AdvancedProtection
 		m["cloud_metadata_enforcement"] = val.CloudMetadataEnforcement
-		m["collections"] = convert.CollectionsToPolicySchema(val.Collections)
+		m["collections"] = CollectionsToPolicySchema(val.Collections)
 		m["custom_rule"] = runtimeContainerCustomRulesToSchema(val.CustomRules)
 		m["disabled"] = val.Disabled
 		m["dns"] = runtimeContainerDnsToSchema(val.Dns)

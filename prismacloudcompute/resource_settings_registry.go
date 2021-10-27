@@ -128,7 +128,7 @@ func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
-		return fmt.Errorf("failed to create registry: %s", err)
+		return fmt.Errorf("error creating registry: %s", err)
 	}
 
 	d.SetId("registrySettings")
@@ -139,11 +139,11 @@ func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	retrievedRegistry, err := settings.GetRegistrySettings(*client)
 	if err != nil {
-		return fmt.Errorf("failed to read registry: %s", err)
+		return fmt.Errorf("error reading registry: %s", err)
 	}
 
 	if err := d.Set("specification", convert.RegistrySpecificationToSchema(retrievedRegistry.Specifications)); err != nil {
-		return fmt.Errorf("failed to read registry: %s", err)
+		return fmt.Errorf("error reading registry: %s", err)
 	}
 
 	return nil
@@ -156,7 +156,7 @@ func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
-		return fmt.Errorf("failed to update registry: %s", err)
+		return fmt.Errorf("error updating registry: %s", err)
 	}
 
 	return readRegistrySettings(d, meta)
@@ -168,7 +168,7 @@ func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
 		Specifications: make([]settings.RegistrySpecification, 0),
 	}
 	if err := settings.UpdateRegistrySettings(*client, defaults); err != nil {
-		return fmt.Errorf("failed to delete registry: %s", err)
+		return fmt.Errorf("error deleting registry: %s", err)
 	}
 	d.SetId("")
 	return nil

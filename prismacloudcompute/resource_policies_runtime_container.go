@@ -3,7 +3,7 @@ package prismacloudcompute
 import (
 	"fmt"
 
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert/runtime"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
@@ -395,7 +395,7 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 
 func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := runtime.SchemaToRuntimeContainerRules(d)
+	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
 	if err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
@@ -420,7 +420,7 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	d.Set("learning_disabled", retrievedPolicy.LearningDisabled)
-	if err := d.Set("rule", runtime.RuntimeContainerRulesToSchema(retrievedPolicy.Rules)); err != nil {
+	if err := d.Set("rule", convert.RuntimeContainerRulesToSchema(retrievedPolicy.Rules)); err != nil {
 		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 	return nil
@@ -428,7 +428,7 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 
 func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	parsedRules, err := runtime.SchemaToRuntimeContainerRules(d)
+	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}

@@ -265,8 +265,8 @@ github.com/nsf/jsondiff v0.0.0-20200515183724-f29ed568f4ce h1:RPclfga2SEJmgMmz2k
 github.com/nsf/jsondiff v0.0.0-20200515183724-f29ed568f4ce/go.mod h1:uFMI8w+ref4v2r9jz+c9i1IfIttS/OkmLfrk1jne5hs=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
-github.com/paloaltonetworks/prisma-cloud-compute-go v0.1.4 h1:/uDAAQuh8kgJS/8T+MWN0qMDkQ0LyyCygA2Ws0ljL60=
-github.com/paloaltonetworks/prisma-cloud-compute-go v0.1.4/go.mod h1:xwe8aQ+fjs4vVCaeP78KCthSU74QM5suaV9k2UUyAow=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.1.5-0.20211027132130-ad9198cc3d15 h1:Soxg3Lsl2PVQDxsS+NzSM1d8Lkz6etL3dSTgdaX+1l0=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.1.5-0.20211027132130-ad9198cc3d15/go.mod h1:xwe8aQ+fjs4vVCaeP78KCthSU74QM5suaV9k2UUyAow=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

@@ -1,7 +1,6 @@
-package compliance
+package convert
 
 import (
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/collection"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
@@ -15,7 +14,7 @@ func SchemaToComplianceCiRules(d *schema.ResourceData) ([]policy.ComplianceRule,
 			presentRule := val.(map[string]interface{})
 			parsedRule := policy.ComplianceRule{}
 
-			parsedRule.Collections = convert.PolicySchemaToCollections(presentRule["collections"].([]interface{}))
+			parsedRule.Collections = PolicySchemaToCollections(presentRule["collections"].([]interface{}))
 
 			presentChecks := presentRule["compliance_check"].([]interface{})
 			parsedConditions := policy.ComplianceConditions{
@@ -92,7 +91,7 @@ func ComplianceCiRulesToSchema(in []policy.ComplianceRule) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		m["collections"] = convert.CollectionsToPolicySchema(val.Collections)
+		m["collections"] = CollectionsToPolicySchema(val.Collections)
 		m["compliance_check"] = complianceConditionsToSchema(val.Conditions)
 		m["disabled"] = val.Disabled
 		m["effect"] = val.Effect
@@ -109,7 +108,7 @@ func ComplianceDeployedRulesToSchema(in []policy.ComplianceRule) []interface{} {
 	for _, val := range in {
 		m := make(map[string]interface{})
 		m["block_message"] = val.BlockMessage
-		m["collections"] = convert.CollectionsToPolicySchema(val.Collections)
+		m["collections"] = CollectionsToPolicySchema(val.Collections)
 		m["compliance_check"] = complianceConditionsToSchema(val.Conditions)
 		m["disabled"] = val.Disabled
 		m["effect"] = val.Effect

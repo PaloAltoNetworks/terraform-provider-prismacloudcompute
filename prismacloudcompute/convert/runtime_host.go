@@ -1,7 +1,6 @@
-package runtime
+package convert
 
 import (
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/policy"
 )
@@ -18,7 +17,7 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 				presentAntiMalware := presentRule["antimalware"].([]interface{})[0].(map[string]interface{})
 				parsedAntiMalware := policy.RuntimeHostAntiMalware{}
 
-				parsedAntiMalware.AllowedProcesses = convert.SchemaToStringSlice(presentAntiMalware["allowed_processes"].([]interface{}))
+				parsedAntiMalware.AllowedProcesses = SchemaToStringSlice(presentAntiMalware["allowed_processes"].([]interface{}))
 				parsedAntiMalware.CryptoMiner = presentAntiMalware["crypto_miners"].(string)
 				parsedAntiMalware.CustomFeed = presentAntiMalware["custom_feed"].(string)
 
@@ -26,7 +25,7 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 					presentDeniedProcesses := presentAntiMalware["denied_processes"].([]interface{})[0].(map[string]interface{})
 					parsedAntiMalware.DeniedProcesses = policy.RuntimeHostDeniedProcesses{
 						Effect: presentDeniedProcesses["effect"].(string),
-						Paths:  convert.SchemaToStringSlice(presentDeniedProcesses["paths"].([]interface{})),
+						Paths:  SchemaToStringSlice(presentDeniedProcesses["paths"].([]interface{})),
 					}
 				} else {
 					parsedAntiMalware.DeniedProcesses = policy.RuntimeHostDeniedProcesses{}
@@ -51,7 +50,7 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 				parsedRule.AntiMalware = policy.RuntimeHostAntiMalware{}
 			}
 
-			parsedRule.Collections = convert.PolicySchemaToCollections(presentRule["collections"].([]interface{}))
+			parsedRule.Collections = PolicySchemaToCollections(presentRule["collections"].([]interface{}))
 
 			presentCustomRules := presentRule["custom_rule"].([]interface{})
 			parsedCustomRules := make([]policy.RuntimeHostCustomRule, 0, len(presentCustomRules))
@@ -70,8 +69,8 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 			if presentRule["dns"].([]interface{})[0] != nil {
 				presentDns := presentRule["dns"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Dns = policy.RuntimeHostDns{
-					Allowed:          convert.SchemaToStringSlice(presentDns["allowed"].([]interface{})),
-					Denied:           convert.SchemaToStringSlice(presentDns["denied"].([]interface{})),
+					Allowed:          SchemaToStringSlice(presentDns["allowed"].([]interface{})),
+					Denied:           SchemaToStringSlice(presentDns["denied"].([]interface{})),
 					DenyEffect:       presentDns["deny_effect"].(string),
 					IntelligenceFeed: presentDns["intelligence_feed"].(string),
 				}
@@ -84,8 +83,8 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 			for _, val := range presentFileIntegrityRules {
 				presentFileIntegrityRule := val.(map[string]interface{})
 				parsedFileIntegrityRules = append(parsedFileIntegrityRules, policy.RuntimeHostFileIntegrityRule{
-					AllowedProcesses: convert.SchemaToStringSlice(presentFileIntegrityRule["allowed_processes"].([]interface{})),
-					ExcludedFiles:    convert.SchemaToStringSlice(presentFileIntegrityRule["excluded_files"].([]interface{})),
+					AllowedProcesses: SchemaToStringSlice(presentFileIntegrityRule["allowed_processes"].([]interface{})),
+					ExcludedFiles:    SchemaToStringSlice(presentFileIntegrityRule["excluded_files"].([]interface{})),
 					Metadata:         presentFileIntegrityRule["metadata"].(bool),
 					Path:             presentFileIntegrityRule["path"].(string),
 					Read:             presentFileIntegrityRule["read"].(bool),
@@ -115,7 +114,7 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 				presentLogInspectionRule := val.(map[string]interface{})
 				parsedLogInspectionRules = append(parsedLogInspectionRules, policy.RuntimeHostLogInspectionRule{
 					Path:  presentLogInspectionRule["path"].(string),
-					Regex: convert.SchemaToStringSlice(presentLogInspectionRule["regex"].([]interface{})),
+					Regex: SchemaToStringSlice(presentLogInspectionRule["regex"].([]interface{})),
 				})
 			}
 			parsedRule.LogInspectionRules = parsedLogInspectionRules
@@ -125,10 +124,10 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 			if presentRule["network"].([]interface{})[0] != nil {
 				presentNetwork := presentRule["network"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Network = policy.RuntimeHostNetwork{
-					AllowedOutboundIps:   convert.SchemaToStringSlice(presentNetwork["allowed_outbound_ips"].([]interface{})),
+					AllowedOutboundIps:   SchemaToStringSlice(presentNetwork["allowed_outbound_ips"].([]interface{})),
 					CustomFeed:           presentNetwork["custom_feed"].(string),
 					DeniedListeningPorts: schemaToRuntimeHostPorts(presentNetwork["denied_listening_port"].([]interface{})),
-					DeniedOutboundIps:    convert.SchemaToStringSlice(presentNetwork["denied_outbound_ips"].([]interface{})),
+					DeniedOutboundIps:    SchemaToStringSlice(presentNetwork["denied_outbound_ips"].([]interface{})),
 					DeniedOutboundPorts:  schemaToRuntimeHostPorts(presentNetwork["denied_outbound_port"].([]interface{})),
 					DenyEffect:           presentNetwork["deny_effect"].(string),
 					IntelligenceFeed:     presentNetwork["intelligence_feed"].(string),
@@ -164,7 +163,7 @@ func RuntimeHostRulesToSchema(in []policy.RuntimeHostRule) []interface{} {
 		m := make(map[string]interface{})
 		m["activities"] = runtimeHostActivitiesToSchema(val.Forensic)
 		m["antimalware"] = runtimeHostAntiMalwareToSchema(val.AntiMalware)
-		m["collections"] = convert.CollectionsToPolicySchema(val.Collections)
+		m["collections"] = CollectionsToPolicySchema(val.Collections)
 		m["custom_rule"] = runtimeHostCustomRulesToSchema(val.CustomRules)
 		m["disabled"] = val.Disabled
 		m["dns"] = runtimeHostDnsToSchema(val.Dns)
