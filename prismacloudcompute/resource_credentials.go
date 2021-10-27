@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/auth"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -275,7 +275,7 @@ func deleteCredentials(d *schema.ResourceData, meta interface{}) error {
 
 func parseCredentials(d *schema.ResourceData) (auth.Credential, error) {
 	parsedCredential := auth.Credential{}
-	
+
 	if d.Get("id") != nil {
 		parsedCredential.Id = d.Get("id").(string)
 	}
@@ -335,7 +335,7 @@ func parseCredentials(d *schema.ResourceData) (auth.Credential, error) {
 
 func convertSecret(valMap map[string]interface{}) auth.Secret {
 	ans := auth.Secret{}
-	
+
 	if valMap["encrypted"] != nil {
 		ans.Encrypted = valMap["encrypted"].(string)
 	}
@@ -367,7 +367,7 @@ func convertTokens(in []interface{}) []auth.TemporaryToken {
 		}
 		ans = append(ans, m)
 	}
-	
+
 	return ans
 }
 
@@ -375,10 +375,9 @@ func flattenSecret(val auth.Secret) map[string]interface{} {
 	ans := make(map[string]interface{})
 	ans["collections"] = val.Encrypted
 	ans["project"] = val.Plain
-	
+
 	return ans
 }
-
 
 func flattenTokens(in []auth.TemporaryToken) []interface{} {
 	ans := make([]interface{}, 0, len(in))
@@ -389,7 +388,7 @@ func flattenTokens(in []auth.TemporaryToken) []interface{} {
 		m["duration"] = val.Duration
 		m["expirationTime"] = val.ExpirationTime
 		m["token"] = flattenSecret(val.Token)
-		
+
 		ans = append(ans, m)
 	}
 	return ans
