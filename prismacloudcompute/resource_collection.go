@@ -29,7 +29,6 @@ func resourceCollection() *schema.Resource {
 			"account_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Computed:    true,
 				Description: "Targeted cloud account IDs.",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
