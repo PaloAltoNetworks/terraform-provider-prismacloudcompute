@@ -58,9 +58,11 @@ func schemaToCredentialSecret(in []interface{}) auth.Secret {
 	return ans
 }
 
-func CredentialSecretToSchema(in auth.Secret) map[string]interface{} {
-	ans := make(map[string]interface{})
-	ans["encrypted"] = in.Encrypted
-	ans["plain"] = in.Plain
+func CredentialSecretToSchema(in auth.Secret) []interface{} {
+	ans := make([]interface{}, 0, 1)
+	m := make(map[string]interface{})
+	m["encrypted"] = in.Encrypted
+	m["plain"] = in.Plain
+	ans = append(ans, m)
 	return ans
 }

@@ -6,12 +6,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/paloaltonetworks/prisma-cloud-compute-go/pcc"
 )
 
-// Provider returns a terraform.ResourceProvider.
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -76,18 +74,16 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 	if val, ok := d.GetOk("config_file"); ok {
 		configFile, err := os.Open(val.(string))
 		if err != nil {
-			fmt.Printf("error opening config file: %v", err)
+			return nil, fmt.Errorf("error opening config file: %s", err)
 		}
 		defer configFile.Close()
 
 		fileContent, err := ioutil.ReadAll(configFile)
 		if err != nil {
-			fmt.Printf("error reading config file: %v", err)
-			return nil, err
+			return nil, fmt.Errorf("error reading config file: %s", err)
 		}
 		if err := json.Unmarshal(fileContent, &config); err != nil {
-			fmt.Printf("error unmarshalling config file: %v", err)
-			return nil, err
+			return nil, fmt.Errorf("error unmarshalling config file: %s", err)
 		}
 	}
 
@@ -106,9 +102,8 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 
 	client, err := pcc.APIClient(config.ConsoleURL, config.Username, config.Password, config.SkipCertVerification)
 	if err != nil {
-		fmt.Printf("failed creating API client")
-		return nil, err
+		return nil, fmt.Errorf("error creating API client: %s", err)
 	}
 
-	return client, err
+	return client, nil
 }

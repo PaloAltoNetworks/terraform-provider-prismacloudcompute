@@ -61,7 +61,7 @@ func createRbacRole(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error creating role '%+v': %s", parsedRole, err)
 	}
 
-	if err := auth.UpdateRole(*client, parsedRole); err != nil {
+	if err := auth.CreateRole(*client, parsedRole); err != nil {
 		return fmt.Errorf("error creating role '%+v': %s", parsedRole, err)
 	}
 

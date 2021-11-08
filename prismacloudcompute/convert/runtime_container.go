@@ -35,7 +35,7 @@ func SchemaToRuntimeContainerRules(d *schema.ResourceData) ([]policy.RuntimeCont
 			if presentRule["dns"].([]interface{})[0] != nil {
 				presentDns := presentRule["dns"].([]interface{})[0].(map[string]interface{})
 				parsedRule.Dns = policy.RuntimeContainerDns{
-					Allowed:    SchemaToStringSlice(presentDns["dns"].([]interface{})),
+					Allowed:    SchemaToStringSlice(presentDns["allowed"].([]interface{})),
 					Denied:     SchemaToStringSlice(presentDns["denied"].([]interface{})),
 					DenyEffect: presentDns["deny_effect"].(string),
 				}

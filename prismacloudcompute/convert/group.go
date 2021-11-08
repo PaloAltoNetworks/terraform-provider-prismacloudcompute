@@ -16,7 +16,7 @@ func SchemaToGroup(d *schema.ResourceData) (auth.Group, error) {
 	if val, ok := d.GetOk("ldapgroup"); ok {
 		parsedGroup.LdapGroup = val.(bool)
 	}
-	if val, ok := d.GetOk("groupname"); ok {
+	if val, ok := d.GetOk("name"); ok {
 		parsedGroup.Name = val.(string)
 	}
 	if val, ok := d.GetOk("oauthgroup"); ok {
@@ -34,7 +34,7 @@ func SchemaToGroup(d *schema.ResourceData) (auth.Group, error) {
 	if val, ok := d.GetOk("samlgroup"); ok {
 		parsedGroup.SamlGroup = val.(bool)
 	}
-	if val, ok := d.GetOk("users"); ok && len(val.([]interface{})) > 0 {
+	if val, ok := d.GetOk("users"); ok {
 		parsedGroup.Users = schemaToGroupUsers(val.([]interface{}))
 	}
 
@@ -56,9 +56,8 @@ func schemaToGroupPermissions(in []interface{}) []auth.GroupPermission {
 func schemaToGroupUsers(in []interface{}) []auth.GroupUser {
 	parsedUsers := make([]auth.GroupUser, 0, len(in))
 	for _, val := range in {
-		presentUser := val.(map[string]interface{})
 		parsedUsers = append(parsedUsers, auth.GroupUser{
-			Username: presentUser["username"].(string),
+			Username: val.(string),
 		})
 	}
 	return parsedUsers
@@ -78,9 +77,7 @@ func GroupPermissionsToSchema(in []auth.GroupPermission) []interface{} {
 func GroupUsersToSchema(in []auth.GroupUser) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
-		m := make(map[string]interface{})
-		m["username"] = val.Username
-		ans = append(ans, m)
+		ans = append(ans, val.Username)
 	}
 	return ans
 }

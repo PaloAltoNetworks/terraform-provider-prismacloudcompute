@@ -31,7 +31,7 @@ func resourceGroups() *schema.Resource {
 				Optional:    true,
 				Description: "Whether or not the group is an LDAP group.",
 			},
-			"group_name": {
+			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Group name.",
@@ -112,16 +112,16 @@ func readGroup(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("error reading group: %s", err)
 	}
 
-	d.Set("groupid", retrievedGroup.Id)
-	d.Set("ldapgroup", retrievedGroup.LdapGroup)
-	d.Set("groupname", retrievedGroup.Name)
-	d.Set("oauthgroup", retrievedGroup.OauthGroup)
-	d.Set("oidcgroup", retrievedGroup.OidcGroup)
+	d.Set("group_id", retrievedGroup.Id)
+	d.Set("ldap_group", retrievedGroup.LdapGroup)
+	d.Set("name", retrievedGroup.Name)
+	d.Set("oauth_group", retrievedGroup.OauthGroup)
+	d.Set("oidc_group", retrievedGroup.OidcGroup)
 	if err := d.Set("permissions", convert.GroupPermissionsToSchema(retrievedGroup.Permissions)); err != nil {
 		return fmt.Errorf("error reading group: %s", err)
 	}
 	d.Set("role", retrievedGroup.Role)
-	d.Set("samlgroup", retrievedGroup.SamlGroup)
+	d.Set("saml_group", retrievedGroup.SamlGroup)
 	if err := d.Set("users", convert.GroupUsersToSchema(retrievedGroup.Users)); err != nil {
 		return fmt.Errorf("error reading group: %s", err)
 	}

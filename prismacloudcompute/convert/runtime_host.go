@@ -180,7 +180,7 @@ func RuntimeHostRulesToSchema(in []policy.RuntimeHostRule) []interface{} {
 func runtimeHostActivitiesToSchema(in policy.RuntimeHostForensic) []interface{} {
 	ans := make([]interface{}, 0, 1)
 	m := make(map[string]interface{})
-	m["activities_disabled"] = in.ActivitiesDisabled
+	m["disabled"] = in.ActivitiesDisabled
 	m["docker_enabled"] = in.DockerEnabled
 	m["readonly_docker_enabled"] = in.ReadonlyDockerEnabled
 	m["service_activities_enabled"] = in.ServiceActivitiesEnabled
@@ -276,6 +276,7 @@ func runtimeHostNetworkToSchema(in policy.RuntimeHostNetwork) []interface{} {
 	ans := make([]interface{}, 0, 1)
 	m := make(map[string]interface{})
 	m["allowed_outbound_ips"] = in.AllowedOutboundIps
+	m["custom_feed"] = in.CustomFeed
 	m["denied_listening_port"] = runtimeHostPortsToSchema(in.DeniedListeningPorts)
 	m["denied_outbound_ips"] = in.DeniedOutboundIps
 	m["denied_outbound_port"] = runtimeHostPortsToSchema(in.DeniedOutboundPorts)

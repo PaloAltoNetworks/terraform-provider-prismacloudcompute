@@ -1,8 +1,6 @@
 package convert
 
 import (
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/paloaltonetworks/prisma-cloud-compute-go/auth"
 )
@@ -10,7 +8,7 @@ import (
 func SchemaToUser(d *schema.ResourceData) (auth.User, error) {
 	parsedUser := auth.User{}
 
-	if val, ok := d.GetOk("authtype"); ok {
+	if val, ok := d.GetOk("authentication_type"); ok {
 		parsedUser.AuthType = val.(string)
 	}
 	if val, ok := d.GetOk("password"); ok {
@@ -45,7 +43,7 @@ func UserPermissionsToSchema(in []auth.UserPermission) []interface{} {
 	ans := make([]interface{}, 0, len(in))
 	for _, val := range in {
 		m := make(map[string]interface{})
-		m["collections"] = strings.Join(val.Collections, ",")
+		m["collections"] = val.Collections
 		m["project"] = val.Project
 		ans = append(ans, m)
 	}

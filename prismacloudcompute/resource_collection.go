@@ -37,7 +37,7 @@ func resourceCollection() *schema.Resource {
 			"application_ids": {
 				Type:        schema.TypeList,
 				Optional:    true,
-				Description: "Targeted application IDs (for app-embedded).",
+				Description: "Targeted application IDs (for app-embedded). Values must end in a wildcard (*).",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

@@ -35,7 +35,7 @@ func resourceCredentials() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"encrypted": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "Encrypted value for the secret",
 						},
 						"plain": {
@@ -81,7 +81,7 @@ func resourceCredentials() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"encrypted": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Computed:    true,
 							Description: "Encrypted value for the secret",
 						},
 						"plain": {
@@ -145,7 +145,7 @@ func readCredentials(d *schema.ResourceData, meta interface{}) error {
 	d.Set("description", retrievedCredential.Description)
 	d.Set("ibm_account_guid", retrievedCredential.AccountGUID)
 	d.Set("name", retrievedCredential.Id)
-	d.Set("rolearn", retrievedCredential.RoleArn)
+	d.Set("role_arn", retrievedCredential.RoleArn)
 	if err := d.Set("secret", convert.CredentialSecretToSchema(retrievedCredential.Secret)); err != nil {
 		return fmt.Errorf("error converting credential secret to schema: %s", err)
 	}

@@ -21,19 +21,20 @@ func resourceUsers() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"authtype": {
+			"authentication_type": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "The user authentication type.",
 			},
 			"password": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Password.",
 			},
 			"permissions": {
 				Type:        schema.TypeList,
 				Optional:    true,
+				MaxItems:    1,
 				Description: "List of permissions.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -55,12 +56,12 @@ func resourceUsers() *schema.Resource {
 			},
 			"role": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Role.",
 			},
 			"username": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: "Username.",
 			},
 		},
@@ -74,7 +75,7 @@ func createUser(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to create user '%+v': %s", parsedUser, err)
 	}
 
-	if err := auth.UpdateUser(*client, parsedUser); err != nil {
+	if err := auth.CreateUser(*client, parsedUser); err != nil {
 		return fmt.Errorf("failed to create user '%+v': %s", parsedUser, err)
 	}
 
@@ -89,7 +90,7 @@ func readUser(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("failed to read user: %s", err)
 	}
 
-	d.Set("authtype", retrievedUser.AuthType)
+	d.Set("authentication_type", retrievedUser.AuthType)
 	d.Set("password", retrievedUser.Password)
 	if err := d.Set("permissions", convert.UserPermissionsToSchema(retrievedUser.Permissions)); err != nil {
 		return fmt.Errorf("failed to read user: %s", err)
