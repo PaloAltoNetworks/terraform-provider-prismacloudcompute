@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
-	github.com/paloaltonetworks/prisma-cloud-compute-go v0.1.5-0.20211105133116-5f172e13e7f2
+	github.com/paloaltonetworks/prisma-cloud-compute-go v0.2.0
 )
 
 require (
