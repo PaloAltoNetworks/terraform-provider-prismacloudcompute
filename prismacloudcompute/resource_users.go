@@ -21,6 +21,11 @@ func resourceUsers() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the user.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"authentication_type": {
 				Type:        schema.TypeString,
 				Required:    true,

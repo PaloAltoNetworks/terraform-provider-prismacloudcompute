@@ -21,6 +21,11 @@ func resourceGroups() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the group.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"group_id": {
 				Type:        schema.TypeString,
 				Optional:    true,

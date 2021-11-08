@@ -21,6 +21,11 @@ func resourceRegistry() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the registry settings.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"specification": {
 				Type:        schema.TypeList,
 				Optional:    true,

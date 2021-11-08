@@ -21,6 +21,11 @@ func resourceCredentials() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the credential.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"account_id": {
 				Type:        schema.TypeString,
 				Optional:    true,

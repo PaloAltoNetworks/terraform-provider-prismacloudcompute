@@ -1,6 +1,0 @@
-{
-	"console_url": "https://example.com:8083",
-	"username": "username",
-	"password": "password",
-	"skip_cert_verification": true
-}

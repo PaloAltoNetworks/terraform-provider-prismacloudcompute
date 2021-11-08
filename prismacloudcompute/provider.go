@@ -56,10 +56,10 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_ci_image_vulnerability_policy": resourcePoliciesVulnerabilityCiImage(),
 			"prismacloudcompute_host_vulnerability_policy":     resourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":    resourcePoliciesVulnerabilityImage(),
-			"prismacloudcompute_settings_registry":             resourceRegistry(),
+			"prismacloudcompute_registry_settings":             resourceRegistry(),
 			"prismacloudcompute_user":                          resourceUsers(),
 			"prismacloudcompute_group":                         resourceGroups(),
-			"prismacloudcompute_rbac_role":                     resourceRbacRoles(),
+			"prismacloudcompute_role":                          resourceRbacRoles(),
 			"prismacloudcompute_credential":                    resourceCredentials(),
 		},
 

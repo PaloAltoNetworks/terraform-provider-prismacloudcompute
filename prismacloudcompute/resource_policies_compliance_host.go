@@ -21,6 +21,11 @@ func resourcePoliciesComplianceHost() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the policy.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"rule": {
 				Type:        schema.TypeList,
 				Optional:    true,

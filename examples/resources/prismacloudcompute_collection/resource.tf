@@ -1,4 +1,4 @@
-resource "prismacloudcompute_collection" "example1" {
+resource "prismacloudcompute_collection" "mycollection" {
   name              = "my collection"
   description       = "collection created with Terraform"
   color             = "#FF0000"

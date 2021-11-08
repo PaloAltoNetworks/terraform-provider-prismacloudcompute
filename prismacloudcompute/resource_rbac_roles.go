@@ -21,6 +21,11 @@ func resourceRbacRoles() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Description: "The ID of the role.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
