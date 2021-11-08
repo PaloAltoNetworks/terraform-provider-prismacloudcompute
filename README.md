@@ -1,14 +1,7 @@
 # Terraform Provider for Prisma Cloud Compute by Palo Alto Networks
+You can find the Prisma Cloud Compute provider in the [Terraform Registry](https://registry.terraform.io/providers/PaloAltoNetworks/prismacloudcompute/latest).
 
----
-**WORK IN PROGRESS. NOT READY FOR USE.**
-
----
-<a href="https://www.terraform.io"><img src="https://cdn.rawgit.com/hashicorp/terraform-website/master/content/source/assets/images/logo-hashicorp.svg" width="600px"></a>
-
-## Requirements
-- [Go](https://golang.org/doc/install) (only if building the provider)
-- [Terraform](https://www.terraform.io/downloads.html)
+If you're interested in developing the provider, see below for a basic setup guide.
 
 ## Building the provider
 0. Set `$GOPATH` if not already set.
