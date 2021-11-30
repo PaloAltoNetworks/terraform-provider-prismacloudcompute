@@ -94,7 +94,7 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 		config.Username = val.(string)
 	}
 	if val, ok := d.GetOk("password"); ok {
-		config.ConsoleURL = val.(string)
+		config.Password = val.(string)
 	}
 	if val, ok := d.GetOk("skip_cert_verification"); ok {
 		config.SkipCertVerification = val.(bool)
