@@ -1,6 +1,7 @@
 package prismacloudcompute
 
 const (
+	policyTypeAdmission            = "admission"
 	policyTypeComplianceCiImage    = "ciImagesCompliance"
 	policyTypeComplianceContainer  = "containerCompliance"
 	policyTypeComplianceHost       = "hostCompliance"

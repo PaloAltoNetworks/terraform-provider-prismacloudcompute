@@ -92,7 +92,7 @@ func TestGroupsAuditEvent(t *testing.T) {
 }
 
 func testGroupsExists(n string, o *group.Group) resource.TestCheckFunc {
-return func(s *terraform.State) error {
+	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.GroupId)
 
 		rs, ok := s.RootModule().Resources[n]

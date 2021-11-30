@@ -92,7 +92,7 @@ func TestUsersAuditEvent(t *testing.T) {
 }
 
 func testUsersExists(n string, o *user.User) resource.TestCheckFunc {
-return func(s *terraform.State) error {
+	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.UserId)
 
 		rs, ok := s.RootModule().Resources[n]
