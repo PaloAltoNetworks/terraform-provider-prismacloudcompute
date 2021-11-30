@@ -33,3 +33,6 @@ This also moves the compiled binary to the appropriate location.
 
 ## Developing the provider
 See Makefile for available `make` targets.
+
+## Support
+Please read [SUPPORT.md](SUPPORT.md) for details on how to get support for this project.
