@@ -46,7 +46,7 @@ func resourcePoliciesAdmission() *schema.Resource {
 						"effect": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Uhe effect to be used. Can be set to 'allow', 'block' or 'alert'.",
+							Description: "The effect to be used. Can be set to 'allow', 'block' or 'alert'.",
 						},
 						"name": {
 							Type:        schema.TypeString,
