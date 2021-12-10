@@ -48,6 +48,7 @@ func Provider() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"prismacloudcompute_collection":                    resourceCollection(),
+			"prismacloudcompute_custom_rule":                   resourceCustomRule(),
 			"prismacloudcompute_admission_policy":              resourcePoliciesAdmission(),
 			"prismacloudcompute_ci_image_compliance_policy":    resourcePoliciesComplianceCiImage(),
 			"prismacloudcompute_container_compliance_policy":   resourcePoliciesComplianceContainer(),

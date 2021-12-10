@@ -24,5 +24,8 @@ func SchemaToCustomRule(d *schema.ResourceData) rule.CustomRule {
 	if val, ok := d.GetOk("type"); ok {
 		parsedRule.Type = val.(string)
 	}
+	if val, ok := d.GetOk("prisma_id"); ok {
+		parsedRule.Id = val.(int)
+	}
 	return parsedRule
 }

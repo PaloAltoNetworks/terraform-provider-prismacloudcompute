@@ -2,7 +2,6 @@ package prismacloudcompute
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/prismacloudcompute/convert"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -24,6 +23,11 @@ func resourceCustomRule() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Description: "The ID of the custom rule.",
+				Type:        schema.TypeString,
+				Computed:    true,
+			},
+			"prisma_id": {
+				Description: "The Prisma Cloud Compute ID of the custom rule.",
 				Type:        schema.TypeInt,
 				Computed:    true,
 			},
@@ -59,21 +63,21 @@ func resourceCustomRule() *schema.Resource {
 func createCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
 	parsedCustomRule := convert.SchemaToCustomRule(d)
-	if err := rule.CreateCustomRule(*client, parsedCustomRule); err != nil {
+	id, err := rule.CreateCustomRule(*client, parsedCustomRule)
+
+	if err != nil {
 		return fmt.Errorf("error creating custom rule '%+v': %s", parsedCustomRule, err)
 	}
-
-	d.SetId(strconv.Itoa(parsedCustomRule.Id))
+	if err := d.Set("prisma_id", id); err != nil {
+		return fmt.Errorf("error creating custom rule '%+v': %s", parsedCustomRule, err)
+	}
+	d.SetId(parsedCustomRule.Name)
 	return readCustomRule(d, meta)
 }
 
 func readCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return fmt.Errorf("error reading custom rule: %s", err)
-	}
-	retrievedCustomRule, err := rule.GetCustomRule(*client, id)
+	retrievedCustomRule, err := rule.GetCustomRule(*client, d.Get("prisma_id").(int))
 	if err != nil {
 		return fmt.Errorf("error reading custom rule: %s", err)
 	}
@@ -81,7 +85,7 @@ func readCustomRule(d *schema.ResourceData, meta interface{}) error {
 	if err := d.Set("description", retrievedCustomRule.Description); err != nil {
 		return fmt.Errorf("error reading custom rule: %s", err)
 	}
-	if err := d.Set("id", retrievedCustomRule.Id); err != nil {
+	if err := d.Set("prisma_id", retrievedCustomRule.Id); err != nil {
 		return fmt.Errorf("error reading custom rule: %s", err)
 	}
 	if err := d.Set("message", retrievedCustomRule.Message); err != nil {
@@ -113,11 +117,7 @@ func updateCustomRule(d *schema.ResourceData, meta interface{}) error {
 
 func deleteCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*pcc.Client)
-	id, err := strconv.Atoi(d.Id())
-	if err != nil {
-		return fmt.Errorf("error reading custom rule: %s", err)
-	}
-	if err := rule.DeleteCustomRule(*client, id); err != nil {
+	if err := rule.DeleteCustomRule(*client, d.Get("prisma_id").(int)); err != nil {
 		return fmt.Errorf("error updating custom rule '%s': %s", d.Id(), err)
 	}
 
