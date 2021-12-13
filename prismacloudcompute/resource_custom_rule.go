@@ -22,19 +22,19 @@ func resourceCustomRule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"id": {
-				Description: "The ID of the custom rule.",
+				Description: "ID of the custom rule.",
 				Type:        schema.TypeString,
 				Computed:    true,
 			},
 			"prisma_id": {
-				Description: "The Prisma Cloud Compute ID of the custom rule.",
+				Description: "Prisma Cloud Compute ID of the custom rule.",
 				Type:        schema.TypeInt,
 				Computed:    true,
 			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "A free-form text description of the custom rule.",
+				Description: "Free-form text description of the custom rule.",
 			},
 			"message": {
 				Type:        schema.TypeString,
@@ -44,17 +44,17 @@ func resourceCustomRule() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "A unique custom rule name.",
+				Description: "Unique custom rule name.",
 			},
 			"script": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				Description: "An custom rule expression.",
+				Description: "Custom rule expression.",
 			},
 			"type": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The custom rule type. Can be set to 'processes', 'filesystem', 'network-outgoing', 'kubernetes-audit', 'waas-request', 'waas-response'",
+				Description: "Custom rule type. Can be set to 'processes', 'filesystem', 'network-outgoing', 'kubernetes-audit', 'waas-request', or 'waas-response'.",
 			},
 		},
 	}
