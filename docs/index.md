@@ -43,5 +43,6 @@ provider "prismacloudcompute" {
 - **config_file** (String) Configuration file in JSON format. See examples/creds.json
 - **console_url** (String) The Prisma Cloud Compute Console URL
 - **password** (String, Sensitive) Prisma Cloud Compute password
+- **project** (String) The Prisma Cloud Compute project
 - **skip_cert_verification** (Boolean) Whether or not to skip certificate verification
 - **username** (String) Prisma Cloud Compute username

@@ -19,6 +19,12 @@ func Provider() *schema.Provider {
 				Description: "The Prisma Cloud Compute Console URL",
 				DefaultFunc: schema.EnvDefaultFunc("PRISMACLOUDCOMPUTE_CONSOLE_URL", nil),
 			},
+			"project": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The Prisma Cloud Compute project",
+				DefaultFunc: schema.EnvDefaultFunc("PRISMACLOUDCOMPUTE_PROJECT", nil),
+			},
 			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -72,7 +78,7 @@ func Provider() *schema.Provider {
 }
 
 func configure(d *schema.ResourceData) (interface{}, error) {
-	var config pcc.Credentials
+	var config pcc.APIClientConfig
 	if val, ok := d.GetOk("config_file"); ok {
 		configFile, err := os.Open(val.(string))
 		if err != nil {
@@ -92,6 +98,9 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 	if val, ok := d.GetOk("console_url"); ok {
 		config.ConsoleURL = val.(string)
 	}
+	if val, ok := d.GetOk("project"); ok {
+		config.Project = val.(string)
+	}
 	if val, ok := d.GetOk("username"); ok {
 		config.Username = val.(string)
 	}
@@ -102,7 +111,7 @@ func configure(d *schema.ResourceData) (interface{}, error) {
 		config.SkipCertVerification = val.(bool)
 	}
 
-	client, err := pcc.APIClient(config.ConsoleURL, config.Username, config.Password, config.SkipCertVerification)
+	client, err := pcc.APIClient(config)
 	if err != nil {
 		return nil, fmt.Errorf("error creating API client: %s", err)
 	}
