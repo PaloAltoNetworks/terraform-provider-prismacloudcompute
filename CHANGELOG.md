@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Added
+- Projects support.
 ## Version 0.2.0 - 2021-12-13
 ### Added
 - Admission policy resource type ([#33](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/33), @hi-artem).
