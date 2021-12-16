@@ -1,8 +1,13 @@
 # Changelog
 
-## Unreleased
+## Version 0.3.0 - 2021-12-16
 ### Added
-- Projects support.
+- Projects support ([#40](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/40), @wfg).
+- Custom runtime rule data source ([#39](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/39), @hi-artem).
+
+### Fixed
+- Typo in host runtime policy parser ([#36](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/36), @hi-artem).
+
 ## Version 0.2.0 - 2021-12-13
 ### Added
 - Admission policy resource type ([#33](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/33), @hi-artem).

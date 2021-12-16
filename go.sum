@@ -273,6 +273,8 @@ github.com/paloaltonetworks/prisma-cloud-compute-go v0.3.0 h1:O/HomclXcUnt/YXct+
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.3.0/go.mod h1:xwe8aQ+fjs4vVCaeP78KCthSU74QM5suaV9k2UUyAow=
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.3.1-0.20211214170928-7d8e2ff321f8 h1:V/Uuk9VPAGWgfvJBVj9JlXFDsMUVt+lAZOcPEgWr3C0=
 github.com/paloaltonetworks/prisma-cloud-compute-go v0.3.1-0.20211214170928-7d8e2ff321f8/go.mod h1:xwe8aQ+fjs4vVCaeP78KCthSU74QM5suaV9k2UUyAow=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.4.1 h1:dZWL8Qrv3zk0swdtY2zLRIkhtlEbc3Ni7Dwn5V907ZM=
+github.com/paloaltonetworks/prisma-cloud-compute-go v0.4.1/go.mod h1:xwe8aQ+fjs4vVCaeP78KCthSU74QM5suaV9k2UUyAow=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
