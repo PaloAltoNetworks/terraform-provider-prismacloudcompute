@@ -108,7 +108,7 @@ func SchemaToRuntimeHostRules(d *schema.ResourceData) ([]policy.RuntimeHostRule,
 				parsedRule.Forensic = policy.RuntimeHostForensic{}
 			}
 
-			presentLogInspectionRules := presentRule["file_integrity_rule"].([]interface{})
+			presentLogInspectionRules := presentRule["log_inspection_rule"].([]interface{})
 			parsedLogInspectionRules := make([]policy.RuntimeHostLogInspectionRule, 0, len(presentLogInspectionRules))
 			for _, val := range presentLogInspectionRules {
 				presentLogInspectionRule := val.(map[string]interface{})
