@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.4.0 - 2022-01-03
+## Added
+- Support for grace days policy in vulnerability policies ([#42](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/42), @hi-artem)
+
+## Fixed
+- Updated SDK reference for fix in github.com/paloaltonetworks/prisma-cloud-compute-go@v0.4.2.
+
 ## Version 0.3.0 - 2021-12-16
 ### Added
 - Projects support ([#40](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/40), @wfg).
