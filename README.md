@@ -1,4 +1,4 @@
-# Terraform Provider for Prisma Cloud Compute by Palo Alto Networks
+# Terraform Provider for Prisma Cloud Compute
 You can find the Prisma Cloud Compute provider in the [Terraform Registry](https://registry.terraform.io/providers/PaloAltoNetworks/prismacloudcompute/latest).
 
 ## Basic setup

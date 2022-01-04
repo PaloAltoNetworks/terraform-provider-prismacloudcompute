@@ -1,5 +1,5 @@
 {
-  "console_url": "https://foo.bar.com",
+  "console_url": "https://console.example.com",
   "username": "myUsername",
   "password": "myPassword"
 }
