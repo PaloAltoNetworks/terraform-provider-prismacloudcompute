@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+#### Changed
+- The Compute SDK is now included in this repository.
+Developing in two separate but very tightly-coupled repositories added unnecessary complexity.
+
+## Version 0.4.1 - 2022-01-04
+#### Changed
+- If no scheme is provided in the `console_url`, 'https' is used.
+
 ## Version 0.4.0 - 2022-01-03
 #### Added
 - Support for grace days policy in vulnerability policies ([#42](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/42), @hi-artem)
