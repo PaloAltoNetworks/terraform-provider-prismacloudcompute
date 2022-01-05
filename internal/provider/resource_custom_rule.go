@@ -77,7 +77,7 @@ func createCustomRule(d *schema.ResourceData, meta interface{}) error {
 
 func readCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
-	retrievedCustomRule, err := rule.GetCustomRule(*client, d.Get("prisma_id").(int))
+	retrievedCustomRule, err := rule.GetCustomRuleById(*client, d.Get("prisma_id").(int))
 	if err != nil {
 		return fmt.Errorf("error reading custom rule: %s", err)
 	}

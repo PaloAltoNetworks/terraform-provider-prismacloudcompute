@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
@@ -34,7 +35,7 @@ type RegistrySpecification struct {
 func GetRegistrySettings(c api.Client) (RegistrySettings, error) {
 	var ans RegistrySettings
 	if err := c.Request(http.MethodGet, SettingsRegistryEndpoint, nil, nil, &ans); err != nil {
-		return ans, err
+		return ans, fmt.Errorf("error getting registry settings: %s", err)
 	}
 	return ans, nil
 }

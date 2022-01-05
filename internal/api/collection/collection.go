@@ -38,7 +38,7 @@ func ListCollections(c api.Client) ([]Collection, error) {
 func GetCollection(c api.Client, name string) (*Collection, error) {
 	collections, err := ListCollections(c)
 	if err != nil {
-		return nil, fmt.Errorf("error getting collection '%s': %s", name, err)
+		return nil, err
 	}
 	for _, val := range collections {
 		if val.Name == name {

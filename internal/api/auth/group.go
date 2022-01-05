@@ -43,7 +43,7 @@ func ListGroups(c api.Client) ([]Group, error) {
 func GetGroup(c api.Client, name string) (*Group, error) {
 	groups, err := ListGroups(c)
 	if err != nil {
-		return nil, fmt.Errorf("error getting group '%s': %s", name, err)
+		return nil, err
 	}
 	for _, val := range groups {
 		if val.Name == name {

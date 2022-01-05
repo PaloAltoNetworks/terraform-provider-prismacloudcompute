@@ -22,7 +22,7 @@ type AdmissionRule struct {
 	Script      string `json:"script,omitempty"`
 }
 
-// Get the current host admission policy.
+// Get the current admission policy.
 func GetAdmission(c api.Client) (AdmissionPolicy, error) {
 	var ans AdmissionPolicy
 	if err := c.Request(http.MethodGet, AdmissionEndpoint, nil, nil, &ans); err != nil {
@@ -31,7 +31,7 @@ func GetAdmission(c api.Client) (AdmissionPolicy, error) {
 	return ans, nil
 }
 
-// Update the current host admission policy.
+// Update the current admission policy.
 func UpdateAdmission(c api.Client, policy AdmissionPolicy) error {
 	return c.Request(http.MethodPut, AdmissionEndpoint, nil, policy, nil)
 }

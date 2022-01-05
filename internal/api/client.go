@@ -121,7 +121,7 @@ func APIClient(config APIClientConfig) (*Client, error) {
 	}
 
 	if err := apiClient.authenticate(); err != nil {
-		return nil, fmt.Errorf("error authenticating: %v", err)
+		return nil, err
 	}
 
 	return apiClient, nil

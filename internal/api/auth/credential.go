@@ -69,7 +69,7 @@ func ListCredentials(c api.Client) ([]Credential, error) {
 func GetCredential(c api.Client, name string) (*Credential, error) {
 	credentials, err := ListCredentials(c)
 	if err != nil {
-		return nil, fmt.Errorf("error getting credential '%s': %s", name, err)
+		return nil, err
 	}
 	for _, val := range credentials {
 		if val.Id == name {

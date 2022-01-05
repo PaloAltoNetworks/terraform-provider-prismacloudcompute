@@ -33,7 +33,7 @@ func ListRoles(c api.Client) ([]Role, error) {
 func GetRole(c api.Client, name string) (*Role, error) {
 	roles, err := ListRoles(c)
 	if err != nil {
-		return nil, fmt.Errorf("error getting role '%s': %s", name, err)
+		return nil, err
 	}
 	for _, val := range roles {
 		if val.Name == name {

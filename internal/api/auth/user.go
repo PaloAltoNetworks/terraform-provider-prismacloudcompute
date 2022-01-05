@@ -35,7 +35,7 @@ func ListUsers(c api.Client) ([]User, error) {
 func GetUser(c api.Client, name string) (*User, error) {
 	users, err := ListUsers(c)
 	if err != nil {
-		return nil, fmt.Errorf("error getting user '%s': %s", name, err)
+		return nil, err
 	}
 	for _, val := range users {
 		if val.Username == name {
