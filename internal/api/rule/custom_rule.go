@@ -11,6 +11,7 @@ const CustomRulesEndpoint = "api/v1/custom-rules"
 
 type CustomRule struct {
 	Description string `json:"description,omitempty"`
+	Effect      string `json:"effect,omitempty"`
 	Id          int    `json:"_id,omitempty"`
 	Message     string `json:"message,omitempty"`
 	Name        string `json:"name,omitempty"`

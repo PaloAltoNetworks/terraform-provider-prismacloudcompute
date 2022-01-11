@@ -56,6 +56,7 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_collection":                    resourceCollection(),
 			"prismacloudcompute_custom_rule":                   resourceCustomRule(),
 			"prismacloudcompute_admission_policy":              resourcePoliciesAdmission(),
+			"prismacloudcompute_container_waas_policy":         resourcePoliciesFirewallAppContainer(),
 			"prismacloudcompute_ci_image_compliance_policy":    resourcePoliciesComplianceCiImage(),
 			"prismacloudcompute_container_compliance_policy":   resourcePoliciesComplianceContainer(),
 			"prismacloudcompute_host_compliance_policy":        resourcePoliciesComplianceHost(),
