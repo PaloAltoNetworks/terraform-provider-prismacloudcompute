@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## Version 0.5.0 - 2022-02-07
+#### Added
+- Code repo scanning policy support ([#45](https://github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/pull/45), @pnancarrow)
+
 #### Changed
 - The Compute SDK is now included in this repository.
 Developing in two separate but very tightly-coupled repositories added unnecessary complexity.
