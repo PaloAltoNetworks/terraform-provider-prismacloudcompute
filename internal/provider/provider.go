@@ -64,6 +64,8 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_ci_coderepo_vulnerability_policy": resourcePoliciesVulnerabilityCiCoderepo(),
 			"prismacloudcompute_ci_image_vulnerability_policy":    resourcePoliciesVulnerabilityCiImage(),
 			"prismacloudcompute_coderepo_vulnerability_policy":    resourcePoliciesVulnerabilityCoderepo(),
+			"prismacloudcompute_coderepo_compliance_policy":       resourcePoliciesComplianceCoderepo(),
+			"prismacloudcompute_ci_coderepo_compliance_policy":    resourcePoliciesComplianceCiCoderepo(),
 			"prismacloudcompute_host_vulnerability_policy":        resourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":       resourcePoliciesVulnerabilityImage(),
 			"prismacloudcompute_registry_settings":                resourceRegistry(),
