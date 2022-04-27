@@ -3,7 +3,7 @@
 page_title: "prismacloudcompute_custom_rule Resource - terraform-provider-prismacloudcompute"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # prismacloudcompute_custom_rule (Resource)
@@ -31,4 +31,10 @@ description: |-
 - **id** (String) ID of the custom rule.
 - **prisma_id** (Number) Prisma Cloud Compute ID of the custom rule.
 
+## Import
 
+Resources can be imported using the cloud type (`aws`, `azure`, `gcp`, or `alibaba_cloud`) and the ID:
+
+```
+$ terraform import prismacloudcompute_custom_rule.example <rule_name>:<prisma_id>
+```
