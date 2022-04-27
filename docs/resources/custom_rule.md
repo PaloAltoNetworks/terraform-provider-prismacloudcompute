@@ -33,8 +33,6 @@ description: |-
 
 ## Import
 
-Resources can be imported using the cloud type (`aws`, `azure`, `gcp`, or `alibaba_cloud`) and the ID:
-
 ```
 $ terraform import prismacloudcompute_custom_rule.example <rule_name>:<prisma_id>
 ```
