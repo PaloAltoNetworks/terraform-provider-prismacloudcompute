@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+        "strings"
 	"strconv"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/rule"
@@ -18,8 +19,10 @@ func resourceCustomRule() *schema.Resource {
 
 		Importer: &schema.ResourceImporter{
 			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+				
+				name, id, err := CustomRuleParseId(d.Id())
 
-				intVar, err := strconv.Atoi(d.Id())
+				intVar, err := strconv.Atoi(id)
 
 				if err != nil {
         				return []*schema.ResourceData{d}, nil
@@ -27,7 +30,7 @@ func resourceCustomRule() *schema.Resource {
 
 				var pid int = intVar
         			d.Set("prisma_id", pid)
-
+				d.SetId(name)
         		return []*schema.ResourceData{d}, nil
       		},
 		},
@@ -73,6 +76,15 @@ func resourceCustomRule() *schema.Resource {
 }
 
 
+func CustomRuleParseId(id string) (string, string, error) {
+  parts := strings.SplitN(id, ":", 2)
+
+  if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+    return "", "", fmt.Errorf("unexpected format of ID (%s), expected attribute1:attribute2", id)
+  }
+
+  return parts[0], parts[1], nil
+}
 
 func createCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
