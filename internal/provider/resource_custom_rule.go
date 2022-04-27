@@ -2,7 +2,7 @@ package provider
 
 import (
 	"fmt"
-
+	"strconv"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/rule"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
@@ -17,7 +17,19 @@ func resourceCustomRule() *schema.Resource {
 		Delete: deleteCustomRule,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
+			State: func(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+
+				intVar, err := strconv.Atoi(d.Id())
+
+				if err != nil {
+        				return []*schema.ResourceData{d}, nil
+        				      }
+
+				var pid int = intVar
+        			d.Set("prisma_id", pid)
+
+        		return []*schema.ResourceData{d}, nil
+      		},
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -59,6 +71,8 @@ func resourceCustomRule() *schema.Resource {
 		},
 	}
 }
+
+
 
 func createCustomRule(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
