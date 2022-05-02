@@ -3,7 +3,7 @@
 page_title: "prismacloudcompute_custom_rule Resource - terraform-provider-prismacloudcompute"
 subcategory: ""
 description: |-
-  
+
 ---
 
 # prismacloudcompute_custom_rule (Resource)
@@ -31,4 +31,8 @@ description: |-
 - **id** (String) ID of the custom rule.
 - **prisma_id** (Number) Prisma Cloud Compute ID of the custom rule.
 
+## Import
 
+```
+$ terraform import prismacloudcompute_custom_rule.example <rule_name>:<prisma_id>
+```
