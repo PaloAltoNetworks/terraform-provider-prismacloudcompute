@@ -3,6 +3,8 @@ package provider
 const (
 	policyTypeAdmission               = "admission"
 	policyTypeComplianceCiImage       = "ciImagesCompliance"
+	policyTypeComplianceCoderepo      = "codeRepoCompliance"
+	policyTypeComplianceCiCoderepo    = "ciCodeRepoCompliance"
 	policyTypeComplianceContainer     = "containerCompliance"
 	policyTypeComplianceHost          = "hostCompliance"
 	policyTypeRuntimeContainer        = "containerRuntime"
