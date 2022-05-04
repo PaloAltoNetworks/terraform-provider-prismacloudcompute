@@ -26,6 +26,9 @@ func SchemaToCredential(d *schema.ResourceData) (auth.Credential, error) {
 	if val, ok := d.GetOk("description"); ok {
 		parsedCredential.Description = val.(string)
 	}
+	if val, ok := d.GetOk("external"); ok {
+		parsedCredential.External = val.(bool)
+	}
 	if val, ok := d.GetOk("role_arn"); ok {
 		parsedCredential.RoleArn = val.(string)
 	}
