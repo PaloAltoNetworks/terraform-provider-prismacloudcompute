@@ -73,10 +73,12 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_group":                            resourceGroups(),
 			"prismacloudcompute_role":                             resourceRbacRoles(),
 			"prismacloudcompute_credential":                       resourceCredentials(),
+			"prismacloudcompute_custom_compliance":                resourceCustomCompliance(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"prismacloudcompute_custom_rule": dataSourceCustomRule(),
+			"prismacloudcompute_custom_rule":       dataSourceCustomRule(),
+			"prismacloudcompute_custom_compliance": dataSourceCustomCompliance(),
 		},
 
 		ConfigureFunc: configure,
