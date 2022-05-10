@@ -72,7 +72,7 @@ func GenerateCustomComplianceId(c api.Client) (int, error) {
 	}
 
 	// Assuming Compliances may not be sorted by ID.
-	maxId := 0
+	maxId := 9000
 	for _, val := range compliances {
 		if val.Id > maxId {
 			maxId = val.Id
