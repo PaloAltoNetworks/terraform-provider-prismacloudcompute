@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"time"
 )
 
 type APIClientConfig struct {
@@ -65,7 +66,10 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 	defer res.Body.Close()
 
+	// Retry in case backend responds with HTTP 429
+	// sleep for 3 seconds before retry
 	if res.StatusCode == 429 {
+		time.Sleep(3 * time.Second)
 		return c.Request(method, endpoint, query, data, &response)
 	}
 
