@@ -65,6 +65,10 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode == 429 {
+		return c.Request(method, endpoint, query, data, &response)
+	}
+
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("Non-OK status: %d", res.StatusCode)
 	}
