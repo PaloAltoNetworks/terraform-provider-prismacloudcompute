@@ -61,6 +61,11 @@ func resourceCredentials() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the credential.",
 			},
+			"external": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Indicates if the credential is external (true) or not (false).",
+			},
 			"ibm_account_guid": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -148,6 +153,7 @@ func readCredentials(d *schema.ResourceData, meta interface{}) error {
 	}
 	d.Set("ca_cert", retrievedCredential.CaCert)
 	d.Set("description", retrievedCredential.Description)
+	d.Set("external", retrievedCredential.External)
 	d.Set("ibm_account_guid", retrievedCredential.AccountGUID)
 	d.Set("name", retrievedCredential.Id)
 	d.Set("role_arn", retrievedCredential.RoleArn)
