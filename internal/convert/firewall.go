@@ -19,6 +19,7 @@ func SchemaToFirewallAppPolicy(d *schema.ResourceData) (policy.FirewallAppPolicy
 
 	if schemaRules, ok := d.GetOk("rules"); ok {
 		iterRules := schemaRules.([]interface{})
+
 		for _, schemaRule := range iterRules {
 			mapRule := schemaRule.(map[string]interface{})
 			rule := waas.WaasRule{}
@@ -29,13 +30,16 @@ func SchemaToFirewallAppPolicy(d *schema.ResourceData) (policy.FirewallAppPolicy
 
 			if schemaApplications, ok := mapRule["applications"]; ok {
 				iterApplications := schemaApplications.([]interface{})
+
 				for _, schemaApplication := range iterApplications {
 					mapApplication := schemaApplication.(map[string]interface{})
+					application := waas.WaasApplicationSpec{}
 
 					if schemaAPIs, ok := mapApplication["api"]; ok {
 						iterAPIs := schemaAPIs.([]interface{})
-						for _, schemaAPI := range iterAPIs {
-							mapAPI := schemaAPI.(map[string]interface{})
+
+						if len(iterAPIs) == 1 {
+							mapAPI := iterAPIs[0].(map[string]interface{})
 							api := waas.WaasAPISpec{}
 
 							if val, ok := mapAPI["description"]; ok {
@@ -161,10 +165,61 @@ func SchemaToFirewallAppPolicy(d *schema.ResourceData) (policy.FirewallAppPolicy
 									if val, ok := mapPath["path"]; ok {
 										path.Path = val.(string)
 									}
+
+									api.Paths = append(api.Paths, path)
 								}
 							}
+
+							if val, ok := mapAPI["query_param_effect"]; ok {
+								api.QueryParamFallbackEffect = val.(string)
+							}
+
+							application.APISpec = api
 						}
 					}
+
+					if val, ok := mapApplication["app_id"]; ok {
+						application.AppID = val.(string)
+					}
+
+					if schemaAttackTools, ok := mapApplication["attack_tools"]; ok {
+						iterAttackTools := schemaAttackTools.([]interface{})
+
+						if len(iterAttackTools) == 1 {
+							mapAttackTools := iterAttackTools[0].(map[string]interface{})
+							attackTools := waas.WaasProtectionConfig{}
+
+							if val, ok := mapAttackTools["effect"]; ok {
+								attackTools.Effect = val.(string)
+							}
+
+							if schemaAttackToolsExceptions, ok := mapAttackTools["exceptions"]; ok {
+								iterAttackToolsExceptions := schemaAttackToolsExceptions.([]interface{})
+
+								for _, schemaAttackException := range iterAttackToolsExceptions {
+									mapAttackToolsException := schemaAttackException.(map[string]interface{})
+									attackToolsException := waas.WaasExceptionField{}
+
+									if val, ok := mapAttackToolsException["key"]; ok {
+										attackToolsException.Key = val.(string)
+									}
+
+									if val, ok := mapAttackToolsException["location"]; ok {
+										attackToolsException.Location = val.(string)
+									}
+
+									attackTools.ExceptionFields = append(attackTools.ExceptionFields, attackToolsException)
+								}
+							}
+
+							application.AttackTools = attackTools
+						}
+					}
+
+					if val, ok := mapApplication["ban_duration"]; ok {
+						application.BanDurationMinutes = val.(int)
+					}
+
 				}
 			}
 		}
