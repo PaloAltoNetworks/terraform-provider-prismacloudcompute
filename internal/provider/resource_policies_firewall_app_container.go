@@ -65,6 +65,50 @@ var (
 		"rar",
 		"7zip",
 	}
+
+	waasSameSiteStrings = []string{
+		"Lax",
+		"Strict",
+		"None",
+	}
+
+	waasMinTLSVersiontrings = []string{
+		"1.0",
+		"1.1",
+		"1.2",
+		"1.3",
+	}
+
+	waasParamLocationStrings = []string{
+		"path",
+		"query",
+		"cookie",
+		"header",
+		"body",
+		"json",
+		"xml",
+		"formData",
+		"multipart",
+	}
+
+	waasParamStyle = []string{
+		"simple",
+		"spaceDelimited",
+		"tabDelimited",
+		"pipeDelimited",
+		"form",
+		"matrix",
+		"label",
+	}
+
+	waasParamType = []string{
+		"integer",
+		"number",
+		"string",
+		"boolean",
+		"array",
+		"object",
+	}
 )
 
 func resourcePoliciesFirewallAppContainer() *schema.Resource {
@@ -124,6 +168,171 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 													Type:        schema.TypeString,
 													Optional:    true,
 													Description: "Description of the app.",
+												},
+												"effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Effect that will be used in the rule.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
+												},
+												"endpoints": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: "The app's endpoints.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"base_path": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Default:     "/",
+																Description: "Base path for the endpoint.",
+															},
+															"exposed_port": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Description: "Exposed port that the proxy is listening on.",
+															},
+															"grpc": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Default:     false,
+																Description: "Indicates if the proxy supports gRPC (true) or not (false).",
+															},
+															"host": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Default:     "*",
+																Description: "URL address (name or IP) of the endpoint's API specification (e.g., petstore.swagger.io). The address can be prefixed with a wildcard (e.g., *.swagger.io).",
+															},
+															"http2": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Default:     false,
+																Description: "Indicates if the proxy supports HTTP/2 (true) or not (false).",
+															},
+															"internal_port": {
+																Type:        schema.TypeInt,
+																Required:    true,
+																Description: "Internal port that the application is listening on.",
+															},
+															"tls": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Default:     false,
+																Description: "Indicates if the connection is secured (true) or not (false).",
+															},
+														},
+													},
+												},
+												"fallback_effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Fallback effect that will be used in the rule.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
+												},
+												"paths": {
+													Type:        schema.TypeList,
+													Optional:    true,
+													Description: "Paths of the API's endpoints.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"methods": {
+																Type:        schema.TypeList,
+																Required:    true,
+																Description: "Supported operations for the path (e.g., PUT, GET, etc.).",
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"method": {
+																			Type:        schema.TypeString,
+																			Required:    true,
+																			Description: "Type of HTTP request (e.g., PUT, GET, etc.).",
+																		},
+																		"parameters": {
+																			Type:        schema.TypeList,
+																			Optional:    true,
+																			Description: "Parameters that are part of the HTTP request.",
+																			Elem: &schema.Resource{
+																				Schema: map[string]*schema.Schema{
+																					"allow_empty_value": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Default:     false,
+																						Description: "Indicates if the proxy supports HTTP/2 (true) or not (false).",
+																					},
+																					"array": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Default:     false,
+																						Description: "Indicates if multiple values of the specified type are allowed (true) or not (false).",
+																					},
+																					"explode": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Default:     false,
+																						Description: "Indicates if arrays should generate separate parameters for each array item or object property.",
+																					},
+																					"location": {
+																						Type:         schema.TypeString,
+																						Required:     true,
+																						Description:  "The location of a parameter.",
+																						ValidateFunc: validation.StringInSlice(waasParamLocationStrings, false),
+																					},
+																					"max": {
+																						Type:        schema.TypeInt,
+																						Optional:    true,
+																						Description: "Maximum allowable value for a numeric parameter.",
+																					},
+																					"min": {
+																						Type:        schema.TypeInt,
+																						Optional:    true,
+																						Description: "Maximum allowable value for a numeric parameter.",
+																					},
+																					"name": {
+																						Type:        schema.TypeString,
+																						Required:    true,
+																						Description: "Name of the parameter.",
+																					},
+																					"required": {
+																						Type:        schema.TypeBool,
+																						Optional:    true,
+																						Default:     false,
+																						Description: "Indicates if the parameter is required (true) or not (false).",
+																					},
+																					"style": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						Description:  "Param format style, defined by OpenAPI specification It describes how the parameter value will be serialized depending on the type of the parameter.",
+																						ValidateFunc: validation.StringInSlice(waasParamStyle, false),
+																					},
+																					"type": {
+																						Type:         schema.TypeString,
+																						Optional:     true,
+																						Description:  "Type of a parameter, defined by OpenAPI specification.",
+																						ValidateFunc: validation.StringInSlice(waasParamType, false),
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+															"path": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Relative path to an endpoint such as '/pet/{petId}'.",
+															},
+														},
+													},
+												},
+
+												"query_param_effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Query param effect that will be used in the rule.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
 												},
 											},
 										},
@@ -1019,6 +1228,262 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 											},
 										},
 									},
+									"remote_host_forwarding": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "Remote host to forward requests to.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"enabled": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Default:     false,
+													Description: "Indicates if remote host forwarding is enabled (true) or not (false).",
+												},
+												"target": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Remote host to forward requests to.",
+												},
+											},
+										},
+									},
+									"response_headers": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Configuration for modifying HTTP response headers.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"name": {
+													Type:        schema.TypeString,
+													Required:    true,
+													Description: "Header name (will be canonicalized when possible).",
+												},
+												"override": {
+													Type:        schema.TypeBool,
+													Optional:    true,
+													Description: "Indicates whether to override existing values (true) or add to them (false).",
+												},
+												"values": {
+													Type:        schema.TypeList,
+													Required:    true,
+													Description: "New header values.",
+													Elem: &schema.Schema{
+														Type: schema.TypeString,
+													},
+												},
+											},
+										},
+									},
+									"session_cookie_ban": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Indicates if bans in this app are made by session cookie ID (true) or false (not).",
+									},
+									"session_cookie_enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Indicates if session cookies are enabled (true) or not (false).",
+									},
+									"session_cookie_samesite": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										Description:  "SameSite allows a server to define a cookie attribute making it impossible for the browser to send this cookie along with cross-site requests. The main goal is to mitigate the risk of cross-origin information leakage, and provide some protection against cross-site request forgery attacks.",
+										ValidateFunc: validation.StringInSlice(waasSameSiteStrings, false),
+									},
+									"session_cookie_secure": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										Default:     false,
+										Description: "Indicates the Secure attribute of the session cookie.",
+									},
+									"shellshock": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "Protection against shellshock requests.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Effect if a shellshock request is detected.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
+												},
+												"exceptions": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Field in HTTP request.",
+															},
+															"location": {
+																Type:         schema.TypeString,
+																Required:     true,
+																Description:  "Exception HTTP field location.",
+																ValidateFunc: validation.StringInSlice(waasExceptionLocationStrings, false),
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"sql_injection": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "Protection against SQL injection requests.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Effect if a SQL injection request is detected.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
+												},
+												"exceptions": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Field in HTTP request.",
+															},
+															"location": {
+																Type:         schema.TypeString,
+																Required:     true,
+																Description:  "Exception HTTP field location.",
+																ValidateFunc: validation.StringInSlice(waasExceptionLocationStrings, false),
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+									"tls_config": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "The user TLS configuration and the certificate data.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"hsts_config": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Optional:    true,
+													Description: "The HTTP Strict Transport Security configuration in order to enforce HSTS header.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"enabled": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Default:     false,
+																Description: "Enabled indicates if HSTS enforcement is enabled.",
+															},
+															"include_subdomains": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Default:     false,
+																Description: "Indicates if this rule applies to all of the site's subdomains as well.",
+															},
+															"max_age": {
+																Type:        schema.TypeInt,
+																Optional:    true,
+																Default:     31536000,
+																Description: "The time (in seconds) that the browser should remember that a site is only be accessed using HTTPS.",
+															},
+															"preload": {
+																Type:        schema.TypeBool,
+																Optional:    true,
+																Default:     false,
+																Description: "Indicates if it should support preload.",
+															},
+														},
+													},
+												},
+												"metadata": {
+													Type:        schema.TypeList,
+													MaxItems:    1,
+													Computed:    true,
+													Description: "The user TLS configuration and the certificate data.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"issuer_name": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The certificate issuer common name.",
+															},
+															"not_after": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The time the certificate is not valid (expiry time).",
+															},
+															"subject_name": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "The certificate subject common name.",
+															},
+														},
+													},
+												},
+												"min_tls_version": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "1.2",
+													Description:  "MinTLSVersion is the list of acceptable TLS versions.",
+													ValidateFunc: validation.StringInSlice(waasMinTLSVersiontrings, false),
+												},
+											},
+										},
+									},
+									"cross_site_scripting": {
+										Type:        schema.TypeList,
+										MaxItems:    1,
+										Optional:    true,
+										Description: "Protection against Cross Site Scripting (XSS) requests.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"effect": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													Default:      "alert",
+													Description:  "Effect if a Cross Site Scripting (XSS) request is detected.",
+													ValidateFunc: validation.StringInSlice(waasEffectStrings, false),
+												},
+												"exceptions": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"key": {
+																Type:        schema.TypeString,
+																Required:    true,
+																Description: "Field in HTTP request.",
+															},
+															"location": {
+																Type:         schema.TypeString,
+																Required:     true,
+																Description:  "Exception HTTP field location.",
+																ValidateFunc: validation.StringInSlice(waasExceptionLocationStrings, false),
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -1030,9 +1495,118 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 						"collections": {
 							Type:        schema.TypeList,
 							Required:    true,
-							Description: "Collections used to scope the rule.",
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
+							Description: "List of collections. Used to scope the rule.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"account_ids": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of account IDs.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"app_ids": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of application IDs.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"clusters": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of Kubernetes cluster names.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"color": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "Hexadecimal representation of color code value.",
+									},
+									"containers": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of containers.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"description": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "Free-form text..",
+									},
+									"functions": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of functions.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"hosts": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of hosts.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"images": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of images.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"labels": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of labels.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"modified": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Datetime when the collection was last modified.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Required:    true,
+										Description: "Collection name. Must be unique.",
+									},
+									"namespaces": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: "List of Kubernetes namespaces.",
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+									"owner": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "User who created or last modified the collection.",
+									},
+									"prisma": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Indicates whether this collection originates from Prisma Cloud.",
+									},
+									"system": {
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Indicates whether this collection was created by the system (i.e., a non user) (true) or a real user (false).",
+									},
+								},
 							},
 						},
 						"disabled": {
