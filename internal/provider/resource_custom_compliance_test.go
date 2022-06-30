@@ -3,6 +3,7 @@ package provider
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
@@ -110,7 +111,7 @@ func testAccCheckCustomComplianceExists(n string, o *policy.CustomCompliance) re
 
 		client := testAccProvider.Meta().(*api.Client)
 		name := rs.Primary.ID
-		lo, err := policy.Get(*client, name)
+		lo, err := policy.GetCustomComplianceByName(*client, name)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -142,9 +143,9 @@ func testAccCustomComplianceDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID != "" {
-			name := rs.Primary.ID
-			if err := policy.Delete(*client, name); err == nil {
-				return fmt.Errorf("Object %q still exists", name)
+			id, _ := strconv.Atoi(rs.Primary.ID)
+			if err := policy.DeleteCustomCompliance(*client, id); err == nil {
+				return fmt.Errorf("Object %q still exists", id)
 			}
 		}
 		return nil

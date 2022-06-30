@@ -13,89 +13,68 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccPolicyComplianceCiImagesConfig(t *testing.T) {
-	fmt.Printf("\n\nStart TestAccPolicyComplianceCiImagesConfig")
-	var o policy.Policy
+func TestAccPolicyComplianceCIImagesConfig(t *testing.T) {
+	fmt.Printf("\n\nStart TestAccPolicyComplianceCiCIImagesConfig")
+	var o policy.ComplianceCoderepoPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyComplianceCiImagesDestroy,
+		CheckDestroy: testAccPolicyComplianceCIImagesDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
+				Config: testAccPolicyComplianceCIImagesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCIImagesExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
+					testAccCheckPolicyComplianceCIImagesAttributes(&o, "network"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccPolicyComplianceCiImagesNetwork(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyComplianceCIImagesNetwork(t *testing.T) {
+	var o policy.ComplianceCoderepoPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyComplianceCiImagesDestroy,
+		CheckDestroy: testAccPolicyComplianceCIImagesDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
+				Config: testAccPolicyComplianceCIImagesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCIImagesExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
+					testAccCheckPolicyComplianceCIImagesAttributes(&o, "network"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccPolicyComplianceCiImagesAuditEvent(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyComplianceCIImagesAuditEvent(t *testing.T) {
+	var o policy.ComplianceCoderepoPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyComplianceCiImagesDestroy,
+		CheckDestroy: testAccPolicyComplianceCIImagesDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
+				Config: testAccPolicyComplianceCIImagesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiImagesConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiImagesExists("prismacloudcompute_policies_compliance_container.test", &o),
-					testAccCheckPolicyComplianceCiImagesAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCIImagesExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
+					testAccCheckPolicyComplianceCIImagesAttributes(&o, "network"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckPolicyComplianceCiImagesExists(n string, o *policy.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceCIImagesExists(n string, o *policy.ComplianceCoderepoPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -109,7 +88,7 @@ func testAccCheckPolicyComplianceCiImagesExists(n string, o *policy.Policy) reso
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := policy.Get(*client, policy.ComplianceCiImagesEndpoint)
+		lo, err := policy.GetComplianceCoderepo(*client)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,28 +98,22 @@ func testAccCheckPolicyComplianceCiImagesExists(n string, o *policy.Policy) reso
 	}
 }
 
-func testAccCheckPolicyComplianceCiImagesAttributes(o *policy.Policy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceCIImagesAttributes(o *policy.ComplianceCoderepoPolicy, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.PolicyId != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
-		} else {
-			fmt.Printf("\n\nName is %s", o.PolicyId)
-		}
-
-		if o.PolicyType != policyType {
-			return fmt.Errorf("PolicyType is %s, expected %s", o.PolicyType, policyType)
+		if o.Type != policyType {
+			return fmt.Errorf("PolicyType is %s, expected %s", o.Type, policyType)
 		}
 
 		return nil
 	}
 }
 
-func testAccPolicyComplianceCiImagesDestroy(s *terraform.State) error {
+func testAccPolicyComplianceCIImagesDestroy(s *terraform.State) error {
 	/*	client := testAccProvider.Meta().(*api.Client)
 
 		for _, rs := range s.RootModule().Resources {
 
-			if rs.Type != "prismacloudcompute_policycomplianceciimages" {
+			if rs.Type != "prismacloudcompute_policycompliancecoderepo" {
 				continue
 			}
 
@@ -156,12 +129,12 @@ func testAccPolicyComplianceCiImagesDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccPolicyComplianceCiImagesConfig(id string) string {
+func testAccPolicyComplianceCIImagesConfig(id string) string {
 	var buf bytes.Buffer
 	buf.Grow(500)
 
 	buf.WriteString(fmt.Sprintf(`
-resource "prismacloudcompute_policyComplianceCiImages" "test" {
+resource "prismacloudcompute_policyComplianceCIImages" "test" {
     name = %q
 }`, id))
 

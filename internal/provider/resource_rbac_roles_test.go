@@ -1,10 +1,12 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -12,7 +14,7 @@ import (
 
 func TestRbacRolesConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccRbacRolesConfig")
-	var o group.Group
+	var o auth.Role
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -24,14 +26,14 @@ func TestRbacRolesConfig(t *testing.T) {
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 			{
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 		},
@@ -39,7 +41,7 @@ func TestRbacRolesConfig(t *testing.T) {
 }
 
 func TestRbacRolesNetwork(t *testing.T) {
-	var o group.Group
+	var o auth.Role
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -51,14 +53,14 @@ func TestRbacRolesNetwork(t *testing.T) {
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 			{
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 		},
@@ -66,7 +68,7 @@ func TestRbacRolesNetwork(t *testing.T) {
 }
 
 func TestRbacRolesAuditEvent(t *testing.T) {
-	var o group.Group
+	var o auth.Role
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -78,21 +80,21 @@ func TestRbacRolesAuditEvent(t *testing.T) {
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 			{
 				Config: testAccRbacRolesConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckRbacRolesExists("prismacloudcompute_rbac_roles.test", &o),
-					testAccCheckRbacRolesAttributes(&o, id, true),
+					testAccCheckRbacRolesAttributes(&o, id, "plop"),
 				),
 			},
 		},
 	})
 }
 
-func testRbacRolesExists(n string, o *group.Group) resource.TestCheckFunc {
+func testAccCheckRbacRolesExists(n string, o *auth.Role) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.GroupId)
 
@@ -106,61 +108,61 @@ func testRbacRolesExists(n string, o *group.Group) resource.TestCheckFunc {
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := RbacRoles.Get(*client)
+		id := rs.Primary.ID
+		lo, err := auth.GetRole(*client, id)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
-		*o = lo
+		o = lo
 
 		return nil
 	}
 }
 
-// func testRbacRolesAttributes(o *group.Group, id string, learningDisabled bool) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		if o.GroupId != id {
-// 			return fmt.Errorf("\n\nGroupId is %s, expected %s", o.GroupId, id)
-// 		} else {
-// 			fmt.Printf("\n\nName is %s", o.GroupId)
-// 		}
+func testAccCheckRbacRolesAttributes(o *auth.Role, name, description string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if o.Name != name {
+			return fmt.Errorf("\n\nRole name is %s, expected %s", o.Name, name)
+		} else {
+			fmt.Printf("\n\nName is %s", o.Name)
+		}
 
-// 		if o.LearningDisabled != learningDisabled {
-// 			return fmt.Errorf("LearningDisabled is %t, expected %t", o.LearningDisabled, learningDisabled)
-// 		}
+		if o.Description != description {
+			return fmt.Errorf("Description is %s, expected %s", o.Description, description)
+		}
 
-// 		return nil
-// 	}
-// }
+		return nil
+	}
+}
 
-// func testRbacRolesDestroy(s *terraform.State) error {
-// 	/*	client := testAccProvider.Meta().(*api.Client)
+func testAccRbacRolesDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*api.Client)
 
-// 		for _, rs := range s.RootModule().Resources {
+	for _, rs := range s.RootModule().Resources {
 
-// 			if rs.Type != "prismacloudcompute_rbac_roles" {
-// 				continue
-// 			}
+		if rs.Type != "prismacloudcompute_rbac_roles" {
+			continue
+		}
 
-// 			if rs.Primary.ID != "" {
-// 				name := rs.Primary.ID
-// 				if err := group.Delete(client, name); err == nil {
-// 					return fmt.Errorf("Object %q still exists", name)
-// 				}
-// 			}
-// 			return nil
-// 		}
-// 	*/
-// 	return nil
-// }
+		if rs.Primary.ID != "" {
+			name := rs.Primary.ID
+			if err := auth.DeleteRole(*client, name); err == nil {
+				return fmt.Errorf("Object %q still exists", name)
+			}
+		}
+		return nil
+	}
+	return nil
+}
 
-// func testRbacRolesConfig(id string) string {
-// 	var buf bytes.Buffer
-// 	buf.Grow(500)
+func testAccRbacRolesConfig(id string) string {
+	var buf bytes.Buffer
+	buf.Grow(500)
 
-// 	buf.WriteString(fmt.Sprintf(`
-// resource "prismacloudcompute_rbac_roles" "test" {
-//     name = %q
-// }`, id))
+	buf.WriteString(fmt.Sprintf(`
+resource "prismacloudcompute_rbac_roles" "test" {
+    name = %q
+}`, id))
 
-// 	return buf.String()
-// }
+	return buf.String()
+}

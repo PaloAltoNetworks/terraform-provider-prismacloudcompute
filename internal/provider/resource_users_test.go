@@ -1,11 +1,12 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
-	"os/user"
 	"testing"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -13,7 +14,7 @@ import (
 
 func TestUsersConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccUserConfig")
-	var o user.User
+	var o auth.User
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -25,14 +26,14 @@ func TestUsersConfig(t *testing.T) {
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 			{
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 		},
@@ -40,7 +41,7 @@ func TestUsersConfig(t *testing.T) {
 }
 
 func TestUsersNetwork(t *testing.T) {
-	var o user.User
+	var o auth.User
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -52,14 +53,14 @@ func TestUsersNetwork(t *testing.T) {
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 			{
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 		},
@@ -67,7 +68,7 @@ func TestUsersNetwork(t *testing.T) {
 }
 
 func TestUsersAuditEvent(t *testing.T) {
-	var o user.User
+	var o auth.User
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -79,21 +80,21 @@ func TestUsersAuditEvent(t *testing.T) {
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 			{
 				Config: testAccUserConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckUserExists("prismacloudcompute_users.test", &o),
-					testAccCheckUserAttributes(&o, id, true),
+					testAccCheckUserAttributes(&o, id, "sysadmin"),
 				),
 			},
 		},
 	})
 }
 
-func testUsersExists(n string, o *user.User) resource.TestCheckFunc {
+func testAccCheckUserExists(n string, o *auth.User) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.UserId)
 
@@ -107,61 +108,62 @@ func testUsersExists(n string, o *user.User) resource.TestCheckFunc {
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := users.Get(*client)
+		id := rs.Primary.ID
+		lo, err := auth.GetUser(*client, id)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
-		*o = lo
+		o = lo
 
 		return nil
 	}
 }
 
-// func testUsersAttributes(o *user.User, id string, learningDisabled bool) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		if o.UserId != id {
-// 			return fmt.Errorf("\n\nUserId is %s, expected %s", o.UserId, id)
-// 		} else {
-// 			fmt.Printf("\n\nName is %s", o.UserId)
-// 		}
+func testAccCheckUserAttributes(o *auth.User, name, role string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if o.Username != name {
+			return fmt.Errorf("\n\nUsername is %s, expected %s", o.Username, name)
+		} else {
+			fmt.Printf("\n\nName is %s", o.Username)
+		}
 
-// 		if o.LearningDisabled != learningDisabled {
-// 			return fmt.Errorf("LearningDisabled is %t, expected %t", o.LearningDisabled, learningDisabled)
-// 		}
+		if o.Role != role {
+			return fmt.Errorf("Role is %s, expected %s", o.Role, role)
+		}
 
-// 		return nil
-// 	}
-// }
+		return nil
+	}
+}
 
-// func testUsersDestroy(s *terraform.State) error {
-// 	/*	client := testAccProvider.Meta().(*api.Client)
+func testAccUserDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*api.Client)
 
-// 		for _, rs := range s.RootModule().Resources {
+	for _, rs := range s.RootModule().Resources {
 
-// 			if rs.Type != "prismacloudcompute_users" {
-// 				continue
-// 			}
+		if rs.Type != "prismacloudcompute_users" {
+			continue
+		}
 
-// 			if rs.Primary.ID != "" {
-// 				name := rs.Primary.ID
-// 				if err := user.Delete(client, name); err == nil {
-// 					return fmt.Errorf("Object %q still exists", name)
-// 				}
-// 			}
-// 			return nil
-// 		}
-// 	*/
-// 	return nil
-// }
+		if rs.Primary.ID != "" {
+			name := rs.Primary.ID
+			if err := auth.DeleteUser(*client, name); err == nil {
+				return fmt.Errorf("Object %q still exists", name)
+			}
+		}
+		return nil
+	}
+	return nil
+}
 
-// func testUsersConfig(id string) string {
-// 	var buf bytes.Buffer
-// 	buf.Grow(500)
+func testAccUserConfig(id string) string {
+	var buf bytes.Buffer
+	buf.Grow(500)
 
-// 	buf.WriteString(fmt.Sprintf(`
-// resource "prismacloudcompute_users" "test" {
-//     name = %q
-// }`, id))
+	buf.WriteString(fmt.Sprintf(`
+resource "prismacloudcompute_users" "test" {
+    Username = %q
 
-// 	return buf.String()
-// }
+}`, id))
+
+	return buf.String()
+}
