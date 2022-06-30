@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-// Validation slices of string, int
+// Slices to validate some fields in the schema.
 var (
 	waasEffectStrings = []string{
 		"ban",
@@ -45,7 +45,7 @@ var (
 		"incident",
 	}
 
-	waasFileType = []string{
+	waasFileTypeStrings = []string{
 		"pdf",
 		"officeLegacy",
 		"officeOoxml",
@@ -91,7 +91,7 @@ var (
 		"multipart",
 	}
 
-	waasParamStyle = []string{
+	waasParamStyleStrings = []string{
 		"simple",
 		"spaceDelimited",
 		"tabDelimited",
@@ -101,7 +101,7 @@ var (
 		"label",
 	}
 
-	waasParamType = []string{
+	waasParamTypeStrings = []string{
 		"integer",
 		"number",
 		"string",
@@ -304,13 +304,13 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 																						Type:         schema.TypeString,
 																						Optional:     true,
 																						Description:  "Param format style, defined by OpenAPI specification It describes how the parameter value will be serialized depending on the type of the parameter.",
-																						ValidateFunc: validation.StringInSlice(waasParamStyle, false),
+																						ValidateFunc: validation.StringInSlice(waasParamStyleStrings, false),
 																					},
 																					"type": {
 																						Type:         schema.TypeString,
 																						Optional:     true,
 																						Description:  "Type of a parameter, defined by OpenAPI specification.",
-																						ValidateFunc: validation.StringInSlice(waasParamType, false),
+																						ValidateFunc: validation.StringInSlice(waasParamTypeStrings, false),
 																					},
 																				},
 																			},
@@ -1084,7 +1084,7 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 													Description: "Allowed file types.",
 													Elem: &schema.Schema{
 														Type:         schema.TypeString,
-														ValidateFunc: validation.StringInSlice(waasFileType, false),
+														ValidateFunc: validation.StringInSlice(waasFileTypeStrings, false),
 													},
 												},
 												"effect": {
@@ -1668,17 +1668,29 @@ func resourcePoliciesFirewallAppContainer() *schema.Resource {
 }
 
 func createPolicyFirewallAppContainer(d *schema.ResourceData, meta interface{}) error {
-	return nil
+	/*
+		TODO
+	*/
+	return readPolicyFirewallAppContainer(d, meta)
 }
 
 func readPolicyFirewallAppContainer(d *schema.ResourceData, meta interface{}) error {
+	/*
+		TODO
+	*/
 	return nil
 }
 
 func updatePolicyFirewallAppContainer(d *schema.ResourceData, meta interface{}) error {
-	return nil
+	/*
+		TODO
+	*/
+	return readPolicyFirewallAppContainer(d, meta)
 }
 
 func deletePolicyFirewallAppContainer(d *schema.ResourceData, meta interface{}) error {
 	return nil
+	/*
+		TODO
+	*/
 }
