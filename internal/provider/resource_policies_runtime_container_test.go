@@ -13,89 +13,89 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccPolicyConfig(t *testing.T) {
+func TestAccPolicyRuntimeContainerConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyConfig")
-	var o policy.Policy
+	var o policy.RuntimeContainerPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeContainerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-func TestAccPolicyNetwork(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyRuntimeContainerNetwork(t *testing.T) {
+	var o policy.RuntimeContainerPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeContainerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-func TestAccPolicyAuditEvent(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyRuntimeContainerAuditEvent(t *testing.T) {
+	var o policy.RuntimeContainerPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeContainerDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeContainerConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeContainerExists("prismacloudcompute_policies_runtime_Container.test", &o),
+					testAccCheckPolicyRuntimeContainerAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckPolicyExists(n string, o *policy.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyRuntimeContainerExists(n string, o *policy.RuntimeContainerPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -109,7 +109,7 @@ func testAccCheckPolicyExists(n string, o *policy.Policy) resource.TestCheckFunc
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := policy.Get(*client, policy.RuntimeContainerEndpoint)
+		lo, err := policy.GetRuntimeContainer(*client)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,28 +119,18 @@ func testAccCheckPolicyExists(n string, o *policy.Policy) resource.TestCheckFunc
 	}
 }
 
-func testAccCheckPolicyAttributes(o *policy.Policy, id string, learningDisabled bool) resource.TestCheckFunc {
+func testAccCheckPolicyRuntimeContainerAttributes(o *policy.RuntimeContainerPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.PolicyId != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
-		} else {
-			fmt.Printf("\n\nName is %s", o.PolicyId)
-		}
-
-		if o.LearningDisabled != learningDisabled {
-			return fmt.Errorf("LearningDisabled is %t, expected %t", o.LearningDisabled, learningDisabled)
-		}
-
 		return nil
 	}
 }
 
-func testAccPolicyDestroy(s *terraform.State) error {
+func testAccPolicyRuntimeContainerDestroy(s *terraform.State) error {
 	/*	client := testAccProvider.Meta().(*api.Client)
 
 		for _, rs := range s.RootModule().Resources {
 
-			if rs.Type != "prismacloudcompute_policyruntimecontainer" {
+			if rs.Type != "prismacloudcompute_policyruntimeContainer" {
 				continue
 			}
 
@@ -156,7 +146,7 @@ func testAccPolicyDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccPolicyConfig(id string) string {
+func testAccPolicyRuntimeContainerConfig(id string) string {
 	var buf bytes.Buffer
 	buf.Grow(500)
 

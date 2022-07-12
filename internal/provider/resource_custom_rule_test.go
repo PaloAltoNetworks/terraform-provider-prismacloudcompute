@@ -3,6 +3,7 @@ package provider
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
@@ -110,7 +111,7 @@ func testAccCheckCustomRuleExists(n string, o *rule.CustomRule) resource.TestChe
 
 		client := testAccProvider.Meta().(*api.Client)
 		name := rs.Primary.ID
-		lo, err := rule.Get(*client, name)
+		lo, err := rule.GetCustomRuleByName(*client, name)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -120,7 +121,7 @@ func testAccCheckCustomRuleExists(n string, o *rule.CustomRule) resource.TestChe
 	}
 }
 
-func testAccCheckCustomRuleAttributes(o *rule.CustomRule, name string, description string, color string) resource.TestCheckFunc {
+func testAccCheckCustomRuleAttributes(o *rule.CustomRule, name string, description string, typeOfCustomRuleAttribute string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.Name != name {
 			return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)
@@ -132,8 +133,8 @@ func testAccCheckCustomRuleAttributes(o *rule.CustomRule, name string, descripti
 			return fmt.Errorf("Description is %s, expected %s", o.Description, description)
 		}
 
-		if o.Color != color {
-			return fmt.Errorf("Color type is %q, expected %q", o.Color, color)
+		if o.Type != typeOfCustomRuleAttribute {
+			return fmt.Errorf("Type is %q, expected %q", o.Type, typeOfCustomRuleAttribute)
 		}
 
 		return nil
@@ -150,9 +151,9 @@ func testAccCustomRuleDestroy(s *terraform.State) error {
 		}
 
 		if rs.Primary.ID != "" {
-			name := rs.Primary.ID
-			if err := rule.Delete(*client, name); err == nil {
-				return fmt.Errorf("Object %q still exists", name)
+			id, _ := strconv.Atoi(rs.Primary.ID)
+			if err := rule.DeleteCustomRule(*client, id); err == nil {
+				return fmt.Errorf("Object %q still exists", id)
 			}
 		}
 		return nil

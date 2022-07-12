@@ -110,7 +110,7 @@ func testAccCheckCollectionExists(n string, o *collection.Collection) resource.T
 
 		client := testAccProvider.Meta().(*api.Client)
 		name := rs.Primary.ID
-		lo, err := collection.Get(*client, name)
+		lo, err := collection.GetCollection(*client, name)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -151,7 +151,7 @@ func testAccCollectionDestroy(s *terraform.State) error {
 
 		if rs.Primary.ID != "" {
 			name := rs.Primary.ID
-			if err := collection.Delete(*client, name); err == nil {
+			if err := collection.DeleteCollection(*client, name); err == nil {
 				return fmt.Errorf("Object %q still exists", name)
 			}
 		}

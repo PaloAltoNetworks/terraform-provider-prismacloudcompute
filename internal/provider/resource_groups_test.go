@@ -1,10 +1,12 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -12,7 +14,7 @@ import (
 
 func TestGroupsConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccGroupsConfig")
-	var o group.Group
+	var o auth.Group
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -39,7 +41,7 @@ func TestGroupsConfig(t *testing.T) {
 }
 
 func TestGroupsNetwork(t *testing.T) {
-	var o group.Group
+	var o auth.Group
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -66,7 +68,7 @@ func TestGroupsNetwork(t *testing.T) {
 }
 
 func TestGroupsAuditEvent(t *testing.T) {
-	var o group.Group
+	var o auth.Group
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -92,7 +94,7 @@ func TestGroupsAuditEvent(t *testing.T) {
 	})
 }
 
-func testGroupsExists(n string, o *group.Group) resource.TestCheckFunc {
+func testAccCheckGroupsExists(n string, o *auth.Group) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.GroupId)
 
@@ -106,61 +108,61 @@ func testGroupsExists(n string, o *group.Group) resource.TestCheckFunc {
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := groups.Get(*client)
+		id := rs.Primary.ID
+		lo, err := auth.GetGroup(*client, id)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
-		*o = lo
+		o = lo
 
 		return nil
 	}
 }
 
-// func testGroupsAttributes(o *group.Group, id string, learningDisabled bool) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		if o.GroupId != id {
-// 			return fmt.Errorf("\n\nGroupId is %s, expected %s", o.GroupId, id)
-// 		} else {
-// 			fmt.Printf("\n\nName is %s", o.GroupId)
-// 		}
+func testAccCheckGroupsAttributes(o *auth.Group, id string, oauthGroup bool) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if o.Id != id {
+			return fmt.Errorf("\n\nGroupId is %s, expected %s", o.Id, id)
+		} else {
+			fmt.Printf("\n\nName is %s", o.Id)
+		}
 
-// 		if o.LearningDisabled != learningDisabled {
-// 			return fmt.Errorf("LearningDisabled is %t, expected %t", o.LearningDisabled, learningDisabled)
-// 		}
+		if o.OauthGroup != oauthGroup {
+			return fmt.Errorf("LearningDisabled is %t, expected %t", o.OauthGroup, oauthGroup)
+		}
 
-// 		return nil
-// 	}
-// }
+		return nil
+	}
+}
 
-// func testGroupsDestroy(s *terraform.State) error {
-// 	/*	client := testAccProvider.Meta().(*api.Client)
+func testAccGroupsDestroy(s *terraform.State) error {
+	client := testAccProvider.Meta().(*api.Client)
 
-// 		for _, rs := range s.RootModule().Resources {
+	for _, rs := range s.RootModule().Resources {
 
-// 			if rs.Type != "prismacloudcompute_groups" {
-// 				continue
-// 			}
+		if rs.Type != "prismacloudcompute_groups" {
+			continue
+		}
 
-// 			if rs.Primary.ID != "" {
-// 				name := rs.Primary.ID
-// 				if err := group.Delete(client, name); err == nil {
-// 					return fmt.Errorf("Object %q still exists", name)
-// 				}
-// 			}
-// 			return nil
-// 		}
-// 	*/
-// 	return nil
-// }
+		if rs.Primary.ID != "" {
+			name := rs.Primary.ID
+			if err := auth.DeleteGroup(*client, name); err == nil {
+				return fmt.Errorf("Object %q still exists", name)
+			}
+		}
+		return nil
+	}
+	return nil
+}
 
-// func testGroupsConfig(id string) string {
-// 	var buf bytes.Buffer
-// 	buf.Grow(500)
+func testAccGroupsConfig(id string) string {
+	var buf bytes.Buffer
+	buf.Grow(500)
 
-// 	buf.WriteString(fmt.Sprintf(`
-// resource "prismacloudcompute_groups" "test" {
-//     name = %q
-// }`, id))
+	buf.WriteString(fmt.Sprintf(`
+resource "prismacloudcompute_groups" "test" {
+    name = %q
+}`, id))
 
-// 	return buf.String()
-// }
+	return buf.String()
+}

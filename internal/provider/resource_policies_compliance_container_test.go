@@ -15,7 +15,7 @@ import (
 
 func TestAccPolicyComplianceContainerConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyComplianceContainerConfig")
-	var o policy.Policy
+	var o policy.CompliancePolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccPolicyComplianceContainerConfig(t *testing.T) {
 }
 
 func TestAccPolicyComplianceContainerNetwork(t *testing.T) {
-	var o policy.Policy
+	var o policy.CompliancePolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccPolicyComplianceContainerNetwork(t *testing.T) {
 }
 
 func TestAccPolicyComplianceContainerAuditEvent(t *testing.T) {
-	var o policy.Policy
+	var o policy.CompliancePolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccPolicyComplianceContainerAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckPolicyComplianceContainerExists(n string, o *policy.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceContainerExists(n string, o *policy.CompliancePolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -109,7 +109,7 @@ func testAccCheckPolicyComplianceContainerExists(n string, o *policy.Policy) res
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := policy.Get(*client, policy.ComplianceContainerEndpoint)
+		lo, err := policy.GetComplianceContainer(*client)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
@@ -119,16 +119,11 @@ func testAccCheckPolicyComplianceContainerExists(n string, o *policy.Policy) res
 	}
 }
 
-func testAccCheckPolicyComplianceContainerAttributes(o *policy.Policy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceContainerAttributes(o *policy.CompliancePolicy, id string, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.PolicyId != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
-		} else {
-			fmt.Printf("\n\nName is %s", o.PolicyId)
-		}
 
-		if o.PolicyType != policyType {
-			return fmt.Errorf("PolicyType is %s, expected %s", o.PolicyType, policyType)
+		if o.Type != policyType {
+			return fmt.Errorf("PolicyType is %s, expected %s", o.Type, policyType)
 		}
 
 		return nil
@@ -140,7 +135,7 @@ func testAccPolicyComplianceContainerDestroy(s *terraform.State) error {
 
 		for _, rs := range s.RootModule().Resources {
 
-			if rs.Type != "prismacloudcompute_policycompliancecontainer" {
+			if rs.Type != "prismacloudcompute_policyComplianceContainer" {
 				continue
 			}
 

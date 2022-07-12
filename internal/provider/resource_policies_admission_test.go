@@ -15,7 +15,7 @@ import (
 
 func TestAccPolicyAdmissionConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyAdmissionConfig")
-	var o policy.Policy
+	var o policy.AdmissionPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -26,15 +26,8 @@ func TestAccPolicyAdmissionConfig(t *testing.T) {
 			{
 				Config: testAccPolicyAdmissionConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
-				),
-			},
-			{
-				Config: testAccPolicyAdmissionConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
+					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test"),
+					testAccCheckPolicyAdmissionAttributes(&o, id),
 				),
 			},
 		},
@@ -42,7 +35,7 @@ func TestAccPolicyAdmissionConfig(t *testing.T) {
 }
 
 func TestAccPolicyAdmissionNetwork(t *testing.T) {
-	var o policy.Policy
+	var o policy.AdmissionPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -53,15 +46,8 @@ func TestAccPolicyAdmissionNetwork(t *testing.T) {
 			{
 				Config: testAccPolicyAdmissionConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
-				),
-			},
-			{
-				Config: testAccPolicyAdmissionConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
+					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test"),
+					testAccCheckPolicyAdmissionAttributes(&o, id),
 				),
 			},
 		},
@@ -69,7 +55,7 @@ func TestAccPolicyAdmissionNetwork(t *testing.T) {
 }
 
 func TestAccPolicyAdmissionAuditEvent(t *testing.T) {
-	var o policy.Policy
+	var o policy.AdmissionPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -80,22 +66,15 @@ func TestAccPolicyAdmissionAuditEvent(t *testing.T) {
 			{
 				Config: testAccPolicyAdmissionConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
-				),
-			},
-			{
-				Config: testAccPolicyAdmissionConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test", &o),
-					testAccCheckPolicyAdmissionAttributes(&o, id, true),
+					testAccCheckPolicyAdmissionExists("prismacloudcompute_policies_admission.test"),
+					testAccCheckPolicyAdmissionAttributes(&o, id),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckPolicyAdmissionExists(n string, o *policy.Policy) resource.TestCheckFunc {
+func testAccCheckPolicyAdmissionExists(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
@@ -109,26 +88,21 @@ func testAccCheckPolicyAdmissionExists(n string, o *policy.Policy) resource.Test
 		}
 
 		client := testAccProvider.Meta().(*api.Client)
-		lo, err := policy.Get(*client, policy.ComplianceHostEndpoint)
+		_, err := policy.GetAdmission(*client)
 		if err != nil {
 			return fmt.Errorf("Error in get: %s", err)
 		}
-		*o = lo
 
 		return nil
 	}
 }
 
-func testAccCheckPolicyAdmissionAttributes(o *policy.Policy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyAdmissionAttributes(o *policy.AdmissionPolicy, id string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.PolicyId != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
+		if o.Id != id {
+			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.Id, id)
 		} else {
-			fmt.Printf("\n\nName is %s", o.PolicyId)
-		}
-
-		if o.PolicyType != policyType {
-			return fmt.Errorf("PolicyType is %s, expected %s", o.PolicyType, policyType)
+			fmt.Printf("\n\nId is %s", o.Id)
 		}
 
 		return nil

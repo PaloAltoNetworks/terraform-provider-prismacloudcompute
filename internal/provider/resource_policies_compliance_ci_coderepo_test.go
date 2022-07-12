@@ -27,14 +27,7 @@ func TestAccPolicyComplianceCiCoderepoConfig(t *testing.T) {
 				Config: testAccPolicyComplianceCiCoderepoConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiCoderepoConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, "network"),
 				),
 			},
 		},
@@ -54,14 +47,7 @@ func TestAccPolicyComplianceCiCoderepoNetwork(t *testing.T) {
 				Config: testAccPolicyComplianceCiCoderepoConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiCoderepoConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, "network"),
 				),
 			},
 		},
@@ -81,14 +67,7 @@ func TestAccPolicyComplianceCiCoderepoAuditEvent(t *testing.T) {
 				Config: testAccPolicyComplianceCiCoderepoConfig(id),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
-				),
-			},
-			{
-				Config: testAccPolicyComplianceCiCoderepoConfig(id),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyComplianceCiCoderepoExists("prismacloudcompute_policies_compliance_coderepo.test", &o),
-					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, id, "network"),
+					testAccCheckPolicyComplianceCiCoderepoAttributes(&o, "network"),
 				),
 			},
 		},
@@ -119,14 +98,8 @@ func testAccCheckPolicyComplianceCiCoderepoExists(n string, o *policy.Compliance
 	}
 }
 
-func testAccCheckPolicyComplianceCiCoderepoAttributes(o *policy.ComplianceCoderepoPolicy, id string, policyType string) resource.TestCheckFunc {
+func testAccCheckPolicyComplianceCiCoderepoAttributes(o *policy.ComplianceCoderepoPolicy, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.Id != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.Id, id)
-		} else {
-			fmt.Printf("\n\nName is %s", o.Id)
-		}
-
 		if o.Type != policyType {
 			return fmt.Errorf("PolicyType is %s, expected %s", o.Type, policyType)
 		}

@@ -121,12 +121,6 @@ func testAccCheckPolicyComplianceCoderepoExists(n string, o *policy.ComplianceCo
 
 func testAccCheckPolicyComplianceCoderepoAttributes(o *policy.ComplianceCoderepoPolicy, id string, policyType string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		if o.Id != id {
-			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.Id, id)
-		} else {
-			fmt.Printf("\n\nName is %s", o.Id)
-		}
-
 		if o.Type != policyType {
 			return fmt.Errorf("PolicyType is %s, expected %s", o.Type, policyType)
 		}

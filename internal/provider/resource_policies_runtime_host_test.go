@@ -1,165 +1,159 @@
 package provider
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestPolicyRuntimeHostConfig(t *testing.T) {
+func TestAccPolicyRuntimeHostConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccPolicyConfig")
-	var o policy.Policy
+	var o policy.RuntimeHostPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-func TestPolicyRuntimeHostNetwork(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyRuntimeHostNetwork(t *testing.T) {
+	var o policy.RuntimeHostPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-func TestPolicyRuntimeHostAuditEvent(t *testing.T) {
-	var o policy.Policy
+func TestAccPolicyRuntimeHostAuditEvent(t *testing.T) {
+	var o policy.RuntimeHostPolicy
 	id := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccPolicyDestroy,
+		CheckDestroy: testAccPolicyRuntimeHostDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 			{
-				Config: testAccPolicyConfig(id),
+				Config: testAccPolicyRuntimeHostConfig(id),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckPolicyExists("prismacloudcompute_policies_runtime_container.test", &o),
-					testAccCheckPolicyAttributes(&o, id, true),
+					testAccCheckPolicyRuntimeHostExists("prismacloudcompute_policies_runtime_Host.test", &o),
+					testAccCheckPolicyRuntimeHostAttributes(&o),
 				),
 			},
 		},
 	})
 }
 
-// func testPolicyRuntimeHostExists(n string, o *policy.Policy) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		// return fmt.Errorf("What is the name: %s", o.PolicyId)
+func testAccCheckPolicyRuntimeHostExists(n string, o *policy.RuntimeHostPolicy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		// return fmt.Errorf("What is the name: %s", o.PolicyId)
 
-// 		rs, ok := s.RootModule().Resources[n]
-// 		if !ok {
-// 			return fmt.Errorf("Resource not found: %s", n)
-// 		}
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("Resource not found: %s", n)
+		}
 
-// 		if rs.Primary.ID == "" {
-// 			return fmt.Errorf("Object label Id is not set")
-// 		}
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("Object label Id is not set")
+		}
 
-// 		client := testAccProvider.Meta().(*api.Client)
-// 		lo, err := policy.Get(*client, policy.RuntimeHostEndpoint)
-// 		if err != nil {
-// 			return fmt.Errorf("Error in get: %s", err)
-// 		}
-// 		*o = lo
+		client := testAccProvider.Meta().(*api.Client)
+		lo, err := policy.GetRuntimeHost(*client)
+		if err != nil {
+			return fmt.Errorf("Error in get: %s", err)
+		}
+		*o = lo
 
-// 		return nil
-// 	}
-// }
+		return nil
+	}
+}
 
-// func testPolicyRuntimeHostAttributes(o *policy.Policy, id string, learningDisabled bool) resource.TestCheckFunc {
-// 	return func(s *terraform.State) error {
-// 		if o.PolicyId != id {
-// 			return fmt.Errorf("\n\nPolicyId is %s, expected %s", o.PolicyId, id)
-// 		} else {
-// 			fmt.Printf("\n\nName is %s", o.PolicyId)
-// 		}
+func testAccCheckPolicyRuntimeHostAttributes(o *policy.RuntimeHostPolicy) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		return nil
+	}
+}
 
-// 		if o.LearningDisabled != learningDisabled {
-// 			return fmt.Errorf("LearningDisabled is %t, expected %t", o.LearningDisabled, learningDisabled)
-// 		}
+func testAccPolicyRuntimeHostDestroy(s *terraform.State) error {
+	/*	client := testAccProvider.Meta().(*api.Client)
 
-// 		return nil
-// 	}
-// }
+		for _, rs := range s.RootModule().Resources {
 
-// func testPolicyRuntimeHostDestroy(s *terraform.State) error {
-// 	/*	client := testAccProvider.Meta().(*api.Client)
+			if rs.Type != "prismacloudcompute_policyruntimeHost" {
+				continue
+			}
 
-// 		for _, rs := range s.RootModule().Resources {
+			if rs.Primary.ID != "" {
+				name := rs.Primary.ID
+				if err := policy.Delete(client, name); err == nil {
+					return fmt.Errorf("Object %q still exists", name)
+				}
+			}
+			return nil
+		}
+	*/
+	return nil
+}
 
-// 			if rs.Type != "prismacloudcompute_policyruntimehost" {
-// 				continue
-// 			}
+func testAccPolicyRuntimeHostConfig(id string) string {
+	var buf bytes.Buffer
+	buf.Grow(500)
 
-// 			if rs.Primary.ID != "" {
-// 				name := rs.Primary.ID
-// 				if err := policy.Delete(client, name); err == nil {
-// 					return fmt.Errorf("Object %q still exists", name)
-// 				}
-// 			}
-// 			return nil
-// 		}
-// 	*/
-// 	return nil
-// }
+	buf.WriteString(fmt.Sprintf(`
+resource "prismacloudcompute_policyRuntimeHost" "test" {
+    name = %q
+}`, id))
 
-// func testPolicyRuntimeHostConfig(id string) string {
-// 	var buf bytes.Buffer
-// 	buf.Grow(500)
-
-// 	buf.WriteString(fmt.Sprintf(`
-// resource "prismacloudcompute_policyRuntimeHost" "test" {
-//     name = %q
-// }`, id))
-
-// 	return buf.String()
-// }
+	return buf.String()
+}
