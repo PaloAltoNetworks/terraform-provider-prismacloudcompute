@@ -53,6 +53,7 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"prismacloudcompute_alertprofile":                     resourceAlertprofile(),
 			"prismacloudcompute_collection":                       resourceCollection(),
 			"prismacloudcompute_custom_rule":                      resourceCustomRule(),
 			"prismacloudcompute_admission_policy":                 resourcePoliciesAdmission(),
