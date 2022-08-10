@@ -152,7 +152,7 @@ resource "prismacloudcompute_alertprofile" "test" {
 ### Required
 
 - `alert_profile_config` (Block List, Min: 1, Max: 1) Alert Profile configuration, the values depend on the alert profile type (see [below for nested schema](#nestedblock--alert_profile_config))
-- `alert_profile_type` (String) Alert Profile type
+- `alert_profile_type` (String) Alert Profile type. Valid values are : `webhook`
 - `name` (String) Alert Profile name
 
 ### Optional

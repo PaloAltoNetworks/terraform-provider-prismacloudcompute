@@ -41,7 +41,7 @@ func resourceAlertprofile() *schema.Resource {
 				Description: "Alert Profile type",
 				ValidateDiagFunc: func(v interface{}, p cty.Path) diag.Diagnostics {
 					value := v.(string)
-					expected := []string{"webhook", "email"}
+					expected := []string{"webhook"}
 
 					var diags diag.Diagnostics
 					if !stringInSlice(expected, value) {
