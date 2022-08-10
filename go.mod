@@ -2,7 +2,10 @@ module github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute
 
 go 1.17
 
-require github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
+require (
+	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
+)
 
 require (
 	cloud.google.com/go v0.65.0 // indirect
@@ -21,7 +24,6 @@ require (
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-checkpoint v0.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320 // indirect
 	github.com/hashicorp/go-getter v1.5.3 // indirect
 	github.com/hashicorp/go-hclog v0.15.0 // indirect
 	github.com/hashicorp/go-multierror v1.0.0 // indirect
