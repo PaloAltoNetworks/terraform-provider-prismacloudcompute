@@ -405,12 +405,23 @@ func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
+	learningDisabledOld, learningDisabledNew := d.GetChange("learning_disabled")
+
 	parsedPolicy := policy.RuntimeContainerPolicy{
-		Rules: parsedRules,
+		LearningDisabled: learningDisabledNew.(bool),
+		Rules:            parsedRules,
 	}
 
 	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
+	}
+
+	// Due to API limitation, we need to makes second call to update the policy
+	// otherwise the policy will be created with no rules
+	if learningDisabledOld == false && learningDisabledNew == true {
+		if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
+			return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
+		}
 	}
 
 	d.SetId(policyTypeRuntimeContainer)
@@ -437,13 +448,23 @@ func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
+	learningDisabledOld, learningDisabledNew := d.GetChange("learning_disabled")
 
 	parsedPolicy := policy.RuntimeContainerPolicy{
-		Rules: parsedRules,
+		LearningDisabled: learningDisabledNew.(bool),
+		Rules:            parsedRules,
 	}
 
 	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
+	}
+
+	// Due to API limitation, we need to makes second call to update the policy
+	// otherwise the policy will be created with no rules
+	if learningDisabledOld == false && learningDisabledNew == true {
+		if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
+			return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
+		}
 	}
 
 	return readPolicyRuntimeContainer(d, meta)
