@@ -36,15 +36,15 @@ type RuntimeContainerRule struct {
 }
 
 type RuntimeContainerCustomRule struct {
-	DefaultEffect string                        `json:"defaultEffect,omitempty"`
-	Disabled      bool                          `json:"disabled,omitempty"`
-	DomainList    RuntimeContainerDnsDomainList `json:"domainList,omitempty"`
+	Action string `json:"action,omitempty"`
+	Effect string `json:"effect,omitempty"`
+	Id     int    `json:"_id,omitempty"`
 }
 
 type RuntimeContainerDns struct {
-	Allowed    []string `json:"whitelist,omitempty"`
-	Denied     []string `json:"blacklist,omitempty"`
-	DenyEffect string   `json:"effect,omitempty"`
+	DefaultEffect string                        `json:"defaultEffect,omitempty"`
+	Disabled      bool                          `json:"disabled,omitempty"`
+	DomainList    RuntimeContainerDnsDomainList `json:"domainList,omitempty"`
 }
 
 type RuntimeContainerFilesystem struct {
@@ -76,7 +76,6 @@ type RuntimeContainerNetworkPorts struct {
 	Denied  []RuntimeContainerPort `json:"denied,omitempty"`
 	Effect  string                 `json:"effect,omitempty"`
 }
-
 type RuntimeContainerDnsDomainList struct {
 	Allowed []string `json:"allowed,omitempty"`
 	Denied  []string `json:"denied,omitempty"`
