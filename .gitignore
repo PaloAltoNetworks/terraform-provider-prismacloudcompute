@@ -1,1 +1,3 @@
 local/
+main.tf
+.DS_Store
