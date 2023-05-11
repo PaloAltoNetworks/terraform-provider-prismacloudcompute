@@ -2,8 +2,9 @@ package policy
 
 import (
 	"fmt"
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"net/http"
+
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 )
 
 const CustomCompliancesEndpoint = "api/v1/custom-compliance"
@@ -55,12 +56,8 @@ func GetCustomComplianceByName(c api.Client, name string) (*CustomCompliance, er
 
 // Create a new custom compliance.
 func CreateCustomCompliance(c api.Client, compliance CustomCompliance) (int, error) {
-	id, err := GenerateCustomComplianceId(c)
-	if err != nil {
-		return -1, err
-	}
-	compliance.Id = id
-	return id, UpdateCustomCompliance(c, compliance)
+	res, err := UpdateCustomCompliance(c, compliance)
+	return res.Id, err
 }
 
 // Helper method to generate an ID for new custom Compliance.
@@ -82,10 +79,11 @@ func GenerateCustomComplianceId(c api.Client) (int, error) {
 }
 
 // Update an existing custom Compliance.
-func UpdateCustomCompliance(c api.Client, compliance CustomCompliance) error {
+func UpdateCustomCompliance(c api.Client, compliance CustomCompliance) (CustomCompliance, error) {
 	var ans CustomCompliance
 
-	return c.Request(http.MethodPut, CustomCompliancesEndpoint, nil, compliance, &ans)
+	err := c.Request(http.MethodPut, CustomCompliancesEndpoint, nil, compliance, &ans)
+	return ans, err
 }
 
 // Delete an existing custom Compliance.

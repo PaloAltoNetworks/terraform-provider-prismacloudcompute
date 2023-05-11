@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
@@ -99,7 +100,7 @@ func updateCustomCompliance(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	parsedCustomCompliance := convert.SchemaToCustomCompliance(d)
 
-	if err := policy.UpdateCustomCompliance(*client, parsedCustomCompliance); err != nil {
+	if _, err := policy.UpdateCustomCompliance(*client, parsedCustomCompliance); err != nil {
 		return fmt.Errorf("error updating custom Compliance: %s", err)
 	}
 
