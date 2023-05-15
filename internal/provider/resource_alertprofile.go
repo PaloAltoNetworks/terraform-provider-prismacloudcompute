@@ -3,13 +3,10 @@ package provider
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/alertprofile"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
-	"github.com/hashicorp/go-cty/cty"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -35,32 +32,6 @@ func resourceAlertprofile() *schema.Resource {
 				Required:    true,
 				Description: "Alert Profile name",
 			},
-			"alert_profile_type": {
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "Alert Profile type",
-				ValidateDiagFunc: func(v interface{}, p cty.Path) diag.Diagnostics {
-					value := v.(string)
-					expected := []string{"webhook"}
-
-					var diags diag.Diagnostics
-					if !stringInSlice(expected, value) {
-						diag := diag.Diagnostic{
-							Severity: diag.Error,
-							Summary:  "invalid/unsupported alert_profile_type",
-							Detail:   fmt.Sprintf("alert_profile_type %q is invalid or unsupported. Supported types: %q", value, strings.Join(expected, ",")),
-						}
-						diags = append(diags, diag)
-					}
-					return diags
-				},
-			},
-			"enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Description: "Enabled",
-				Default:     true,
-			},
 			"enable_immediate_vulnerabilities_alerts": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -71,20 +42,15 @@ func resourceAlertprofile() *schema.Resource {
 				Computed:    true,
 				Description: "Owner",
 			},
-			"alert_profile_config": {
+			"webhook": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				MinItems:    1,
 				MaxItems:    1,
 				Description: "Alert Profile configuration, the values depend on the alert profile type",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"prisma_cloud_integration_id": {
-							Type:        schema.TypeString,
-							Optional:    true,
-							Description: "ID of the Prisma Cloud Integration",
-						},
-						"webhook_url": {
+						"url": {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: "Webhook URL",
@@ -107,39 +73,13 @@ func resourceAlertprofile() *schema.Resource {
 					},
 				},
 			},
-			"alert_triggers": {
+			"policy": {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Description: "Policy configuration.",
+				Description: "Policy configuration. Configure triggers for alerts.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"access": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Description: "Access (Docker)",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"all_rules": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"rules": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
-							},
-						},
 						"admission": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
@@ -166,7 +106,59 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"app_embedded_defender_runtime": {
+						"agentless_app_firewall": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "WAAS Firewall (Agentless)",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"app_embedded_app_firewall": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "WAAS Firewall (App-Embedded Defender)",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"app_embedded_runtime": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
@@ -192,21 +184,112 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"cloud_native_network_firewall": {
+						"cloud_discovery": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Cloud Native Network Firewall (CNNF)",
+							Description: "Cloud discovery",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
-						"container_and_image_compliance": {
+						"code_repo_vulnerability": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Code repository vulnerabilities",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"container_app_firewall": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "WAAS Firewall (container)",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						// TODO: what is the UI element for this?
+						"container_compliance": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"container_compliance_scan": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
@@ -258,7 +341,33 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"defender_health": {
+						"container_vulnerability": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Deployed image vulnerabilities",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"defender": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
@@ -269,10 +378,101 @@ func resourceAlertprofile() *schema.Resource {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
+						"docker": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Access",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"host_app_firewall": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "WAAS Firewall (host)",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						// TODO: what UI element is this?
 						"host_compliance": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"host_compliance_scan": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
@@ -324,7 +524,7 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"host_vulnerabilities": {
+						"host_vulnerability": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
@@ -350,11 +550,11 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"image_vulnerabilities": {
+						"incident": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Image vulnerabilities (registry and deployed)",
+							Description: "Incidents",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -376,25 +576,89 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"incidents": {
+						"kubernetes_audit": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "incidents",
+							Description: "Kubernetes audits",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
 									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
 								},
 							},
 						},
-						"kubernetes_audits": {
+						"network_firewall": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "Kubernetes audits",
+							Description: "Cloud Native Network Segmentation (CNNS)",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"registry_vulnerability": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "Registry image vulnerabilities",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
+									},
+								},
+							},
+						},
+						"serverless_app_firewall": {
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "WAAS Firewall (serverless)",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -442,11 +706,11 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"waas_firewall_app_embedded_defender": {
+						"vm_compliance": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "WAAS Firewall (App-Embedded Defender)",
+							Description: "VM images compliance",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -468,63 +732,11 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"waas_firewall_container": {
+						"vm_vulnerability": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
-							Description: "WAAS Firewall (container)",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"all_rules": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"rules": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
-							},
-						},
-						"waas_firewall_host": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Description: "WAAS Firewall (host)",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"all_rules": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"rules": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
-							},
-						},
-						"waas_firewall_serverless": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Description: "WAAS Firewall (serverless)",
+							Description: "VM images vulnerabilities",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"enabled": {
@@ -556,6 +768,18 @@ func resourceAlertprofile() *schema.Resource {
 									"enabled": {
 										Type:     schema.TypeBool,
 										Required: true,
+									},
+									"all_rules": {
+										Type:     schema.TypeBool,
+										Required: true,
+									},
+									"rules": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Computed: true,
+										Elem: &schema.Schema{
+											Type: schema.TypeString,
+										},
 									},
 								},
 							},
@@ -591,12 +815,9 @@ func readAlertprofile(d *schema.ResourceData, meta interface{}) error {
 	d.Set("owner", retrievedAlertprofile.Owner)
 
 	config := make(map[string]interface{})
-	config["prisma_cloud_integration_id"] = retrievedAlertprofile.IntegrationID
 	config["enable_immediate_vulnerabilities_alerts"] = retrievedAlertprofile.VulnerabilityImmediateAlertsEnabled
 
 	if retrievedAlertprofile.Webhook.Enabled {
-		d.Set("enabled", true)
-		d.Set("alert_profile_type", "webhook")
 		config["webhook_url"] = retrievedAlertprofile.Webhook.Url
 		config["credential_id"] = retrievedAlertprofile.Webhook.CredentialId
 		config["custom_ca"] = retrievedAlertprofile.Webhook.CaCert
