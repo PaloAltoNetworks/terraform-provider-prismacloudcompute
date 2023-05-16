@@ -54,7 +54,7 @@ const AlertprofilesEndpoint = "api/v1/alert-profiles"
 // 	AccountID    string `json:"accountID"`
 // }
 
-//Alert profiles types
+// Alert profiles types
 type Webhook struct {
 	Enabled      bool   `json:"enabled"`
 	CredentialId string `json:"credentialId,omitempty"`
@@ -65,127 +65,179 @@ type Webhook struct {
 
 // Policy types
 
-//Docker - Access
-type Docker struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// Admisson - Admission audits
+// Admission audits
 type Admission struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// AppEmbeddedRuntime - App-Embedded Defender runtime
-type AppEmbeddedRuntime struct {
+// WAAS Firewall (serverless)
+type AgentlessAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// NetworkFirewall - Cloud Native Network Firewall (CNNF)
-type NetworkFirewall struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// ContainerComplianceScan - Container and image compliance
-type ContainerComplianceScan struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// ContainerRuntime - Container runtime
-type ContainerRuntime struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// Defender - Defender health
-type Defender struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// HostComplianceScan - Host compliance
-type HostComplianceScan struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// HostRuntime  - Host runtime
-type HostRuntime struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// HostVulnerability - Host vulnerabilities
-type HostVulnerability struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// ContainerVulnerability - Image vulnerabilities (registry and deployed)
-type ContainerVulnerability struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// Incident - Incidents
-type Incident struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// KubernetesAudit - Kubernetes audits
-type KubernetesAudit struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// ServerlessRuntime - Serverless runtime
-type ServerlessRuntime struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
-// AppEmbeddedAppFirewall - WAAS Firewall (App-Embedded Defender)
+// WAAS Firewall (App-Embedded Defender)
 type AppEmbeddedAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// ContainerAppFirewall - WAAS Firewall (container)
+// App-Embedded Defender runtime
+type AppEmbeddedRuntime struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+type CloudDiscovery struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+type CodeRepoVulnerability struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// WAAS Firewall (container)
 type ContainerAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// HostAppFirewall - WAAS Firewall (host)
+type ContainerCompliance struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Container and image compliance
+type ContainerComplianceScan struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Container runtime
+type ContainerRuntime struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Deployed image vulnerabilities
+type ContainerVulnerability struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Defender health
+type Defender struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Access
+type Docker struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// WAAS Firewall (host)
 type HostAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// ServerlessAppFirewall - WAAS Firewall (serverless)
+type HostCompliance struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Host compliance
+type HostComplianceScan struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Host runtime
+type HostRuntime struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Host vulnerabilities
+type HostVulnerability struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Incidents
+type Incident struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Kubernetes audits
+type KubernetesAudit struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Cloud Native Network Segmentation (CNNS)
+type NetworkFirewall struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Registry image vulnerabilities
+type RegistryVulnerability struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// WAAS Firewall (serverless)
 type ServerlessAppFirewall struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// Serverless runtime
+type ServerlessRuntime struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// VM images compliance
+type VmCompliance struct {
+	Enabled  bool     `json:"enabled"`
+	Allrules bool     `json:"allRules"`
+	Rules    []string `json:"rules,omitempty"`
+}
+
+// VM images vulnerabilities
+type VmVulnerability struct {
 	Enabled  bool     `json:"enabled"`
 	Allrules bool     `json:"allRules"`
 	Rules    []string `json:"rules,omitempty"`
@@ -200,42 +252,48 @@ type WaasHealth struct {
 
 // Policy struct
 type Policy struct {
-	Docker                  Docker                  `json:"docker,omitempty"`
 	Admission               Admission               `json:"admission,omitempty"`
+	AgentlessAppFirewall    AgentlessAppFirewall    `json:"agentlessAppFirewall,omitempty"`
+	AppEmbeddedAppFirewall  AppEmbeddedAppFirewall  `json:"appEmbeddedAppFirewall,omitempty"`
 	AppEmbeddedRuntime      AppEmbeddedRuntime      `json:"appEmbeddedRuntime,omitempty"`
-	NetworkFirewall         NetworkFirewall         `json:"networkFirewall,omitempty"`
+	CloudDiscovery          CloudDiscovery          `json:"cloudDiscovery,omitempty"`
+	CodeRepoVulnerability   CodeRepoVulnerability   `json:"codeRepoVulnerability"`
+	ContainerAppFirewall    ContainerAppFirewall    `json:"containerAppFirewall,omitempty"`
+	ContainerCompliance     ContainerCompliance     `json:"containerCompliance,omitempty"`
 	ContainerComplianceScan ContainerComplianceScan `json:"containerComplianceScan,omitempty"`
 	ContainerRuntime        ContainerRuntime        `json:"containerRuntime,omitempty"`
+	ContainerVulnerability  ContainerVulnerability  `json:"containerVulnerability,omitempty"`
 	Defender                Defender                `json:"defender,omitempty"`
+	Docker                  Docker                  `json:"docker,omitempty"`
+	HostAppFirewall         HostAppFirewall         `json:"hostAppFirewall,omitempty"`
+	HostCompliance          HostCompliance          `json:"hostCompliance,omitempty"`
 	HostComplianceScan      HostComplianceScan      `json:"hostComplianceScan,omitempty"`
 	HostRuntime             HostRuntime             `json:"hostRuntime,omitempty"`
 	HostVulnerability       HostVulnerability       `json:"hostVulnerability,omitempty"`
-	ContainerVulnerability  ContainerVulnerability  `json:"containerVulnerability,omitempty"`
 	Incident                Incident                `json:"incident,omitempty"`
 	KubernetesAudit         KubernetesAudit         `json:"kubernetesAudit,omitempty"`
-	ServerlessRuntime       ServerlessRuntime       `json:"serverlessRuntime,omitempty"`
-	AppEmbeddedAppFirewall  AppEmbeddedAppFirewall  `json:"appEmbeddedAppFirewall,omitempty"`
-	ContainerAppFirewall    ContainerAppFirewall    `json:"containerAppFirewall,omitempty"`
-	HostAppFirewall         HostAppFirewall         `json:"hostAppFirewall,omitempty"`
+	NetworkFirewall         NetworkFirewall         `json:"networkFirewall,omitempty"`
+	RegistryVulnerability   RegistryVulnerability   `json:"registryVulnerability,omitempty"`
 	ServerlessAppFirewall   ServerlessAppFirewall   `json:"serverlessAppFirewall,omitempty"`
+	ServerlessRuntime       ServerlessRuntime       `json:"serverlessRuntime,omitempty"`
+	VmCompliance            VmCompliance            `json:"vmCompliance,omitempty"`
+	VmVulnerability         VmVulnerability         `json:"vmVulnerability,omitempty"`
 	WaasHealth              WaasHealth              `json:"waasHealth,omitempty"`
 }
 
-// Alertprofile struct
-type Alertprofile struct {
+// AlertProfile struct
+type AlertProfile struct {
 	Id                                  string  `json:"_id"`
 	Name                                string  `json:"name"`
-	External                            bool    `json:"external,omitempty"`
-	IntegrationID                       string  `json:"integrationID,omitempty"`
-	Webhook                             Webhook `json:"webhook,omitempty"`
-	Policy                              Policy  `json:"policy,omitempty"`
 	VulnerabilityImmediateAlertsEnabled bool    `json:"vulnerabilityImmediateAlertsEnabled,omitempty"`
 	Owner                               string  `json:"owner,omitempty"`
+	Webhook                             Webhook `json:"webhook,omitempty"`
+	Policy                              Policy  `json:"policy,omitempty"`
 }
 
 // Get all Alertprofiles.
-func ListAlertprofiles(c api.Client) ([]Alertprofile, error) {
-	var ans []Alertprofile
+func ListAlertprofiles(c api.Client) ([]AlertProfile, error) {
+	var ans []AlertProfile
 	if err := c.Request(http.MethodGet, AlertprofilesEndpoint, nil, nil, &ans); err != nil {
 		return nil, fmt.Errorf("error listing Alert Profiles: %s", err)
 	}
@@ -243,7 +301,7 @@ func ListAlertprofiles(c api.Client) ([]Alertprofile, error) {
 }
 
 // Get a specific Alertprofile.
-func GetAlertprofile(c api.Client, name string) (*Alertprofile, error) {
+func GetAlertprofile(c api.Client, name string) (*AlertProfile, error) {
 	Alertprofiles, err := ListAlertprofiles(c)
 	if err != nil {
 		return nil, err
@@ -257,12 +315,12 @@ func GetAlertprofile(c api.Client, name string) (*Alertprofile, error) {
 }
 
 // Create a new Alertprofile.
-func CreateAlertprofile(c api.Client, Alertprofile Alertprofile) error {
+func CreateAlertprofile(c api.Client, Alertprofile AlertProfile) error {
 	return c.Request(http.MethodPost, AlertprofilesEndpoint, nil, Alertprofile, nil)
 }
 
 // Update an existing Alertprofile.
-func UpdateAlertprofile(c api.Client, Alertprofile Alertprofile) error {
+func UpdateAlertprofile(c api.Client, Alertprofile AlertProfile) error {
 	return c.Request(http.MethodPost, AlertprofilesEndpoint, nil, Alertprofile, nil)
 }
 
