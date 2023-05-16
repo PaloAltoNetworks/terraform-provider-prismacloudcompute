@@ -510,6 +510,10 @@ func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
+	if val, ok := d.GetOk("learning_disabled"); ok {
+		d.Set("learning_disabled", val)
+	}
+
 	parsedPolicy := policy.RuntimeContainerPolicy{
 		Rules: parsedRules,
 	}
@@ -538,7 +542,13 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 
 func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
+
+	if val, ok := d.GetOk("learning_disabled"); ok {
+		d.Set("learning_disabled", val)
+	}
+
 	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
+
 	if err != nil {
 		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
