@@ -1,3 +1,8 @@
 local/
 main.tf
 .DS_Store
+*.backup
+tools/
+.terraform/
+*.hcl
+tf-plan.json
