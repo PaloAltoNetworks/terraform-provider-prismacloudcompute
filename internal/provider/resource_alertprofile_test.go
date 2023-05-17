@@ -15,7 +15,7 @@ import (
 
 func TestAccAlertprofileConfig(t *testing.T) {
 	fmt.Printf("\n\nStart TestAccAlertprofileConfig")
-	var o alertprofile.Alertprofile
+	var o alertprofile.AlertProfile
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -42,7 +42,7 @@ func TestAccAlertprofileConfig(t *testing.T) {
 }
 
 func TestAccAlertprofileNetwork(t *testing.T) {
-	var o alertprofile.Alertprofile
+	var o alertprofile.AlertProfile
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -69,7 +69,7 @@ func TestAccAlertprofileNetwork(t *testing.T) {
 }
 
 func TestAccAlertprofileAuditEvent(t *testing.T) {
-	var o alertprofile.Alertprofile
+	var o alertprofile.AlertProfile
 	name := fmt.Sprintf("tf%s", acctest.RandString(6))
 
 	resource.Test(t, resource.TestCase{
@@ -95,7 +95,7 @@ func TestAccAlertprofileAuditEvent(t *testing.T) {
 	})
 }
 
-func testAccCheckAlertprofileExists(n string, o *alertprofile.Alertprofile) resource.TestCheckFunc {
+func testAccCheckAlertprofileExists(n string, o *alertprofile.AlertProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		// return fmt.Errorf("What is the name: %s", o.Name)
 
@@ -120,7 +120,7 @@ func testAccCheckAlertprofileExists(n string, o *alertprofile.Alertprofile) reso
 	}
 }
 
-func testAccCheckAlertprofileAttributes(o *alertprofile.Alertprofile, name string) resource.TestCheckFunc {
+func testAccCheckAlertprofileAttributes(o *alertprofile.AlertProfile, name string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if o.Name != name {
 			return fmt.Errorf("\n\nName is %s, expected %s", o.Name, name)
