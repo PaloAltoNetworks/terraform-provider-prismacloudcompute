@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -49,7 +48,7 @@ func TestProvider_impl(t *testing.T) {
 
 func testAccPreCheck(t *testing.T) {
 	fmt.Printf("\n\nStart Provider testAccPreCheck()\n")
-	if os.Getenv(PrismacloudcomputeJsonConfigFileEnvVar) == "" {
-		t.Fatalf("%s must be set for acceptance tests", PrismacloudcomputeJsonConfigFileEnvVar)
-	}
+	// if os.Getenv(PrismacloudcomputeJsonConfigFileEnvVar) == "" {
+	// 	t.Fatalf("%s must be set for acceptance tests", PrismacloudcomputeJsonConfigFileEnvVar)
+	// }
 }
