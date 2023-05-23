@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
@@ -25,6 +26,47 @@ type Client struct {
 	Config     APIClientConfig
 	HTTPClient *http.Client
 	JWT        string
+}
+
+func (c *Client) Initialize(filename string) error {
+	c2 := Client{}
+
+	if filename != "" {
+		var (
+			b   []byte
+			err error
+		)
+
+		b, err = ioutil.ReadFile(filename)
+
+		if err != nil {
+			return err
+		}
+
+		if err = json.Unmarshal(b, &c2); err != nil {
+			return err
+		}
+	}
+
+	if c.Config.ConsoleURL == "" && c2.Config.ConsoleURL != "" {
+		c.Config.ConsoleURL = c2.Config.ConsoleURL
+	}
+
+	if c.Config.Project == "" && c2.Config.Project != "" {
+		c.Config.Project = c2.Config.Project
+	}
+
+	if c.Config.Username == "" && c2.Config.Username != "" {
+		c.Config.Username = c2.Config.Username
+	}
+
+	if c.Config.Password == "" && c2.Config.Password != "" {
+		c.Config.Password = c2.Config.Password
+	}
+
+	c.HTTPClient = &http.Client{}
+
+	return c.Authenticate()
 }
 
 // Communicate with the Prisma Cloud Compute API.
@@ -91,7 +133,7 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 }
 
 // Authenticate with the Prisma Cloud Compute Console.
-func (c *Client) authenticate() (err error) {
+func (c *Client) Authenticate() (err error) {
 
 	type AuthRequest struct {
 		Username string `json:"username"`
@@ -128,7 +170,7 @@ func APIClient(config APIClientConfig) (*Client, error) {
 		apiClient.HTTPClient = &http.Client{}
 	}
 
-	if err := apiClient.authenticate(); err != nil {
+	if err := apiClient.Authenticate(); err != nil {
 		return nil, err
 	}
 

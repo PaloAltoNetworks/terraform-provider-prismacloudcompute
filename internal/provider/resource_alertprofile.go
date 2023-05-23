@@ -802,36 +802,37 @@ func createAlertprofile(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(parsedAlertprofile.Name)
+
 	return readAlertprofile(d, meta)
 }
 
 func readAlertprofile(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
-	retrievedAlertprofile, err := alertprofile.GetAlertprofile(*client, d.Id())
+	retrievedAlertProfile, err := alertprofile.GetAlertprofile(*client, d.Id())
 	if err != nil {
 		return fmt.Errorf("error reading alertprofile: %s", err)
 	}
-	d.Set("name", retrievedAlertprofile.Name)
-	d.Set("owner", retrievedAlertprofile.Owner)
+
+	d.Set("name", retrievedAlertProfile.Name)
+	d.Set("enable_immediate_vulnerabilities_alerts", retrievedAlertProfile.VulnerabilityImmediateAlertsEnabled)
 
 	config := make(map[string]interface{})
-	config["enable_immediate_vulnerabilities_alerts"] = retrievedAlertprofile.VulnerabilityImmediateAlertsEnabled
 
-	if retrievedAlertprofile.Webhook.Enabled {
-		config["webhook_url"] = retrievedAlertprofile.Webhook.Url
-		config["credential_id"] = retrievedAlertprofile.Webhook.CredentialId
-		config["custom_ca"] = retrievedAlertprofile.Webhook.CaCert
-		config["custom_json"] = retrievedAlertprofile.Webhook.Json
+	if retrievedAlertProfile.Webhook.Enabled {
+		config["url"] = retrievedAlertProfile.Webhook.Url
+		config["credential_id"] = retrievedAlertProfile.Webhook.CredentialId
+		config["custom_ca"] = retrievedAlertProfile.Webhook.CaCert
+		config["custom_json"] = retrievedAlertProfile.Webhook.Json
 	}
 
-	if err = d.Set("alert_profile_config", []interface{}{config}); err != nil {
-		log.Printf("[WARN] Error setting 'alert_profile_config' for %s: %s", d.Id(), err)
+	if err = d.Set("webhook", []interface{}{config}); err != nil {
+		log.Printf("[WARN] Error setting 'webhook' for %s: %s", d.Id(), err)
 	}
 
-	alertTriggerPolicies := convert.AlertProfilePoliciesToSchema(&retrievedAlertprofile.Policy)
+	alertTriggerPolicies := convert.AlertProfilePoliciesToSchema(&retrievedAlertProfile.Policy)
 
-	if err = d.Set("alert_triggers", []interface{}{alertTriggerPolicies}); err != nil {
-		log.Printf("[WARN] Error setting 'alert_triggers' for %s: %s", d.Id(), err)
+	if err = d.Set("policy", []interface{}{alertTriggerPolicies}); err != nil {
+		log.Printf("[WARN] Error setting 'policy' for %s: %s", d.Id(), err)
 	}
 
 	return nil
