@@ -131,7 +131,7 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 	}
 
 	if d.Docker.Enabled {
-		alertTriggerPolicies["access"] = []interface{}{
+		alertTriggerPolicies["docker"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.Docker.Enabled,
 				"all_rules": d.Docker.Allrules,
