@@ -1,9 +1,7 @@
 package policy
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
@@ -117,7 +115,18 @@ func GetRuntimeContainer(c api.Client) (RuntimeContainerPolicy, error) {
 
 // Update the current container runtime policy.
 func UpdateRuntimeContainer(c api.Client, policy RuntimeContainerPolicy) error {
-	pol, _ := json.Marshal(policy)
-	log.Println(string(pol))
 	return c.Request(http.MethodPut, RuntimeContainerEndpoint, nil, policy, nil)
+}
+
+// Add new container runtime policy rule
+func SetRuntimeContaineRule(c api.Client, policy RuntimeContainerPolicy) error {
+	var err error
+	for _, val := range policy.Rules {
+		err = c.Request(http.MethodPost, RuntimeContainerEndpoint, nil, val, nil)
+
+		if err != nil {
+			return fmt.Errorf("error creating container runtime policy rule: %s", err)
+		}
+	}
+	return nil
 }
