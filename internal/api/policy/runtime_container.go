@@ -119,7 +119,7 @@ func UpdateRuntimeContainer(c api.Client, policy RuntimeContainerPolicy) error {
 }
 
 // Add new container runtime policy rule
-func SetRuntimeContaineRule(c api.Client, policy RuntimeContainerPolicy) error {
+func SetRuntimeContainerRule(c api.Client, policy RuntimeContainerPolicy) error {
 	var err error
 	for _, val := range policy.Rules {
 		err = c.Request(http.MethodPost, RuntimeContainerEndpoint, nil, val, nil)

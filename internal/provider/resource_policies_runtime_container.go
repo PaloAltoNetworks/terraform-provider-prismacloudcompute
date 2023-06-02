@@ -521,16 +521,8 @@ func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 		Rules:            parsedRules,
 	}
 
-	currentPolicy, err := policy.GetRuntimeContainer(*client)
-
-	if len(currentPolicy.Rules) > 0 && currentPolicy.LearningDisabled == parsedPolicy.LearningDisabled { // if at least one rule exists AND auto learning flag wasn't modified, use POST endpoint
-		if err := policy.SetRuntimeContaineRule(*client, parsedPolicy); err != nil {
-			return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
-		}
-	} else { // otherwise, use PUT endpoint
-		if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
-			return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
-		}
+	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
+		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
 	d.SetId(policyTypeRuntimeContainer)
@@ -555,8 +547,10 @@ func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error 
 func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 
+	var learningDisabled bool
 	if val, ok := d.GetOk("learning_disabled"); ok {
 		d.Set("learning_disabled", val)
+		learningDisabled = val.(bool)
 	}
 
 	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
@@ -566,7 +560,8 @@ func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	parsedPolicy := policy.RuntimeContainerPolicy{
-		Rules: parsedRules,
+		LearningDisabled: learningDisabled,
+		Rules:            parsedRules,
 	}
 
 	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
