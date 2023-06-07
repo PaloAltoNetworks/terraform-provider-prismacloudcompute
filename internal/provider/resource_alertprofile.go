@@ -1,21 +1,22 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 	"log"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/alertprofile"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceAlertprofile() *schema.Resource {
 	return &schema.Resource{
-		Create: createAlertprofile,
-		Read:   readAlertprofile,
-		Update: updateAlertprofile,
-		Delete: deleteAlertprofile,
+		CreateContext: createAlertprofile,
+		ReadContext:   readAlertprofile,
+		UpdateContext: updateAlertprofile,
+		DeleteContext: deleteAlertprofile,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -791,26 +792,29 @@ func resourceAlertprofile() *schema.Resource {
 	}
 }
 
-func createAlertprofile(d *schema.ResourceData, meta interface{}) error {
+func createAlertprofile(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedAlertprofile, err := convert.SchemaToAlertprofile(d)
 	if err != nil {
-		return fmt.Errorf("failed to create Alert Profile '%+v': %s", parsedAlertprofile, err)
+		return diag.Errorf("failed to create Alert Profile '%+v': %s", parsedAlertprofile, err)
 	}
 	if err := alertprofile.CreateAlertprofile(*client, parsedAlertprofile); err != nil {
-		return fmt.Errorf("error creating alertprofile '%+v': %s", parsedAlertprofile, err)
+		return diag.Errorf("error creating alertprofile '%+v': %s", parsedAlertprofile, err)
 	}
 
 	d.SetId(parsedAlertprofile.Name)
 
-	return readAlertprofile(d, meta)
+	return readAlertprofile(ctx, d, meta)
 }
 
-func readAlertprofile(d *schema.ResourceData, meta interface{}) error {
+func readAlertprofile(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedAlertProfile, err := alertprofile.GetAlertprofile(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("error reading alertprofile: %s", err)
+		return diag.Errorf("error reading alertprofile: %s", err)
 	}
 
 	d.Set("name", retrievedAlertProfile.Name)
@@ -835,32 +839,36 @@ func readAlertprofile(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[WARN] Error setting 'policy' for %s: %s", d.Id(), err)
 	}
 
-	return nil
+	return diags
 }
 
-func updateAlertprofile(d *schema.ResourceData, meta interface{}) error {
+func updateAlertprofile(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 
 	parsedAlertprofile, err := convert.SchemaToAlertprofile(d)
 	if err != nil {
-		return fmt.Errorf("failed to update Alert Profile '%+v': %s", parsedAlertprofile, err)
+		return diag.Errorf("failed to update Alert Profile '%+v': %s", parsedAlertprofile, err)
 	}
 
 	if err := alertprofile.UpdateAlertprofile(*client, parsedAlertprofile); err != nil {
-		return fmt.Errorf("error updating alertprofile '%s': %s", d.Id(), err)
+		return diag.Errorf("error updating alertprofile '%s': %s", d.Id(), err)
 	}
 
-	return readAlertprofile(d, meta)
+	return readAlertprofile(ctx, d, meta)
 }
 
-func deleteAlertprofile(d *schema.ResourceData, meta interface{}) error {
+func deleteAlertprofile(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	if err := alertprofile.DeleteAlertprofile(*client, d.Id()); err != nil {
-		return fmt.Errorf("error deleting alertprofile '%s': %s", d.Id(), err)
+		return diag.Errorf("error deleting alertprofile '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
-	return nil
+
+	return diags
 }
 
 func stringInSlice(s []string, str string) bool {

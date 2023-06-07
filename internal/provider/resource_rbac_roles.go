@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceRbacRoles() *schema.Resource {
 	return &schema.Resource{
-		Create: createRbacRole,
-		Read:   readRbacRole,
-		Update: updateRbacRole,
-		Delete: deleteRbacRole,
+		CreateContext: createRbacRole,
+		ReadContext:   readRbacRole,
+		UpdateContext: updateRbacRole,
+		DeleteContext: deleteRbacRole,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -59,57 +60,64 @@ func resourceRbacRoles() *schema.Resource {
 	}
 }
 
-func createRbacRole(d *schema.ResourceData, meta interface{}) error {
+func createRbacRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRole, err := convert.SchemaToRbacRole(d)
 	if err != nil {
-		return fmt.Errorf("error creating role '%+v': %s", parsedRole, err)
+		return diag.Errorf("error creating role '%+v': %s", parsedRole, err)
 	}
 
 	if err := auth.CreateRole(*client, parsedRole); err != nil {
-		return fmt.Errorf("error creating role '%+v': %s", parsedRole, err)
+		return diag.Errorf("error creating role '%+v': %s", parsedRole, err)
 	}
 
 	d.SetId(parsedRole.Name)
-	return readRbacRole(d, meta)
+	return readRbacRole(ctx, d, meta)
 }
 
-func readRbacRole(d *schema.ResourceData, meta interface{}) error {
+func readRbacRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedRole, err := auth.GetRole(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("error reading role: %s", err)
+		return diag.Errorf("error reading role: %s", err)
 	}
 
 	d.Set("description", retrievedRole.Description)
 	d.Set("name", retrievedRole.Name)
 	if err := d.Set("permission", convert.RbacRolePermissionsToSchema(retrievedRole.Permissions)); err != nil {
-		return fmt.Errorf("error reading role: %s", err)
+		return diag.Errorf("error reading role: %s", err)
 	}
 
-	return nil
+	return diags
 }
 
-func updateRbacRole(d *schema.ResourceData, meta interface{}) error {
+func updateRbacRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRole, err := convert.SchemaToRbacRole(d)
 	if err != nil {
-		return fmt.Errorf("error updating role: %s", err)
+		return diag.Errorf("error updating role: %s", err)
 	}
 
 	if err := auth.UpdateRole(*client, parsedRole); err != nil {
-		return fmt.Errorf("error updating role: %s", err)
+		return diag.Errorf("error updating role: %s", err)
 	}
 
-	return readRbacRole(d, meta)
+	return readRbacRole(ctx, d, meta)
 }
 
-func deleteRbacRole(d *schema.ResourceData, meta interface{}) error {
+func deleteRbacRole(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	if err := auth.DeleteRole(*client, d.Id()); err != nil {
-		return fmt.Errorf("error deleting role '%s': %s", d.Id(), err)
+		return diag.Errorf("error deleting role '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
-	return nil
+
+	return diags
 }

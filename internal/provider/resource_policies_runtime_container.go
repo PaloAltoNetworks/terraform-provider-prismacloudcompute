@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesRuntimeContainer() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyRuntimeContainer,
-		Read:   readPolicyRuntimeContainer,
-		Update: updatePolicyRuntimeContainer,
-		Delete: deletePolicyRuntimeContainer,
+		CreateContext: createPolicyRuntimeContainer,
+		ReadContext:   readPolicyRuntimeContainer,
+		UpdateContext: updatePolicyRuntimeContainer,
+		DeleteContext: deletePolicyRuntimeContainer,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -503,11 +504,11 @@ func resourcePoliciesRuntimeContainer() *schema.Resource {
 	}
 }
 
-func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+func createPolicyRuntimeContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
 	var learningDisabled bool
@@ -522,29 +523,32 @@ func createPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
 	d.SetId(policyTypeRuntimeContainer)
 
-	return readPolicyRuntimeContainer(d, meta)
+	return readPolicyRuntimeContainer(ctx, d, meta)
 }
 
-func readPolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+func readPolicyRuntimeContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetRuntimeContainer(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
 	d.Set("learning_disabled", retrievedPolicy.LearningDisabled)
 	if err := d.Set("rule", convert.RuntimeContainerRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeRuntimeContainer, err)
 	}
-	return nil
+	return diags
 }
 
-func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyRuntimeContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 
 	var learningDisabled bool
@@ -556,7 +560,7 @@ func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 	parsedRules, err := convert.SchemaToRuntimeContainerRules(d)
 
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
 	parsedPolicy := policy.RuntimeContainerPolicy{
@@ -565,13 +569,14 @@ func updatePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) erro
 	}
 
 	if err := policy.UpdateRuntimeContainer(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeRuntimeContainer, err)
 	}
 
-	return readPolicyRuntimeContainer(d, meta)
+	return readPolicyRuntimeContainer(ctx, d, meta)
 }
 
-func deletePolicyRuntimeContainer(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyRuntimeContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }

@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesComplianceContainer() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyComplianceContainer,
-		Read:   readPolicyComplianceContainer,
-		Update: updatePolicyComplianceContainer,
-		Delete: deletePolicyComplianceContainer,
+		CreateContext: createPolicyComplianceContainer,
+		ReadContext:   readPolicyComplianceContainer,
+		UpdateContext: updatePolicyComplianceContainer,
+		DeleteContext: deletePolicyComplianceContainer,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -101,11 +102,11 @@ func resourcePoliciesComplianceContainer() *schema.Resource {
 	}
 }
 
-func createPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
+func createPolicyComplianceContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceDeployedRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
 	parsedPolicy := policy.CompliancePolicy{
@@ -114,31 +115,34 @@ func createPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := policy.UpdateComplianceContainer(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
 	d.SetId(policyTypeComplianceContainer)
-	return readPolicyComplianceContainer(d, meta)
+	return readPolicyComplianceContainer(ctx, d, meta)
 }
 
-func readPolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
+func readPolicyComplianceContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetComplianceContainer(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
 	if err := d.Set("rule", convert.ComplianceDeployedRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceContainer, err)
 	}
-	return nil
+	return diags
 }
 
-func updatePolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyComplianceContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceDeployedRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
 	parsedPolicy := policy.CompliancePolicy{
@@ -147,13 +151,14 @@ func updatePolicyComplianceContainer(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if err := policy.UpdateComplianceContainer(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceContainer, err)
 	}
 
-	return readPolicyComplianceContainer(d, meta)
+	return readPolicyComplianceContainer(ctx, d, meta)
 }
 
-func deletePolicyComplianceContainer(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyComplianceContainer(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }

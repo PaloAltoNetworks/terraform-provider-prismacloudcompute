@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesRuntimeHost() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyRuntimeHost,
-		Read:   readPolicyRuntimeHost,
-		Update: updatePolicyRuntimeHost,
-		Delete: deletePolicyRuntimeHost,
+		CreateContext: createPolicyRuntimeHost,
+		ReadContext:   readPolicyRuntimeHost,
+		UpdateContext: updatePolicyRuntimeHost,
+		DeleteContext: deletePolicyRuntimeHost,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -435,11 +436,11 @@ func resourcePoliciesRuntimeHost() *schema.Resource {
 	}
 }
 
-func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
+func createPolicyRuntimeHost(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToRuntimeHostRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
 	parsedPolicy := policy.RuntimeHostPolicy{
@@ -447,32 +448,35 @@ func createPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := policy.UpdateRuntimeHost(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
 	d.SetId(policyTypeRuntimeHost)
-	return readPolicyRuntimeHost(d, meta)
+	return readPolicyRuntimeHost(ctx, d, meta)
 }
 
-func readPolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
+func readPolicyRuntimeHost(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetRuntimeHost(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
 	if err := d.Set("rule", convert.RuntimeHostRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
-	return nil
+	return diags
 }
 
-func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyRuntimeHost(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToRuntimeHostRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
 	parsedPolicy := policy.RuntimeHostPolicy{
@@ -480,13 +484,14 @@ func updatePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := policy.UpdateRuntimeHost(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeRuntimeHost, err)
 	}
 
-	return readPolicyRuntimeHost(d, meta)
+	return readPolicyRuntimeHost(ctx, d, meta)
 }
 
-func deletePolicyRuntimeHost(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyRuntimeHost(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
