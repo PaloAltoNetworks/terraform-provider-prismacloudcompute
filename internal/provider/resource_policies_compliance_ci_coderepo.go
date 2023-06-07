@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesComplianceCiCoderepo() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyComplianceCiCoderepo,
-		Read:   readPolicyComplianceCiCoderepo,
-		Update: updatePolicyComplianceCiCoderepo,
-		Delete: deletePolicyComplianceCiCoderepo,
+		CreateContext: createPolicyComplianceCiCoderepo,
+		ReadContext:   readPolicyComplianceCiCoderepo,
+		UpdateContext: updatePolicyComplianceCiCoderepo,
+		DeleteContext: deletePolicyComplianceCiCoderepo,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -150,11 +151,11 @@ func resourcePoliciesComplianceCiCoderepo() *schema.Resource {
 	}
 }
 
-func createPolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) error {
+func createPolicyComplianceCiCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCiCoderepoRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
 	parsedPolicy := policy.ComplianceCoderepoPolicy{
@@ -163,32 +164,35 @@ func createPolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := policy.UpdateComplianceCiCoderepo(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
 	d.SetId(policyTypeComplianceCiCoderepo)
-	return readPolicyComplianceCiCoderepo(d, meta)
+	return readPolicyComplianceCiCoderepo(ctx, d, meta)
 }
 
-func readPolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) error {
+func readPolicyComplianceCiCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetComplianceCiCoderepo(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
 	if err := d.Set("rule", convert.ComplianceCoderepoCiRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
-	return nil
+	return diags
 }
 
-func updatePolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyComplianceCiCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCiCoderepoRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
 	parsedPolicy := policy.ComplianceCoderepoPolicy{
@@ -197,13 +201,14 @@ func updatePolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if err := policy.UpdateComplianceCiCoderepo(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiCoderepo, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCiCoderepo, err)
 	}
 
-	return readPolicyComplianceCiCoderepo(d, meta)
+	return readPolicyComplianceCiCoderepo(ctx, d, meta)
 }
 
-func deletePolicyComplianceCiCoderepo(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyComplianceCiCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
