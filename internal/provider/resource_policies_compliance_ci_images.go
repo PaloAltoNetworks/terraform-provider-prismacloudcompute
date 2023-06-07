@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesComplianceCiImage() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyComplianceCiImage,
-		Read:   readPolicyComplianceCiImage,
-		Update: updatePolicyComplianceCiImage,
-		Delete: deletePolicyComplianceCiImage,
+		CreateContext: createPolicyComplianceCiImage,
+		ReadContext:   readPolicyComplianceCiImage,
+		UpdateContext: updatePolicyComplianceCiImage,
+		DeleteContext: deletePolicyComplianceCiImage,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -91,11 +92,11 @@ func resourcePoliciesComplianceCiImage() *schema.Resource {
 	}
 }
 
-func createPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+func createPolicyComplianceCiImage(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCiRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
 	parsedPolicy := policy.CompliancePolicy{
@@ -104,31 +105,34 @@ func createPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if err := policy.UpdateComplianceCiImage(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
 	d.SetId(policyTypeComplianceCiImage)
-	return readPolicyComplianceCiImage(d, meta)
+	return readPolicyComplianceCiImage(ctx, d, meta)
 }
 
-func readPolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+func readPolicyComplianceCiImage(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetComplianceCiImage(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
 	if err := d.Set("rule", convert.ComplianceCiRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCiImage, err)
 	}
-	return nil
+	return diags
 }
 
-func updatePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyComplianceCiImage(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCiRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
 	parsedPolicy := policy.CompliancePolicy{
@@ -137,13 +141,14 @@ func updatePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) err
 	}
 
 	if err := policy.UpdateComplianceCiImage(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCiImage, err)
 	}
 
-	return readPolicyComplianceCiImage(d, meta)
+	return readPolicyComplianceCiImage(ctx, d, meta)
 }
 
-func deletePolicyComplianceCiImage(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyComplianceCiImage(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
