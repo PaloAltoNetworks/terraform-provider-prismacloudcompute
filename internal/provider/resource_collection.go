@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/collection"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCollection() *schema.Resource {
 	return &schema.Resource{
-		Create: createCollection,
-		Read:   readCollection,
-		Update: updateCollection,
-		Delete: deleteCollection,
+		CreateContext: createCollection,
+		ReadContext:   readCollection,
+		UpdateContext: updateCollection,
+		DeleteContext: deleteCollection,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -126,76 +127,77 @@ func resourceCollection() *schema.Resource {
 	}
 }
 
-func createCollection(d *schema.ResourceData, meta interface{}) error {
+func createCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCollection := convert.SchemaToCollection(d)
 	if err := collection.CreateCollection(*client, parsedCollection); err != nil {
-		return fmt.Errorf("error creating collection '%+v': %s", parsedCollection, err)
+		return diag.Errorf("error creating collection '%+v': %s", parsedCollection, err)
 	}
 
 	d.SetId(parsedCollection.Name)
-	return readCollection(d, meta)
+
+	return readCollection(ctx, d, meta)
 }
 
-func readCollection(d *schema.ResourceData, meta interface{}) error {
+func readCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	retrievedCollection, err := collection.GetCollection(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 
 	if err := d.Set("account_ids", retrievedCollection.AccountIds); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("application_ids", retrievedCollection.AppIds); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("clusters", retrievedCollection.Clusters); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("code_repositories", retrievedCollection.CodeRepos); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	d.Set("color", retrievedCollection.Color)
 	if err := d.Set("containers", retrievedCollection.Containers); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	d.Set("description", retrievedCollection.Description)
 	if err := d.Set("functions", retrievedCollection.Functions); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("hosts", retrievedCollection.Hosts); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("images", retrievedCollection.Images); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	if err := d.Set("labels", retrievedCollection.Labels); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 	d.Set("name", retrievedCollection.Name)
 	if err := d.Set("namespaces", retrievedCollection.Namespaces); err != nil {
-		return fmt.Errorf("error reading collection: %s", err)
+		return diag.Errorf("error reading collection: %s", err)
 	}
 
 	return nil
 }
 
-func updateCollection(d *schema.ResourceData, meta interface{}) error {
+func updateCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCollection := convert.SchemaToCollection(d)
 
 	if err := collection.UpdateCollection(*client, parsedCollection); err != nil {
-		return fmt.Errorf("error updating collection: %s", err)
+		return diag.Errorf("error updating collection: %s", err)
 	}
 
-	return readCollection(d, meta)
+	return readCollection(ctx, d, meta)
 }
 
-func deleteCollection(d *schema.ResourceData, meta interface{}) error {
+func deleteCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	if err := collection.DeleteCollection(*client, d.Id()); err != nil {
-		return fmt.Errorf("error updating collection '%s': %s", d.Id(), err)
+		return diag.Errorf("error updating collection '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
