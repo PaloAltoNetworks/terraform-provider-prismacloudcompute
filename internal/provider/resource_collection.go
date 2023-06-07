@@ -141,6 +141,9 @@ func createCollection(ctx context.Context, d *schema.ResourceData, meta interfac
 
 func readCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedCollection, err := collection.GetCollection(*client, d.Id())
 	if err != nil {
 		return diag.Errorf("error reading collection: %s", err)
@@ -180,11 +183,12 @@ func readCollection(ctx context.Context, d *schema.ResourceData, meta interface{
 		return diag.Errorf("error reading collection: %s", err)
 	}
 
-	return nil
+	return diags
 }
 
 func updateCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
 	parsedCollection := convert.SchemaToCollection(d)
 
 	if err := collection.UpdateCollection(*client, parsedCollection); err != nil {
@@ -196,10 +200,14 @@ func updateCollection(ctx context.Context, d *schema.ResourceData, meta interfac
 
 func deleteCollection(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	if err := collection.DeleteCollection(*client, d.Id()); err != nil {
 		return diag.Errorf("error updating collection '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
-	return nil
+
+	return diags
 }
