@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCredentials() *schema.Resource {
 	return &schema.Resource{
-		Create: createCredentials,
-		Read:   readCredentials,
-		Update: updateCredentials,
-		Delete: deleteCredentials,
+		CreateContext: createCredentials,
+		ReadContext:   readCredentials,
+		UpdateContext: updateCredentials,
+		DeleteContext: deleteCredentials,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -126,30 +127,34 @@ func resourceCredentials() *schema.Resource {
 	}
 }
 
-func createCredentials(d *schema.ResourceData, meta interface{}) error {
+func createCredentials(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCredential, err := convert.SchemaToCredential(d)
 	if err != nil {
-		return fmt.Errorf("error converting schema to credential: %s", err)
+		return diag.Errorf("error converting schema to credential: %s", err)
 	}
 
 	if err := auth.UpdateCredential(*client, parsedCredential); err != nil {
-		return fmt.Errorf("error creating credential '%v': %s", parsedCredential.Id, err)
+		return diag.Errorf("error creating credential '%v': %s", parsedCredential.Id, err)
 	}
 	d.SetId(parsedCredential.Id)
-	return readCredentials(d, meta)
+	return readCredentials(ctx, d, meta)
 }
 
-func readCredentials(d *schema.ResourceData, meta interface{}) error {
+func readCredentials(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedCredential, err := auth.GetCredential(*client, d.Id())
+
 	if err != nil {
-		return fmt.Errorf("error getting credential '%s' from Console: %s", d.Id(), err)
+		return diag.Errorf("error getting credential '%s' from Console: %s", d.Id(), err)
 	}
 
 	d.Set("account_id", retrievedCredential.AccountID)
 	if err := d.Set("api_token", convert.CredentialSecretToSchema(retrievedCredential.ApiToken)); err != nil {
-		return fmt.Errorf("error converting credential secret to schema: %s", err)
+		return diag.Errorf("error converting credential secret to schema: %s", err)
 	}
 	d.Set("ca_cert", retrievedCredential.CaCert)
 	d.Set("description", retrievedCredential.Description)
@@ -158,34 +163,41 @@ func readCredentials(d *schema.ResourceData, meta interface{}) error {
 	d.Set("name", retrievedCredential.Id)
 	d.Set("role_arn", retrievedCredential.RoleArn)
 	if err := d.Set("secret", convert.CredentialSecretToSchema(retrievedCredential.Secret)); err != nil {
-		return fmt.Errorf("error converting credential secret to schema: %s", err)
+		return diag.Errorf("error converting credential secret to schema: %s", err)
 	}
 	d.Set("skip_cert_verification", retrievedCredential.SkipVerify)
 	d.Set("type", retrievedCredential.Type)
 	d.Set("url", retrievedCredential.Url)
 	d.Set("use_aws_role", retrievedCredential.UseAWSRole)
 
-	return nil
+	return diags
 }
 
-func updateCredentials(d *schema.ResourceData, meta interface{}) error {
+func updateCredentials(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
 	parsedCredential, err := convert.SchemaToCredential(d)
 	if err != nil {
-		return fmt.Errorf("error parsing schema to credential: %s", err)
+		return diag.Errorf("error parsing schema to credential: %s", err)
 	}
 
 	if err := auth.UpdateCredential(*client, parsedCredential); err != nil {
-		return fmt.Errorf("error updating credential: %s", err)
+		return diag.Errorf("error updating credential: %s", err)
 	}
-	return readCredentials(d, meta)
+
+	return readCredentials(ctx, d, meta)
 }
 
-func deleteCredentials(d *schema.ResourceData, meta interface{}) error {
+func deleteCredentials(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	if err := auth.DeleteCredential(*client, d.Id()); err != nil {
-		return fmt.Errorf("error deleting credential: %s", err)
+		return diag.Errorf("error deleting credential: %s", err)
 	}
+
 	d.SetId("")
-	return nil
+
+	return diags
 }
