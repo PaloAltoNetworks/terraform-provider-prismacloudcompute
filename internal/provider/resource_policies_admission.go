@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesAdmission() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyAdmission,
-		Read:   readPolicyAdmission,
-		Update: updatePolicyAdmission,
-		Delete: deletePolicyAdmission,
+		CreateContext: createPolicyAdmission,
+		ReadContext:   readPolicyAdmission,
+		UpdateContext: updatePolicyAdmission,
+		DeleteContext: deletePolicyAdmission,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -65,12 +66,12 @@ func resourcePoliciesAdmission() *schema.Resource {
 	}
 }
 
-func createPolicyAdmission(d *schema.ResourceData, meta interface{}) error {
+func createPolicyAdmission(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToAdmissionRules(d)
 
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeAdmission, err)
 	}
 
 	parsedPolicy := policy.AdmissionPolicy{
@@ -79,32 +80,35 @@ func createPolicyAdmission(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := policy.UpdateAdmission(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeAdmission, err)
 	}
 
 	d.SetId(policyTypeAdmission)
-	return readPolicyAdmission(d, meta)
+	return readPolicyAdmission(ctx, d, meta)
 }
 
-func readPolicyAdmission(d *schema.ResourceData, meta interface{}) error {
+func readPolicyAdmission(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetAdmission(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeAdmission, err)
 	}
 
 	if err := d.Set("rule", convert.AdmissionRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeAdmission, err)
 	}
 
-	return nil
+	return diags
 }
 
-func updatePolicyAdmission(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyAdmission(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToAdmissionRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeAdmission, err)
 	}
 
 	parsedPolicy := policy.AdmissionPolicy{
@@ -113,13 +117,14 @@ func updatePolicyAdmission(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if err := policy.UpdateAdmission(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeAdmission, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeAdmission, err)
 	}
 
-	return readPolicyAdmission(d, meta)
+	return readPolicyAdmission(ctx, d, meta)
 }
 
-func deletePolicyAdmission(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyAdmission(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }
