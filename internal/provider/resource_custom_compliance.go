@@ -113,8 +113,8 @@ func deleteCustomCompliance(ctx context.Context, d *schema.ResourceData, meta in
 
 	var diags diag.Diagnostics
 
-	if err := policy.DeleteCustomCompliance(*client, d.Get("prisma_id").(int)); err != nil {
-		return diag.Errorf("error updating custom Compliance '%s': %s", d.Id(), err)
+	if err := policy.DeleteCustomCompliance(*client, d.Id()); err != nil {
+		return diag.Errorf("error deleting custom Compliance '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
