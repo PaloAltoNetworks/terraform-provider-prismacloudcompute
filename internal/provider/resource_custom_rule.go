@@ -129,7 +129,7 @@ func readCustomRule(ctx context.Context, d *schema.ResourceData, meta interface{
 
 	var diags diag.Diagnostics
 
-	retrievedCustomRule, err := rule.GetCustomRuleById(*client, d.Get("prisma_id").(int))
+	retrievedCustomRule, err := rule.GetCustomRuleByName(*client, d.Id())
 
 	if err != nil {
 		return diag.Errorf("error reading custom rule: %s", err)
