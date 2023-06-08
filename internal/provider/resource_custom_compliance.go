@@ -80,7 +80,7 @@ func readCustomCompliance(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("prisma_id", retrievedCustomCompliance.Id); err != nil {
-		return diag.Errorf("error reading custom rule: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("title", retrievedCustomCompliance.Title); err != nil {
 		return diag.Errorf("error reading custom Compliance: %s", err)
