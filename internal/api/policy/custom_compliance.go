@@ -55,13 +55,9 @@ func GetCustomComplianceByName(c api.Client, name string) (*CustomCompliance, er
 }
 
 // Create a new custom compliance.
-func CreateCustomCompliance(c api.Client, compliance CustomCompliance) (int, error) {
-	id, err := GenerateCustomComplianceId(c)
-	if err != nil {
-		return -1, err
-	}
-	//compliance.Id = id
-	return id, UpdateCustomCompliance(c, compliance)
+// func CreateCustomCompliance(c api.Client, compliance CustomCompliance) (int, error) {
+func CreateCustomCompliance(c api.Client, compliance CustomCompliance) error {
+	return UpdateCustomCompliance(c, compliance)
 }
 
 // Helper method to generate an ID for new custom Compliance.

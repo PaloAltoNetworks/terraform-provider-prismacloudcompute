@@ -59,21 +59,19 @@ func resourceCustomCompliance() *schema.Resource {
 func createCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCustomCompliance := convert.SchemaToCustomCompliance(d)
-	id, err := policy.CreateCustomCompliance(*client, parsedCustomCompliance)
+	err := policy.CreateCustomCompliance(*client, parsedCustomCompliance)
 
 	if err != nil {
 		return diag.Errorf("error creating custom Compliance '%+v': %s", parsedCustomCompliance, err)
 	}
-	if err := d.Set("prisma_id", id); err != nil {
-		return diag.Errorf("error creating custom Compliance '%+v': %s", parsedCustomCompliance, err)
-	}
+
 	d.SetId(parsedCustomCompliance.Name)
 	return readCustomCompliance(ctx, d, meta)
 }
 
 func readCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
-	retrievedCustomCompliance, err := policy.GetCustomComplianceById(*client, d.Get("prisma_id").(int))
+	retrievedCustomCompliance, err := policy.GetCustomComplianceByName(*client, d.Id())
 	if err != nil {
 		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
