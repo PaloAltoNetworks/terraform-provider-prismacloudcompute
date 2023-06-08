@@ -105,12 +105,3 @@ func DeleteCustomCompliance(c api.Client, name string) error {
 
 	return c.Request(http.MethodDelete, fmt.Sprintf("%s/%d", CustomCompliancesEndpoint, id), nil, nil, nil)
 }
-
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
