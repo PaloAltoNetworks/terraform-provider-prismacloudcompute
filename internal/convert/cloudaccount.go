@@ -112,16 +112,19 @@ func SchemaToCloudScanRule(d *schema.ResourceData) (account.CloudScanRule, error
 	return parsedCloudScanRule, nil
 }
 
-func ServerlessScanSpecToSchema(d *account.ServerLessScanSpec) interface{} {
+func ServerlessScanSpecToSchema(d *account.ServerLessScanSpec) []interface{} {
+	ans := make([]interface{}, 0, 1)
 	serverlessScanSpec := make(map[string]interface{})
 	serverlessScanSpec["enabled"] = d.Enabled
 	serverlessScanSpec["cap"] = d.Cap
 	serverlessScanSpec["scan_all_versions"] = d.ScanAllVersions
 	serverlessScanSpec["scan_layers"] = d.ScanLayers
-	return serverlessScanSpec
+	ans = append(ans, serverlessScanSpec)
+	return ans
 }
 
-func AgentlessScanSpecToSchema(d *account.AgentlessScanSpec) interface{} {
+func AgentlessScanSpecToSchema(d *account.AgentlessScanSpec) []interface{} {
+	ans := make([]interface{}, 0, 1)
 	agentlessScanSpec := make(map[string]interface{})
 	agentlessScanSpec["enabled"] = d.Enabled
 	agentlessScanSpec["hub_account"] = d.HubAccount
@@ -135,18 +138,20 @@ func AgentlessScanSpecToSchema(d *account.AgentlessScanSpec) interface{} {
 	agentlessScanSpec["security_group"] = d.SecurityGroup
 	agentlessScanSpec["subnet"] = d.SubNet
 	agentlessScanSpec["regions"] = d.Regions
-	return agentlessScanSpec
+	ans = append(ans, agentlessScanSpec)
+	return ans
 }
 
-func CloudAccountCredentialToSchema(d *auth.Credential) interface{} {
+func CloudAccountCredentialToSchema(d auth.Credential) []interface{} {
+	ans := make([]interface{}, 0, 1)
 	credential := make(map[string]interface{})
 	credential["id"] = d.Id
 	credential["type"] = d.Type
 	credential["account_id"] = d.AccountID
-	//credential["account_name"] = d.AccountName
 	credential["account_guid"] = d.AccountGUID
 	credential["secret"] = CredentialSecretToSchema(d.Secret)
 	credential["api_token"] = CredentialSecretToSchema(d.ApiToken)
 	credential["use_aws_role"] = d.UseAWSRole
-	return credential
+	ans = append(ans, credential)
+	return ans
 }

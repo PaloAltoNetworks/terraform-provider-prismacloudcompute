@@ -46,11 +46,6 @@ func resourceCloudAccount() *schema.Resource {
 							Optional:    true,
 							Description: "Account identifier (username, access key, etc.).",
 						},
-						// "account_name": {
-						// 	Type:        schema.TypeString,
-						// 	Optional:    true,
-						// 	Description: "",
-						// },
 						"account_guid": {
 							Type:        schema.TypeString,
 							Optional:    true,
@@ -353,7 +348,6 @@ func createCloudAccount(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating cloud account '%+v': %s", parsedCloudScanRule, err)
 	}
 
-	//d.SetId(parsedCloudScanRule.CredentialId)
 	d.SetId(parsedCredential.Id)
 
 	return readCloudAccount(ctx, d, meta)
@@ -364,7 +358,6 @@ func readCloudAccount(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	var diags diag.Diagnostics
 
-	// Read cloud scan rule
 	retrievedCloudScanRule, err := account.GetCloudScanRule(*client, d.Id())
 	if err != nil {
 		return diag.Errorf("error reading cloud account: %s", err)
@@ -372,8 +365,7 @@ func readCloudAccount(ctx context.Context, d *schema.ResourceData, meta interfac
 
 	d.Set("credential_id", retrievedCloudScanRule.CredentialId)
 
-	// d.Set("credential", convert.CloudAccountCredentialToSchema(retrievedCloudScanRule))
-	if err := d.Set("credential", []interface{}{convert.CloudAccountCredentialToSchema(&retrievedCloudScanRule.Credential)}); err != nil {
+	if err := d.Set("credential", convert.CloudAccountCredentialToSchema(retrievedCloudScanRule.Credential)); err != nil {
 		return diag.Errorf("error reading cloud account credential: %s", err)
 	}
 
@@ -384,18 +376,13 @@ func readCloudAccount(ctx context.Context, d *schema.ResourceData, meta interfac
 	d.Set("serverless_radar_cap", retrievedCloudScanRule.ServerlessRadarCap)
 	d.Set("aws_region_type", retrievedCloudScanRule.AwsRegionType)
 
-	if err := d.Set("serverless_scan_spec", []interface{}{convert.ServerlessScanSpecToSchema(&retrievedCloudScanRule.ServerlessScanSpec)}); err != nil {
+	if err := d.Set("serverless_scan_spec", convert.ServerlessScanSpecToSchema(&retrievedCloudScanRule.ServerlessScanSpec)); err != nil {
 		return diag.Errorf("error reading serverless scan spec: %s", err)
 	}
 
-	if err := d.Set("agentless_scan_spec", []interface{}{convert.AgentlessScanSpecToSchema(&retrievedCloudScanRule.AgentlessScanSpec)}); err != nil {
+	if err := d.Set("agentless_scan_spec", convert.AgentlessScanSpecToSchema(&retrievedCloudScanRule.AgentlessScanSpec)); err != nil {
 		return diag.Errorf("error reading agentless scan spec: %s", err)
 	}
-
-	// Read credential
-	// if result := readCredentials(ctx, d, meta); result.HasError() {
-	// 	return diag.Errorf("error reading credential: %+v", result)
-	// }
 
 	return diags
 }
