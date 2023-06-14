@@ -10,6 +10,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+/*
+ * Note: This resource is not fully implemented. Registries can be added but must be manually updated/deleted
+   using the UI. Any deleted registries must also be manually removed from the Terraform state file.
+*/
+
 func resourceRegistry() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: createRegistry,
