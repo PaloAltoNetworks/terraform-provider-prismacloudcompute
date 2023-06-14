@@ -112,7 +112,7 @@ func resourceRegistry() *schema.Resource {
 						"type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Registry type.",
+							Description: "Registry type. Can be set to 'aws', 'azure', 'gcp', 'ibmCloud', 'oci', 'apiToken', 'githubToken', 'githubEnterpriseToken', 'basic', 'dtr', 'kubeconfig' or 'certificate'.",
 						},
 						"version_pattern": {
 							Type:        schema.TypeString,
