@@ -28,6 +28,10 @@ type Client struct {
 	JWT        string
 }
 
+type ErrResponse struct {
+	Err string
+}
+
 func (c *Client) Initialize(filename string) error {
 	c2 := Client{}
 
@@ -116,7 +120,17 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Non-OK status: %d", res.StatusCode)
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("Error reading response body from non-OK response: %s", err)
+		}
+
+		var response ErrResponse
+		if err = json.Unmarshal(body, &response); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("Non-OK status: %d (%s)", res.StatusCode, response.Err)
 	}
 
 	body, err := io.ReadAll(res.Body)
