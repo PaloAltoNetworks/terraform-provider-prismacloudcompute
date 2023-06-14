@@ -57,3 +57,55 @@ func RegistrySpecificationToSchema(s []settings.RegistrySpecification) []interfa
 	}
 	return ans
 }
+
+func SchemaToRegistry(d *schema.ResourceData) settings.RegistrySpecification {
+	parsedRegistrySpecification := settings.RegistrySpecification{}
+
+	if val, ok := d.GetOk("cap"); ok {
+		parsedRegistrySpecification.Cap = val.(int)
+	}
+	if val, ok := d.GetOk("collections"); ok {
+		parsedRegistrySpecification.Collections = SchemaToStringSlice(val.([]interface{}))
+	}
+	if val, ok := d.GetOk("credential"); ok {
+		parsedRegistrySpecification.Credential = val.(string)
+	}
+	if val, ok := d.GetOk("excluded_repositories"); ok {
+		parsedRegistrySpecification.ExcludedRepositories = SchemaToStringSlice(val.([]interface{}))
+	}
+	if val, ok := d.GetOk("excluded_tags"); ok {
+		parsedRegistrySpecification.ExcludedTags = SchemaToStringSlice(val.([]interface{}))
+	}
+	if val, ok := d.GetOk("harbor_deployment_security"); ok {
+		parsedRegistrySpecification.HarborDeploymentSecurity = val.(bool)
+	}
+	if val, ok := d.GetOk("jfrog_repo_types"); ok {
+		parsedRegistrySpecification.JfrogRepoTypes = SchemaToStringSlice(val.([]interface{}))
+	}
+	if val, ok := d.GetOk("namespace"); ok {
+		parsedRegistrySpecification.Namespace = val.(string)
+	}
+	if val, ok := d.GetOk("os"); ok {
+		parsedRegistrySpecification.Os = val.(string)
+	}
+	if val, ok := d.GetOk("tag"); ok {
+		parsedRegistrySpecification.Tag = val.(string)
+	}
+	if val, ok := d.GetOk("registry"); ok {
+		parsedRegistrySpecification.Registry = val.(string)
+	}
+	if val, ok := d.GetOk("repository"); ok {
+		parsedRegistrySpecification.Repository = val.(string)
+	}
+	if val, ok := d.GetOk("scanners"); ok {
+		parsedRegistrySpecification.Scanners = val.(int)
+	}
+	if val, ok := d.GetOk("type"); ok {
+		parsedRegistrySpecification.Version = val.(string)
+	}
+	if val, ok := d.GetOk("version_pattern"); ok {
+		parsedRegistrySpecification.VersionPattern = val.(string)
+	}
+
+	return parsedRegistrySpecification
+}
