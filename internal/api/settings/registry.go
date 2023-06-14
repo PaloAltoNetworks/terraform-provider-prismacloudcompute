@@ -44,3 +44,7 @@ func GetRegistrySettings(c api.Client) (RegistrySettings, error) {
 func UpdateRegistrySettings(c api.Client, registry RegistrySettings) error {
 	return c.Request(http.MethodPut, SettingsRegistryEndpoint, nil, registry, nil)
 }
+
+func AddRegistrySetting(c api.Client, registry RegistrySpecification) error {
+	return c.Request(http.MethodPost, SettingsRegistryEndpoint, nil, registry, nil)
+}
