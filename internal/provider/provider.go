@@ -76,6 +76,7 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_role":                             resourceRbacRoles(),
 			"prismacloudcompute_credential":                       resourceCredentials(),
 			"prismacloudcompute_custom_compliance":                resourceCustomCompliance(),
+			"prismacloudcompute_cloud_account":                    resourceCloudAccount(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{

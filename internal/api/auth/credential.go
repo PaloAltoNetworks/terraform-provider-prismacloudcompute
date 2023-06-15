@@ -9,38 +9,25 @@ import (
 
 const CredentialsEndpoint = "api/v1/credentials"
 
-// type Credential struct {
-// 	AccountGuid string           `json:"accountGUID,omitempty"`
-// 	AccountId   string           `json:"accountID,omitempty"`
-// 	Description string           `json:"description,omitempty"`
-// 	Name        string           `json:"_id,omitempty"`
-// 	Secret      CredentialSecret `json:"secret,omitempty"`
-// 	Type        string           `json:"type,omitempty"`
-// 	UseAwsRole  bool             `json:"useAWSRole,omitempty"`
-// }
-
-// type CredentialSecret struct {
-// 	Plain string `json:"plain,omitempty"`
-// }
-
 type Credential struct {
-	Id           string           `json:"_id,omitempty"`
-	AccountGUID  string           `json:"accountGUID,omitempty"`
-	AccountID    string           `json:"accountID,omitempty"`
-	ApiToken     Secret           `json:"apiToken,omitempty"`
-	CaCert       string           `json:"caCert,omitempty"`
-	Created      string           `json:"created,omitempty"`
-	Description  string           `json:"description,omitempty"`
-	External     bool             `json:"external,omitempty"`
-	LastModified string           `json:"lastModified,omitempty"`
-	Owner        string           `json:"owner,omitempty"`
-	RoleArn      string           `json:"roleArn,omitempty"`
-	Secret       Secret           `json:"secret,omitempty"`
-	SkipVerify   bool             `json:"skipVerify,omitempty"`
-	Tokens       []TemporaryToken `json:"tokens,omitempty"`
-	Type         string           `json:"type,omitempty"`
-	Url          string           `json:"url,omitempty"`
-	UseAWSRole   bool             `json:"useAWSRole,omitempty"`
+	Id                     string           `json:"_id,omitempty"`
+	AccountGUID            string           `json:"accountGUID,omitempty"`
+	AccountID              string           `json:"accountID,omitempty"`
+	ApiToken               Secret           `json:"apiToken,omitempty"`
+	CaCert                 string           `json:"caCert,omitempty"`
+	Created                string           `json:"created,omitempty"`
+	Description            string           `json:"description,omitempty"`
+	External               bool             `json:"external,omitempty"`
+	LastModified           string           `json:"lastModified,omitempty"`
+	Owner                  string           `json:"owner,omitempty"`
+	RoleArn                string           `json:"roleArn,omitempty"`
+	Secret                 Secret           `json:"secret,omitempty"`
+	SkipVerify             bool             `json:"skipVerify,omitempty"`
+	Tokens                 []TemporaryToken `json:"tokens,omitempty"`
+	Type                   string           `json:"type,omitempty"`
+	Url                    string           `json:"url,omitempty"`
+	UseAWSRole             bool             `json:"useAWSRole,omitempty"`
+	UseSTSRegionalEndpoint bool             `json:"useSTSRegionalEndpoint,omitempty"`
 }
 
 type Secret struct {

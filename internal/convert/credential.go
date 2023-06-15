@@ -47,6 +47,9 @@ func SchemaToCredential(d *schema.ResourceData) (auth.Credential, error) {
 	if val, ok := d.GetOk("use_aws_role"); ok {
 		parsedCredential.UseAWSRole = val.(bool)
 	}
+	if val, ok := d.GetOk("use_sts_regional_endpoint"); ok {
+		parsedCredential.UseSTSRegionalEndpoint = val.(bool)
+	}
 
 	return parsedCredential, nil
 }

@@ -100,9 +100,26 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 	req.Header.Set("Authorization", "Bearer "+c.JWT)
 	req.Header.Set("Content-Type", "application/json")
+
+	// TODO: simplify logic
 	if c.Config.Project != "" {
 		queryParams := req.URL.Query()
 		queryParams.Set("project", c.Config.Project)
+		if query != nil {
+			if queryMap, ok := query.(map[string]string); ok {
+				for key, val := range queryMap {
+					queryParams.Add(key, val)
+				}
+			}
+		}
+		req.URL.RawQuery = queryParams.Encode()
+	} else if query != nil {
+		queryParams := req.URL.Query()
+		if queryMap, ok := query.(map[string]string); ok {
+			for key, val := range queryMap {
+				queryParams.Add(key, val)
+			}
+		}
 		req.URL.RawQuery = queryParams.Encode()
 	}
 
