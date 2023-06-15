@@ -158,17 +158,17 @@ func resourceCloudAccount() *schema.Resource {
 			"discovery_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Cloud Discovery Enabled",
+				Description: "Enables cloud discovery, which will discover all workloads in the account and their scan status.",
 			},
 			"serverless_radar_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "Serverless Radar Enabled",
+				Description: "Enables the discovery of serverless functions.",
 			},
 			"vm_tags_enabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Description: "VM Tags Enabled",
+				Description: "Enables the discovery of tags on VMs in AWS accounts.",
 			},
 			"discover_all_function_versions": {
 				Type:        schema.TypeBool,
@@ -196,52 +196,52 @@ func resourceCloudAccount() *schema.Resource {
 						"hub_account": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "Indicates whether the Prisma Cloud scanner will be centralized in the hub account and scan the target accounts from there (enabled) or the actual scanning will occur within each account that is being scanned (false).",
 						},
 						"console_addr": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "",
+							Description: "Console URL.",
 						},
 						"scan_non_running": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "Scan non running hosts.",
 						},
 						"proxy_address": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "",
+							Description: "Example: http://proxyserver.company.com:8081",
 						},
 						"proxy_ca": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "",
+							Description: "Proxy CA certificate. Required when using TLS intercept proxies.",
 						},
 						"skip_permissions_check": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "When enabled, Prisma Cloud will scan this account even if there are missing permissions.",
 						},
 						"auto_scale": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "When enabled, Prisma Cloud automatically spins up multiple scanners in the environment to parallel scan for faster results.",
 						},
 						"scanners": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Description: "",
+							Description: "Limit on the number of scanners that Prisma Cloud can spin up at any given time.",
 						},
 						"security_group": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "",
+							Description: "Security group name. Should be identical and unique across all regions.",
 						},
 						"subnet": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "",
+							Description: "Subnet name. Should be identical and unique across all regions. Note: if the subnet allows auto-assignment of public IPs, a public IP will be attached to the scanner instance.",
 						},
 						"regions": {
 							Type:        schema.TypeList,
@@ -254,7 +254,7 @@ func resourceCloudAccount() *schema.Resource {
 						"custom_tags": {
 							Type:        schema.TypeList,
 							Optional:    true,
-							Description: "",
+							Description: "These tags will be applied to resources created by Prisma Cloud in the Agentless scan process.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"key": {
@@ -308,17 +308,17 @@ func resourceCloudAccount() *schema.Resource {
 						"cap": {
 							Type:        schema.TypeInt,
 							Optional:    true,
-							Description: "",
+							Description: "The number of most recently modified functions to scan, on a per-scope basis. For example, if there are 100 functions in scope, and you set this value to 50, Prisma Cloud will only scan the fifty most recently modified functions. To scan all functions in scope, set this to 0.",
 						},
 						"scan_all_versions": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "Indicates whether Prisma Cloud will scan all versions (enabled) or only the latest versions (false) of serverless functions.",
 						},
 						"scan_layers": {
 							Type:        schema.TypeBool,
 							Optional:    true,
-							Description: "",
+							Description: "Indicates whether or not Prisma Cloud will scan Lambda layers.",
 						},
 					},
 				},
