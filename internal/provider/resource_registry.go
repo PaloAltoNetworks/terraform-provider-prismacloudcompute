@@ -127,7 +127,7 @@ func createRegistry(ctx context.Context, d *schema.ResourceData, meta interface{
 	}
 
 	d.SetId("registrySettings")
-	return readRegistrySettings(ctx, d, meta)
+	return readRegistry(ctx, d, meta)
 }
 
 func readRegistry(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
