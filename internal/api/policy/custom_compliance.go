@@ -2,8 +2,9 @@ package policy
 
 import (
 	"fmt"
-	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"net/http"
+
+	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 )
 
 const CustomCompliancesEndpoint = "api/v1/custom-compliance"
@@ -54,13 +55,9 @@ func GetCustomComplianceByName(c api.Client, name string) (*CustomCompliance, er
 }
 
 // Create a new custom compliance.
-func CreateCustomCompliance(c api.Client, compliance CustomCompliance) (int, error) {
-	id, err := GenerateCustomComplianceId(c)
-	if err != nil {
-		return -1, err
-	}
-	compliance.Id = id
-	return id, UpdateCustomCompliance(c, compliance)
+// func CreateCustomCompliance(c api.Client, compliance CustomCompliance) (int, error) {
+func CreateCustomCompliance(c api.Client, compliance CustomCompliance) error {
+	return UpdateCustomCompliance(c, compliance)
 }
 
 // Helper method to generate an ID for new custom Compliance.
@@ -89,6 +86,22 @@ func UpdateCustomCompliance(c api.Client, compliance CustomCompliance) error {
 }
 
 // Delete an existing custom Compliance.
-func DeleteCustomCompliance(c api.Client, id int) error {
+func DeleteCustomCompliance(c api.Client, name string) error {
+	compliances, err := ListCustomCompliance(c)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("looking for %s...\n", name)
+
+	var id int
+	for _, val := range compliances {
+		if val.Name == name {
+			fmt.Printf("found %s! with an ID of %d\n", name, val.Id)
+			id = val.Id
+			break
+		}
+	}
+
 	return c.Request(http.MethodDelete, fmt.Sprintf("%s/%d", CustomCompliancesEndpoint, id), nil, nil, nil)
 }

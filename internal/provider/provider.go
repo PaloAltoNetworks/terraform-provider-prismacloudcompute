@@ -69,12 +69,14 @@ func Provider() *schema.Provider {
 			"prismacloudcompute_ci_coderepo_compliance_policy":    resourcePoliciesComplianceCiCoderepo(),
 			"prismacloudcompute_host_vulnerability_policy":        resourcePoliciesVulnerabilityHost(),
 			"prismacloudcompute_image_vulnerability_policy":       resourcePoliciesVulnerabilityImage(),
-			"prismacloudcompute_registry_settings":                resourceRegistry(),
+			"prismacloudcompute_registry_settings":                resourceRegistrySettings(),
+			"prismacloudcompute_registry":                         resourceRegistry(),
 			"prismacloudcompute_user":                             resourceUsers(),
 			"prismacloudcompute_group":                            resourceGroups(),
 			"prismacloudcompute_role":                             resourceRbacRoles(),
 			"prismacloudcompute_credential":                       resourceCredentials(),
 			"prismacloudcompute_custom_compliance":                resourceCustomCompliance(),
+			"prismacloudcompute_cloud_account":                    resourceCloudAccount(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{

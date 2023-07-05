@@ -10,12 +10,15 @@ import (
 const CustomRulesEndpoint = "api/v1/custom-rules"
 
 type CustomRule struct {
-	Description string `json:"description,omitempty"`
-	Id          int    `json:"_id,omitempty"`
-	Message     string `json:"message,omitempty"`
-	Name        string `json:"name,omitempty"`
-	Script      string `json:"script,omitempty"`
-	Type        string `json:"type,omitempty"`
+	Id               int      `json:"_id,omitempty"`
+	AttackTechniques []string `json:"attackTechniques,omitempty"`
+	Description      string   `json:"description,omitempty"`
+	Message          string   `json:"message,omitempty"`
+	MinVersion       string   `json:"minVersion,omitempty"`
+	Name             string   `json:"name,omitempty"`
+	Script           string   `json:"script,omitempty"`
+	Type             string   `json:"type,omitempty"`
+	VulnIDs          []string `json:"vulnIds,omitempty"`
 }
 
 // Get all custom rules.

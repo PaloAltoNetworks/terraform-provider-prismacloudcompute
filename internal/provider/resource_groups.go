@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/auth"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceGroups() *schema.Resource {
 	return &schema.Resource{
-		Create: createGroup,
-		Read:   readGroup,
-		Update: updateGroup,
-		Delete: deleteGroup,
+		CreateContext: createGroup,
+		ReadContext:   readGroup,
+		UpdateContext: updateGroup,
+		DeleteContext: deleteGroup,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -95,26 +96,29 @@ func resourceGroups() *schema.Resource {
 	}
 }
 
-func createGroup(d *schema.ResourceData, meta interface{}) error {
+func createGroup(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedGroup, err := convert.SchemaToGroup(d)
 	if err != nil {
-		return fmt.Errorf("error creating group '%+v': %s", parsedGroup, err)
+		return diag.Errorf("error creating group '%+v': %s", parsedGroup, err)
 	}
 
 	if err := auth.CreateGroup(*client, parsedGroup); err != nil {
-		return fmt.Errorf("error creating group '%+v': %s", parsedGroup, err)
+		return diag.Errorf("error creating group '%+v': %s", parsedGroup, err)
 	}
 
 	d.SetId(parsedGroup.Name)
-	return readGroup(d, meta)
+	return readGroup(ctx, d, meta)
 }
 
-func readGroup(d *schema.ResourceData, meta interface{}) error {
+func readGroup(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedGroup, err := auth.GetGroup(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("error reading group: %s", err)
+		return diag.Errorf("error reading group: %s", err)
 	}
 
 	d.Set("group_id", retrievedGroup.Id)
@@ -123,36 +127,39 @@ func readGroup(d *schema.ResourceData, meta interface{}) error {
 	d.Set("oauth_group", retrievedGroup.OauthGroup)
 	d.Set("oidc_group", retrievedGroup.OidcGroup)
 	if err := d.Set("permissions", convert.GroupPermissionsToSchema(retrievedGroup.Permissions)); err != nil {
-		return fmt.Errorf("error reading group: %s", err)
+		return diag.Errorf("error reading group: %s", err)
 	}
 	d.Set("role", retrievedGroup.Role)
 	d.Set("saml_group", retrievedGroup.SamlGroup)
 	if err := d.Set("users", convert.GroupUsersToSchema(retrievedGroup.Users)); err != nil {
-		return fmt.Errorf("error reading group: %s", err)
+		return diag.Errorf("error reading group: %s", err)
 	}
-	return nil
+	return diags
 }
 
-func updateGroup(d *schema.ResourceData, meta interface{}) error {
+func updateGroup(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedGroup, err := convert.SchemaToGroup(d)
 	if err != nil {
-		return fmt.Errorf("error updating group: %s", err)
+		return diag.Errorf("error updating group: %s", err)
 	}
 
 	if err := auth.UpdateGroup(*client, parsedGroup); err != nil {
-		return fmt.Errorf("error updating group: %s", err)
+		return diag.Errorf("error updating group: %s", err)
 	}
 
-	return readGroup(d, meta)
+	return readGroup(ctx, d, meta)
 }
 
-func deleteGroup(d *schema.ResourceData, meta interface{}) error {
+func deleteGroup(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	if err := auth.DeleteGroup(*client, d.Id()); err != nil {
-		return fmt.Errorf("error deleting group '%s': %s", d.Id(), err)
+		return diag.Errorf("error deleting group '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
-	return nil
+	return diags
 }

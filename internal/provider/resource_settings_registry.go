@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/settings"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceRegistry() *schema.Resource {
+func resourceRegistrySettings() *schema.Resource {
 	return &schema.Resource{
-		Create: createRegistrySettings,
-		Read:   readRegistrySettings,
-		Update: updateRegistrySettings,
-		Delete: deleteRegistrySettings,
+		CreateContext: createRegistrySettings,
+		ReadContext:   readRegistrySettings,
+		UpdateContext: updateRegistrySettings,
+		DeleteContext: deleteRegistrySettings,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -112,7 +113,7 @@ func resourceRegistry() *schema.Resource {
 						"type": {
 							Type:        schema.TypeString,
 							Optional:    true,
-							Description: "Registry type.",
+							Description: "Registry type. Can be set to 'aws', 'azure', 'gcp', 'ibmCloud', 'oci', 'apiToken', 'githubToken', 'githubEnterpriseToken', 'basic', 'dtr', 'kubeconfig' or 'certificate'.",
 						},
 						"version_pattern": {
 							Type:        schema.TypeString,
@@ -126,55 +127,63 @@ func resourceRegistry() *schema.Resource {
 	}
 }
 
-func createRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+func createRegistrySettings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRegistry := settings.RegistrySettings{
 		Specifications: convert.SchemaToRegistrySpecification(d),
 	}
 
 	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
-		return fmt.Errorf("error creating registry: %s", err)
+		return diag.Errorf("error creating registry: %s", err)
 	}
 
 	d.SetId("registrySettings")
-	return readRegistrySettings(d, meta)
+	return readRegistrySettings(ctx, d, meta)
 }
 
-func readRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+func readRegistrySettings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedRegistry, err := settings.GetRegistrySettings(*client)
 	if err != nil {
-		return fmt.Errorf("error reading registry: %s", err)
+		return diag.Errorf("error reading registry: %s", err)
 	}
 
 	if err := d.Set("specification", convert.RegistrySpecificationToSchema(retrievedRegistry.Specifications)); err != nil {
-		return fmt.Errorf("error reading registry: %s", err)
+		return diag.Errorf("error reading registry: %s", err)
 	}
 
-	return nil
+	return diags
 }
 
-func updateRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+func updateRegistrySettings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRegistry := settings.RegistrySettings{
 		Specifications: convert.SchemaToRegistrySpecification(d),
 	}
 
 	if err := settings.UpdateRegistrySettings(*client, parsedRegistry); err != nil {
-		return fmt.Errorf("error updating registry: %s", err)
+		return diag.Errorf("error updating registry: %s", err)
 	}
 
-	return readRegistrySettings(d, meta)
+	return readRegistrySettings(ctx, d, meta)
 }
 
-func deleteRegistrySettings(d *schema.ResourceData, meta interface{}) error {
+func deleteRegistrySettings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	defaults := settings.RegistrySettings{
 		Specifications: make([]settings.RegistrySpecification, 0),
 	}
 	if err := settings.UpdateRegistrySettings(*client, defaults); err != nil {
-		return fmt.Errorf("error deleting registry: %s", err)
+		return diag.Errorf("error deleting registry: %s", err)
 	}
+
 	d.SetId("")
-	return nil
+
+	return diags
 }

@@ -1,19 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
+
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceCustomCompliance() *schema.Resource {
 	return &schema.Resource{
-		Create: createCustomCompliance,
-		Read:   readCustomCompliance,
-		Update: updateCustomCompliance,
-		Delete: deleteCustomCompliance,
+		CreateContext: createCustomCompliance,
+		ReadContext:   readCustomCompliance,
+		UpdateContext: updateCustomCompliance,
+		DeleteContext: deleteCustomCompliance,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -54,64 +56,66 @@ func resourceCustomCompliance() *schema.Resource {
 	}
 }
 
-func createCustomCompliance(d *schema.ResourceData, meta interface{}) error {
+func createCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCustomCompliance := convert.SchemaToCustomCompliance(d)
-	id, err := policy.CreateCustomCompliance(*client, parsedCustomCompliance)
+	err := policy.CreateCustomCompliance(*client, parsedCustomCompliance)
 
 	if err != nil {
-		return fmt.Errorf("error creating custom Compliance '%+v': %s", parsedCustomCompliance, err)
+		return diag.Errorf("error creating custom Compliance '%+v': %s", parsedCustomCompliance, err)
 	}
-	if err := d.Set("prisma_id", id); err != nil {
-		return fmt.Errorf("error creating custom Compliance '%+v': %s", parsedCustomCompliance, err)
-	}
+
 	d.SetId(parsedCustomCompliance.Name)
-	return readCustomCompliance(d, meta)
+	return readCustomCompliance(ctx, d, meta)
 }
 
-func readCustomCompliance(d *schema.ResourceData, meta interface{}) error {
+func readCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
-	retrievedCustomCompliance, err := policy.GetCustomComplianceById(*client, d.Get("prisma_id").(int))
+	retrievedCustomCompliance, err := policy.GetCustomComplianceByName(*client, d.Id())
 	if err != nil {
-		return fmt.Errorf("error reading custom Compliance: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 
 	if err := d.Set("name", retrievedCustomCompliance.Name); err != nil {
-		return fmt.Errorf("error reading custom Compliance: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("prisma_id", retrievedCustomCompliance.Id); err != nil {
-		return fmt.Errorf("error reading custom rule: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("title", retrievedCustomCompliance.Title); err != nil {
-		return fmt.Errorf("error reading custom Compliance: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("severity", retrievedCustomCompliance.Severity); err != nil {
-		return fmt.Errorf("error reading custom Compliance: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 	if err := d.Set("script", retrievedCustomCompliance.Script); err != nil {
-		return fmt.Errorf("error reading custom Compliance: %s", err)
+		return diag.Errorf("error reading custom Compliance: %s", err)
 	}
 
 	return nil
 }
 
-func updateCustomCompliance(d *schema.ResourceData, meta interface{}) error {
+func updateCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedCustomCompliance := convert.SchemaToCustomCompliance(d)
 
 	if err := policy.UpdateCustomCompliance(*client, parsedCustomCompliance); err != nil {
-		return fmt.Errorf("error updating custom Compliance: %s", err)
+		return diag.Errorf("error updating custom Compliance: %s", err)
 	}
 
-	return readCustomCompliance(d, meta)
+	return readCustomCompliance(ctx, d, meta)
 }
 
-func deleteCustomCompliance(d *schema.ResourceData, meta interface{}) error {
+func deleteCustomCompliance(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
-	if err := policy.DeleteCustomCompliance(*client, d.Get("prisma_id").(int)); err != nil {
-		return fmt.Errorf("error updating custom Compliance '%s': %s", d.Id(), err)
+
+	var diags diag.Diagnostics
+
+	if err := policy.DeleteCustomCompliance(*client, d.Id()); err != nil {
+		return diag.Errorf("error deleting custom Compliance '%s': %s", d.Id(), err)
 	}
 
 	d.SetId("")
-	return nil
+
+	return diags
 }

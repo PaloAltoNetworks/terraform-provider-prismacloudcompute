@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
@@ -25,6 +26,51 @@ type Client struct {
 	Config     APIClientConfig
 	HTTPClient *http.Client
 	JWT        string
+}
+
+type ErrResponse struct {
+	Err string
+}
+
+func (c *Client) Initialize(filename string) error {
+	c2 := Client{}
+
+	if filename != "" {
+		var (
+			b   []byte
+			err error
+		)
+
+		b, err = ioutil.ReadFile(filename)
+
+		if err != nil {
+			return err
+		}
+
+		if err = json.Unmarshal(b, &c2); err != nil {
+			return err
+		}
+	}
+
+	if c.Config.ConsoleURL == "" && c2.Config.ConsoleURL != "" {
+		c.Config.ConsoleURL = c2.Config.ConsoleURL
+	}
+
+	if c.Config.Project == "" && c2.Config.Project != "" {
+		c.Config.Project = c2.Config.Project
+	}
+
+	if c.Config.Username == "" && c2.Config.Username != "" {
+		c.Config.Username = c2.Config.Username
+	}
+
+	if c.Config.Password == "" && c2.Config.Password != "" {
+		c.Config.Password = c2.Config.Password
+	}
+
+	c.HTTPClient = &http.Client{}
+
+	return c.Authenticate()
 }
 
 // Communicate with the Prisma Cloud Compute API.
@@ -54,9 +100,26 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 	req.Header.Set("Authorization", "Bearer "+c.JWT)
 	req.Header.Set("Content-Type", "application/json")
+
+	// TODO: simplify logic
 	if c.Config.Project != "" {
 		queryParams := req.URL.Query()
 		queryParams.Set("project", c.Config.Project)
+		if query != nil {
+			if queryMap, ok := query.(map[string]string); ok {
+				for key, val := range queryMap {
+					queryParams.Add(key, val)
+				}
+			}
+		}
+		req.URL.RawQuery = queryParams.Encode()
+	} else if query != nil {
+		queryParams := req.URL.Query()
+		if queryMap, ok := query.(map[string]string); ok {
+			for key, val := range queryMap {
+				queryParams.Add(key, val)
+			}
+		}
 		req.URL.RawQuery = queryParams.Encode()
 	}
 
@@ -74,7 +137,17 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Non-OK status: %d", res.StatusCode)
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return fmt.Errorf("Error reading response body from non-OK response: %s", err)
+		}
+
+		var response ErrResponse
+		if err = json.Unmarshal(body, &response); err != nil {
+			return err
+		}
+
+		return fmt.Errorf("Non-OK status: %d (%s)", res.StatusCode, response.Err)
 	}
 
 	body, err := io.ReadAll(res.Body)
@@ -91,7 +164,7 @@ func (c *Client) Request(method, endpoint string, query, data, response interfac
 }
 
 // Authenticate with the Prisma Cloud Compute Console.
-func (c *Client) authenticate() (err error) {
+func (c *Client) Authenticate() (err error) {
 
 	type AuthRequest struct {
 		Username string `json:"username"`
@@ -128,7 +201,7 @@ func APIClient(config APIClientConfig) (*Client, error) {
 		apiClient.HTTPClient = &http.Client{}
 	}
 
-	if err := apiClient.authenticate(); err != nil {
+	if err := apiClient.Authenticate(); err != nil {
 		return nil, err
 	}
 

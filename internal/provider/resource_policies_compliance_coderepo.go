@@ -1,20 +1,21 @@
 package provider
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/api/policy"
 	"github.com/PaloAltoNetworks/terraform-provider-prismacloudcompute/internal/convert"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourcePoliciesComplianceCoderepo() *schema.Resource {
 	return &schema.Resource{
-		Create: createPolicyComplianceCoderepo,
-		Read:   readPolicyComplianceCoderepo,
-		Update: updatePolicyComplianceCoderepo,
-		Delete: deletePolicyComplianceCoderepo,
+		CreateContext: createPolicyComplianceCoderepo,
+		ReadContext:   readPolicyComplianceCoderepo,
+		UpdateContext: updatePolicyComplianceCoderepo,
+		DeleteContext: deletePolicyComplianceCoderepo,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -130,11 +131,11 @@ func resourcePoliciesComplianceCoderepo() *schema.Resource {
 	}
 }
 
-func createPolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) error {
+func createPolicyComplianceCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCoderepoRules(d)
 	if err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
 	parsedPolicy := policy.ComplianceCoderepoPolicy{
@@ -143,32 +144,35 @@ func createPolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if err := policy.UpdateComplianceCoderepo(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error creating %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error creating %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
 	d.SetId(policyTypeComplianceCoderepo)
-	return readPolicyComplianceCoderepo(d, meta)
+	return readPolicyComplianceCoderepo(ctx, d, meta)
 }
 
-func readPolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) error {
+func readPolicyComplianceCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
+
+	var diags diag.Diagnostics
+
 	retrievedPolicy, err := policy.GetComplianceCoderepo(*client)
 	if err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
 	if err := d.Set("rule", convert.ComplianceCoderepoRulesToSchema(retrievedPolicy.Rules)); err != nil {
-		return fmt.Errorf("error reading %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error reading %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
-	return nil
+	return diags
 }
 
-func updatePolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) error {
+func updatePolicyComplianceCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*api.Client)
 	parsedRules, err := convert.SchemaToComplianceCoderepoRules(d)
 	if err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
 	parsedPolicy := policy.ComplianceCoderepoPolicy{
@@ -177,13 +181,14 @@ func updatePolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) er
 	}
 
 	if err := policy.UpdateComplianceCoderepo(*client, parsedPolicy); err != nil {
-		return fmt.Errorf("error updating %s policy: %s", policyTypeComplianceCoderepo, err)
+		return diag.Errorf("error updating %s policy: %s", policyTypeComplianceCoderepo, err)
 	}
 
-	return readPolicyComplianceCoderepo(d, meta)
+	return readPolicyComplianceCoderepo(ctx, d, meta)
 }
 
-func deletePolicyComplianceCoderepo(d *schema.ResourceData, meta interface{}) error {
+func deletePolicyComplianceCoderepo(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// TODO: reset to default policy
-	return nil
+	var diags diag.Diagnostics
+	return diags
 }

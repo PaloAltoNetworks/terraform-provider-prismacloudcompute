@@ -10,16 +10,6 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 
 	alertTriggerPolicies := make(map[string]interface{})
 
-	if d.Docker.Enabled {
-		alertTriggerPolicies["access"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.Docker.Enabled,
-				"all_rules": d.Docker.Allrules,
-				"rules":     d.Docker.Rules,
-			},
-		}
-	}
-
 	if d.Admission.Enabled {
 		alertTriggerPolicies["admission"] = []interface{}{
 			map[string]interface{}{
@@ -30,8 +20,28 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
+	if d.AgentlessAppFirewall.Enabled {
+		alertTriggerPolicies["agentless_app_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.AgentlessAppFirewall.Enabled,
+				"all_rules": d.AgentlessAppFirewall.Allrules,
+				"rules":     d.AgentlessAppFirewall.Rules,
+			},
+		}
+	}
+
+	if d.AppEmbeddedAppFirewall.Enabled {
+		alertTriggerPolicies["app_embedded_app_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.AppEmbeddedAppFirewall.Enabled,
+				"all_rules": d.AppEmbeddedAppFirewall.Allrules,
+				"rules":     d.AppEmbeddedAppFirewall.Rules,
+			},
+		}
+	}
+
 	if d.AppEmbeddedRuntime.Enabled {
-		alertTriggerPolicies["app_embedded_defender_runtime"] = []interface{}{
+		alertTriggerPolicies["app_embedded_runtime"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.AppEmbeddedRuntime.Enabled,
 				"all_rules": d.AppEmbeddedRuntime.Allrules,
@@ -40,16 +50,48 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
-	if d.NetworkFirewall.Enabled {
-		alertTriggerPolicies["cloud_native_network_firewall"] = []interface{}{
+	if d.CloudDiscovery.Enabled {
+		alertTriggerPolicies["cloud_discovery"] = []interface{}{
 			map[string]interface{}{
-				"enabled": d.NetworkFirewall.Enabled,
+				"enabled":   d.CloudDiscovery.Enabled,
+				"all_rules": d.CloudDiscovery.Allrules,
+				"rules":     d.CloudDiscovery.Rules,
+			},
+		}
+	}
+
+	if d.CodeRepoVulnerability.Enabled {
+		alertTriggerPolicies["code_repo_vulnerability"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.CodeRepoVulnerability.Enabled,
+				"all_rules": d.CodeRepoVulnerability.Allrules,
+				"rules":     d.CodeRepoVulnerability.Rules,
+			},
+		}
+	}
+
+	if d.ContainerAppFirewall.Enabled {
+		alertTriggerPolicies["container_app_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.ContainerAppFirewall.Enabled,
+				"all_rules": d.ContainerAppFirewall.Allrules,
+				"rules":     d.ContainerAppFirewall.Rules,
+			},
+		}
+	}
+
+	if d.ContainerCompliance.Enabled {
+		alertTriggerPolicies["container_compliance"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.ContainerCompliance.Enabled,
+				"all_rules": d.ContainerCompliance.Allrules,
+				"rules":     d.ContainerCompliance.Rules,
 			},
 		}
 	}
 
 	if d.ContainerComplianceScan.Enabled {
-		alertTriggerPolicies["container_and_image_compliance"] = []interface{}{
+		alertTriggerPolicies["container_compliance_scan"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.ContainerComplianceScan.Enabled,
 				"all_rules": d.ContainerComplianceScan.Allrules,
@@ -68,16 +110,58 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
-	if d.Defender.Enabled {
-		alertTriggerPolicies["defender_health"] = []interface{}{
+	if d.ContainerVulnerability.Enabled {
+		alertTriggerPolicies["container_vulnerability"] = []interface{}{
 			map[string]interface{}{
-				"enabled": d.Defender.Enabled,
+				"enabled":   d.ContainerVulnerability.Enabled,
+				"all_rules": d.ContainerVulnerability.Allrules,
+				"rules":     d.ContainerVulnerability.Rules,
+			},
+		}
+	}
+
+	if d.Defender.Enabled {
+		alertTriggerPolicies["defender"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.Defender.Enabled,
+				"all_rules": d.Defender.Allrules,
+				"rules":     d.Defender.Rules,
+			},
+		}
+	}
+
+	if d.Docker.Enabled {
+		alertTriggerPolicies["docker"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.Docker.Enabled,
+				"all_rules": d.Docker.Allrules,
+				"rules":     d.Docker.Rules,
+			},
+		}
+	}
+
+	if d.HostAppFirewall.Enabled {
+		alertTriggerPolicies["host_app_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.HostAppFirewall.Enabled,
+				"all_rules": d.HostAppFirewall.Allrules,
+				"rules":     d.HostAppFirewall.Rules,
+			},
+		}
+	}
+
+	if d.HostCompliance.Enabled {
+		alertTriggerPolicies["host_compliance"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.HostCompliance.Enabled,
+				"all_rules": d.HostCompliance.Allrules,
+				"rules":     d.HostCompliance.Rules,
 			},
 		}
 	}
 
 	if d.HostComplianceScan.Enabled {
-		alertTriggerPolicies["host_compliance"] = []interface{}{
+		alertTriggerPolicies["host_compliance_scan"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.HostComplianceScan.Enabled,
 				"all_rules": d.HostComplianceScan.Allrules,
@@ -97,7 +181,7 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 	}
 
 	if d.HostVulnerability.Enabled {
-		alertTriggerPolicies["host_vulnerabilities"] = []interface{}{
+		alertTriggerPolicies["host_vulnerability"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.HostVulnerability.Enabled,
 				"all_rules": d.HostVulnerability.Allrules,
@@ -106,30 +190,52 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
-	if d.ContainerVulnerability.Enabled {
-		alertTriggerPolicies["image_vulnerabilities"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.ContainerVulnerability.Enabled,
-				"all_rules": d.ContainerVulnerability.Allrules,
-				"rules":     d.ContainerVulnerability.Rules,
-			},
-		}
-	}
-
 	if d.Incident.Enabled {
-		alertTriggerPolicies["incidents"] = []interface{}{
+		alertTriggerPolicies["incident"] = []interface{}{
 			map[string]interface{}{
-				"enabled": d.Incident.Enabled,
+				"enabled":   d.Incident.Enabled,
+				"all_rules": d.Incident.Allrules,
+				"rules":     d.Incident.Rules,
 			},
 		}
 	}
 
 	if d.KubernetesAudit.Enabled {
-		alertTriggerPolicies["kubernetes_audits"] = []interface{}{
+		alertTriggerPolicies["kubernetes_audit"] = []interface{}{
 			map[string]interface{}{
 				"enabled":   d.KubernetesAudit.Enabled,
 				"all_rules": d.KubernetesAudit.Allrules,
 				"rules":     d.KubernetesAudit.Rules,
+			},
+		}
+	}
+
+	if d.NetworkFirewall.Enabled {
+		alertTriggerPolicies["network_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.NetworkFirewall.Enabled,
+				"all_rules": d.NetworkFirewall.Allrules,
+				"rules":     d.NetworkFirewall.Rules,
+			},
+		}
+	}
+
+	if d.RegistryVulnerability.Enabled {
+		alertTriggerPolicies["registry_vulnerability"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.RegistryVulnerability.Enabled,
+				"all_rules": d.RegistryVulnerability.Allrules,
+				"rules":     d.RegistryVulnerability.Rules,
+			},
+		}
+	}
+
+	if d.ServerlessAppFirewall.Enabled {
+		alertTriggerPolicies["serverless_app_firewall"] = []interface{}{
+			map[string]interface{}{
+				"enabled":   d.ServerlessAppFirewall.Enabled,
+				"all_rules": d.ServerlessAppFirewall.Allrules,
+				"rules":     d.ServerlessAppFirewall.Rules,
 			},
 		}
 	}
@@ -144,42 +250,12 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
-	if d.AppEmbeddedAppFirewall.Enabled {
-		alertTriggerPolicies["waas_firewall_app_embedded_defender"] = []interface{}{
+	if d.VmCompliance.Enabled {
+		alertTriggerPolicies["vm_compliance"] = []interface{}{
 			map[string]interface{}{
-				"enabled":   d.AppEmbeddedAppFirewall.Enabled,
-				"all_rules": d.AppEmbeddedAppFirewall.Allrules,
-				"rules":     d.AppEmbeddedAppFirewall.Rules,
-			},
-		}
-	}
-
-	if d.ContainerAppFirewall.Enabled {
-		alertTriggerPolicies["waas_firewall_container"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.ContainerAppFirewall.Enabled,
-				"all_rules": d.ContainerAppFirewall.Allrules,
-				"rules":     d.ContainerAppFirewall.Rules,
-			},
-		}
-	}
-
-	if d.HostAppFirewall.Enabled {
-		alertTriggerPolicies["waas_firewall_host"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.HostAppFirewall.Enabled,
-				"all_rules": d.HostAppFirewall.Allrules,
-				"rules":     d.HostAppFirewall.Rules,
-			},
-		}
-	}
-
-	if d.ServerlessAppFirewall.Enabled {
-		alertTriggerPolicies["waas_firewall_serverless"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.ServerlessAppFirewall.Enabled,
-				"all_rules": d.ServerlessAppFirewall.Allrules,
-				"rules":     d.ServerlessAppFirewall.Rules,
+				"enabled":   d.VmCompliance.Enabled,
+				"all_rules": d.VmCompliance.Allrules,
+				"rules":     d.VmCompliance.Rules,
 			},
 		}
 	}
@@ -187,7 +263,9 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 	if d.WaasHealth.Enabled {
 		alertTriggerPolicies["waas_health"] = []interface{}{
 			map[string]interface{}{
-				"enabled": d.WaasHealth.Enabled,
+				"enabled":   d.WaasHealth.Enabled,
+				"all_rules": d.WaasHealth.Allrules,
+				"rules":     d.WaasHealth.Rules,
 			},
 		}
 	}
@@ -196,238 +274,270 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 }
 
 // Converts a alertprofile schema to a alertprofile object for SDK compatibility.
-func SchemaToAlertprofile(d *schema.ResourceData) (alertprofile.Alertprofile, error) {
+func SchemaToAlertprofile(d *schema.ResourceData) (alertprofile.AlertProfile, error) {
 
-	parsedAlertprofile := alertprofile.Alertprofile{}
+	parsedAlertProfile := alertprofile.AlertProfile{}
 
 	if val, ok := d.GetOk("name"); ok {
-		parsedAlertprofile.Name = val.(string)
-	}
-
-	var isEnabled bool
-	if val, ok := d.GetOk("enabled"); ok {
-		isEnabled = val.(bool)
+		parsedAlertProfile.Name = val.(string)
 	}
 
 	if val, ok := d.GetOk("enable_immediate_vulnerabilities_alerts"); ok {
-		parsedAlertprofile.VulnerabilityImmediateAlertsEnabled = val.(bool)
+		parsedAlertProfile.VulnerabilityImmediateAlertsEnabled = val.(bool)
 	}
 
-	if ap, ok := d.GetOk("alert_profile_config"); ok {
-		for _, val := range ap.([]interface{}) {
-			if val.(map[string]interface{})["prisma_cloud_integration_id"] != nil {
-				parsedAlertprofile.IntegrationID = val.(map[string]interface{})["prisma_cloud_integration_id"].(string)
-				parsedAlertprofile.External = true
-			}
-
-			parsedAlertprofile.Webhook.Url = val.(map[string]interface{})["webhook_url"].(string)
-			parsedAlertprofile.Webhook.CredentialId = val.(map[string]interface{})["credential_id"].(string)
-			parsedAlertprofile.Webhook.CaCert = val.(map[string]interface{})["custom_ca"].(string)
-			parsedAlertprofile.Webhook.Json = val.(map[string]interface{})["custom_json"].(string)
-		}
+	if val, ok := d.GetOk("owner"); ok {
+		parsedAlertProfile.Owner = val.(string)
 	}
 
-	if val, ok := d.GetOk("alert_profile_type"); ok {
-		if val == "webhook" {
-			parsedAlertprofile.Webhook.Enabled = isEnabled
+	if wc, ok := d.GetOk("webhook"); ok {
+		for _, val := range wc.([]interface{}) {
+			parsedAlertProfile.Webhook.Url = val.(map[string]interface{})["url"].(string)
+			parsedAlertProfile.Webhook.CredentialId = val.(map[string]interface{})["credential_id"].(string)
+			parsedAlertProfile.Webhook.CaCert = val.(map[string]interface{})["custom_ca"].(string)
+			parsedAlertProfile.Webhook.Json = val.(map[string]interface{})["custom_json"].(string)
 		}
 	}
 
-	if alertTriggers, ok := d.GetOk("alert_triggers"); ok {
+	parsedAlertProfile.Webhook.Enabled = true // Currently only supporting webhook alert profiles
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["access"].([]interface{}) {
-				parsedAlertprofile.Policy.Docker.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.Docker.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
-
-				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.Docker.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
-				}
-			}
-		}
-
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["admission"].([]interface{}) {
-				parsedAlertprofile.Policy.Admission.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.Admission.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+	if alertTriggers, ok := d.GetOk("policy"); ok {
+		for _, alertTrigger := range alertTriggers.([]interface{}) {
+			for _, cv := range alertTrigger.(map[string]interface{})["admission"].([]interface{}) {
+				parsedAlertProfile.Policy.Admission.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.Admission.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.Admission.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.Admission.Rules = append(parsedAlertProfile.Policy.Admission.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["app_embedded_defender_runtime"].([]interface{}) {
-				parsedAlertprofile.Policy.AppEmbeddedRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.AppEmbeddedRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["agentless_app_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.AgentlessAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.AgentlessAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.AppEmbeddedRuntime.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.AgentlessAppFirewall.Rules = append(parsedAlertProfile.Policy.AgentlessAppFirewall.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["cloud_native_network_firewall"].([]interface{}) {
-				parsedAlertprofile.Policy.NetworkFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.NetworkFirewall.Allrules = true
-			}
-		}
-
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["container_and_image_compliance"].([]interface{}) {
-				parsedAlertprofile.Policy.ContainerComplianceScan.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ContainerComplianceScan.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["app_embedded_app_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.AppEmbeddedAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.AppEmbeddedAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ContainerComplianceScan.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.AppEmbeddedAppFirewall.Rules = append(parsedAlertProfile.Policy.AppEmbeddedAppFirewall.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["container_runtime"].([]interface{}) {
-				parsedAlertprofile.Policy.ContainerRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ContainerRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["app_embedded_runtime"].([]interface{}) {
+				parsedAlertProfile.Policy.AppEmbeddedRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.AppEmbeddedRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ContainerRuntime.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.AppEmbeddedRuntime.Rules = append(parsedAlertProfile.Policy.AppEmbeddedRuntime.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["defender_health"].([]interface{}) {
-				parsedAlertprofile.Policy.Defender.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.Defender.Allrules = true
-			}
-		}
-
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["host_compliance"].([]interface{}) {
-				parsedAlertprofile.Policy.HostComplianceScan.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.HostComplianceScan.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["cloud_discovery"].([]interface{}) {
+				parsedAlertProfile.Policy.CloudDiscovery.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.CloudDiscovery.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.HostComplianceScan.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.CloudDiscovery.Rules = append(parsedAlertProfile.Policy.CloudDiscovery.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["host_runtime"].([]interface{}) {
-				parsedAlertprofile.Policy.HostRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.HostRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["code_repo_vulnerability"].([]interface{}) {
+				parsedAlertProfile.Policy.CodeRepoVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.CodeRepoVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.HostRuntime.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.CodeRepoVulnerability.Rules = append(parsedAlertProfile.Policy.CodeRepoVulnerability.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["host_vulnerabilities"].([]interface{}) {
-				parsedAlertprofile.Policy.HostVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.HostVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["container_app_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.ContainerAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ContainerAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.HostVulnerability.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.ContainerAppFirewall.Rules = append(parsedAlertProfile.Policy.ContainerAppFirewall.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["image_vulnerabilities"].([]interface{}) {
-				parsedAlertprofile.Policy.ContainerVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ContainerVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["container_compliance"].([]interface{}) {
+				parsedAlertProfile.Policy.ContainerCompliance.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ContainerCompliance.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ContainerVulnerability.Rules = append(parsedAlertprofile.Policy.ContainerVulnerability.Rules, rule.(string))
+					parsedAlertProfile.Policy.ContainerCompliance.Rules = append(parsedAlertProfile.Policy.ContainerCompliance.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["incidents"].([]interface{}) {
-				parsedAlertprofile.Policy.Incident.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.Incident.Allrules = true
-			}
-		}
-
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["kubernetes_audits"].([]interface{}) {
-				parsedAlertprofile.Policy.KubernetesAudit.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.KubernetesAudit.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["container_compliance_scan"].([]interface{}) {
+				parsedAlertProfile.Policy.ContainerComplianceScan.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ContainerComplianceScan.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.KubernetesAudit.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.ContainerComplianceScan.Rules = append(parsedAlertProfile.Policy.ContainerComplianceScan.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["serverless_runtime"].([]interface{}) {
-				parsedAlertprofile.Policy.ServerlessRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ServerlessRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["container_vulnerability"].([]interface{}) {
+				parsedAlertProfile.Policy.ContainerVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ContainerVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ServerlessRuntime.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.ContainerVulnerability.Rules = append(parsedAlertProfile.Policy.ContainerVulnerability.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["waas_firewall_app_embedded_defender"].([]interface{}) {
-				parsedAlertprofile.Policy.AppEmbeddedAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.AppEmbeddedAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["defender"].([]interface{}) {
+				parsedAlertProfile.Policy.Defender.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.Defender.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.AppEmbeddedAppFirewall.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.Defender.Rules = append(parsedAlertProfile.Policy.Defender.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["waas_firewall_container"].([]interface{}) {
-				parsedAlertprofile.Policy.ContainerAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ContainerAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["docker"].([]interface{}) {
+				parsedAlertProfile.Policy.Docker.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.Docker.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ContainerAppFirewall.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.Docker.Rules = append(parsedAlertProfile.Policy.Docker.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["waas_firewall_host"].([]interface{}) {
-				parsedAlertprofile.Policy.HostAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.HostAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["host_app_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.HostAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.HostAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.HostAppFirewall.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.HostAppFirewall.Rules = append(parsedAlertProfile.Policy.HostAppFirewall.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["waas_firewall_serverless"].([]interface{}) {
-				parsedAlertprofile.Policy.ServerlessAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.ServerlessAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+			for _, cv := range alertTrigger.(map[string]interface{})["host_compliance"].([]interface{}) {
+				parsedAlertProfile.Policy.HostCompliance.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.HostCompliance.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertprofile.Policy.ServerlessAppFirewall.Rules = append(parsedAlertprofile.Policy.Docker.Rules, rule.(string))
+					parsedAlertProfile.Policy.HostCompliance.Rules = append(parsedAlertProfile.Policy.HostCompliance.Rules, rule.(string))
 				}
 			}
-		}
 
-		for _, alertTriger := range alertTriggers.([]interface{}) {
-			for _, cv := range alertTriger.(map[string]interface{})["waas_health"].([]interface{}) {
-				parsedAlertprofile.Policy.WaasHealth.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertprofile.Policy.WaasHealth.Allrules = true
+			for _, cv := range alertTrigger.(map[string]interface{})["host_compliance_scan"].([]interface{}) {
+				parsedAlertProfile.Policy.HostComplianceScan.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.HostComplianceScan.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.HostComplianceScan.Rules = append(parsedAlertProfile.Policy.HostComplianceScan.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["host_runtime"].([]interface{}) {
+				parsedAlertProfile.Policy.HostRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.HostRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.HostRuntime.Rules = append(parsedAlertProfile.Policy.HostRuntime.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["host_vulnerability"].([]interface{}) {
+				parsedAlertProfile.Policy.HostVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.HostVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.HostVulnerability.Rules = append(parsedAlertProfile.Policy.HostVulnerability.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["incident"].([]interface{}) {
+				parsedAlertProfile.Policy.Incident.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.Incident.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.Incident.Rules = append(parsedAlertProfile.Policy.Incident.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["kubernetes_audit"].([]interface{}) {
+				parsedAlertProfile.Policy.KubernetesAudit.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.KubernetesAudit.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.KubernetesAudit.Rules = append(parsedAlertProfile.Policy.KubernetesAudit.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["network_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.NetworkFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.NetworkFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.NetworkFirewall.Rules = append(parsedAlertProfile.Policy.NetworkFirewall.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["registry_vulnerability"].([]interface{}) {
+				parsedAlertProfile.Policy.RegistryVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.RegistryVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.RegistryVulnerability.Rules = append(parsedAlertProfile.Policy.RegistryVulnerability.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["serverless_app_firewall"].([]interface{}) {
+				parsedAlertProfile.Policy.ServerlessAppFirewall.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ServerlessAppFirewall.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.ServerlessAppFirewall.Rules = append(parsedAlertProfile.Policy.ServerlessAppFirewall.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["serverless_runtime"].([]interface{}) {
+				parsedAlertProfile.Policy.ServerlessRuntime.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.ServerlessRuntime.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.ServerlessRuntime.Rules = append(parsedAlertProfile.Policy.ServerlessRuntime.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["vm_compliance"].([]interface{}) {
+				parsedAlertProfile.Policy.VmCompliance.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.VmCompliance.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.VmCompliance.Rules = append(parsedAlertProfile.Policy.VmCompliance.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["vm_vulnerability"].([]interface{}) {
+				parsedAlertProfile.Policy.VmVulnerability.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.VmVulnerability.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.VmVulnerability.Rules = append(parsedAlertProfile.Policy.VmVulnerability.Rules, rule.(string))
+				}
+			}
+
+			for _, cv := range alertTrigger.(map[string]interface{})["waas_health"].([]interface{}) {
+				parsedAlertProfile.Policy.WaasHealth.Enabled = cv.(map[string]interface{})["enabled"].(bool)
+				parsedAlertProfile.Policy.WaasHealth.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
+
+				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
+					parsedAlertProfile.Policy.WaasHealth.Rules = append(parsedAlertProfile.Policy.WaasHealth.Rules, rule.(string))
+				}
 			}
 		}
 	}
 
-	return parsedAlertprofile, nil
+	return parsedAlertProfile, nil
 }
