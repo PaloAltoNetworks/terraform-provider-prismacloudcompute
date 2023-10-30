@@ -130,16 +130,6 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 		}
 	}
 
-	if d.Docker.Enabled {
-		alertTriggerPolicies["docker"] = []interface{}{
-			map[string]interface{}{
-				"enabled":   d.Docker.Enabled,
-				"all_rules": d.Docker.Allrules,
-				"rules":     d.Docker.Rules,
-			},
-		}
-	}
-
 	if d.HostAppFirewall.Enabled {
 		alertTriggerPolicies["host_app_firewall"] = []interface{}{
 			map[string]interface{}{
@@ -399,15 +389,6 @@ func SchemaToAlertprofile(d *schema.ResourceData) (alertprofile.AlertProfile, er
 
 				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
 					parsedAlertProfile.Policy.Defender.Rules = append(parsedAlertProfile.Policy.Defender.Rules, rule.(string))
-				}
-			}
-
-			for _, cv := range alertTrigger.(map[string]interface{})["docker"].([]interface{}) {
-				parsedAlertProfile.Policy.Docker.Enabled = cv.(map[string]interface{})["enabled"].(bool)
-				parsedAlertProfile.Policy.Docker.Allrules = cv.(map[string]interface{})["all_rules"].(bool)
-
-				for _, rule := range cv.(map[string]interface{})["rules"].([]interface{}) {
-					parsedAlertProfile.Policy.Docker.Rules = append(parsedAlertProfile.Policy.Docker.Rules, rule.(string))
 				}
 			}
 

@@ -394,32 +394,6 @@ func resourceAlertprofile() *schema.Resource {
 								},
 							},
 						},
-						"docker": {
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Description: "Access",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"enabled": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"all_rules": {
-										Type:     schema.TypeBool,
-										Required: true,
-									},
-									"rules": {
-										Type:     schema.TypeList,
-										Optional: true,
-										Computed: true,
-										Elem: &schema.Schema{
-											Type: schema.TypeString,
-										},
-									},
-								},
-							},
-						},
 						"host_app_firewall": {
 							Type:        schema.TypeList,
 							MaxItems:    1,
