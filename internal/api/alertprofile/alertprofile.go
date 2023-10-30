@@ -146,13 +146,6 @@ type Defender struct {
 	Rules    []string `json:"rules,omitempty"`
 }
 
-// Access
-type Docker struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
 // WAAS Firewall (host)
 type HostAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
@@ -264,7 +257,6 @@ type Policy struct {
 	ContainerRuntime        ContainerRuntime        `json:"containerRuntime,omitempty"`
 	ContainerVulnerability  ContainerVulnerability  `json:"containerVulnerability,omitempty"`
 	Defender                Defender                `json:"defender,omitempty"`
-	Docker                  Docker                  `json:"docker,omitempty"`
 	HostAppFirewall         HostAppFirewall         `json:"hostAppFirewall,omitempty"`
 	HostCompliance          HostCompliance          `json:"hostCompliance,omitempty"`
 	HostComplianceScan      HostComplianceScan      `json:"hostComplianceScan,omitempty"`
