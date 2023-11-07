@@ -18,11 +18,6 @@ const AlertprofilesEndpoint = "api/v1/alert-profiles"
 // 	Ssl          string `json:"ssl"`
 // }
 
-// type Slack struct {
-// 	Enabled    bool   `json:"enabled"`
-// 	WebhookUrl string `json:"webhookUrl"`
-// }
-
 // type Jira struct {
 // 	Enabled      bool   `json:"enabled"`
 // 	BaseUrl      string `json:"baseUrl"`
@@ -55,6 +50,11 @@ const AlertprofilesEndpoint = "api/v1/alert-profiles"
 // }
 
 // Alert profiles types
+type Slack struct {
+	Enabled    bool   `json:"enabled"`
+	WebhookUrl string `json:"webhookUrl"`
+}
+
 type Webhook struct {
 	Enabled      bool   `json:"enabled"`
 	CredentialId string `json:"credentialId,omitempty"`
@@ -287,6 +287,7 @@ type AlertProfile struct {
 	Name                                string  `json:"name"`
 	VulnerabilityImmediateAlertsEnabled bool    `json:"vulnerabilityImmediateAlertsEnabled,omitempty"`
 	Owner                               string  `json:"owner,omitempty"`
+	Slack                               Slack   `json:"slack,omitempty"`
 	Webhook                             Webhook `json:"webhook,omitempty"`
 	Policy                              Policy  `json:"policy,omitempty"`
 }

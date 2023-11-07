@@ -151,282 +151,405 @@ resource "prismacloudcompute_alertprofile" "test" {
 
 ### Required
 
-- `alert_profile_config` (Block List, Min: 1, Max: 1) Alert Profile configuration, the values depend on the alert profile type (see [below for nested schema](#nestedblock--alert_profile_config))
-- `alert_profile_type` (String) Alert Profile type. Valid values are : `webhook`
 - `name` (String) Alert Profile name
 
 ### Optional
 
-- `alert_triggers` (Block List, Max: 1) Policy configuration. (see [below for nested schema](#nestedblock--alert_triggers))
 - `enable_immediate_vulnerabilities_alerts` (Boolean) Enable immediate vulnerabilities alerts
-- `enabled` (Boolean) Enabled
+- `policy` (Block List, Max: 1) Policy configuration. Configure triggers for alerts. (see [below for nested schema](#nestedblock--policy))
+- `slack` (Block List, Max: 1) Alert Profile configuration, the values depend on the alert profile type (see [below for nested schema](#nestedblock--slack))
+- `webhook` (Block List, Max: 1) Alert Profile configuration, the values depend on the alert profile type (see [below for nested schema](#nestedblock--webhook))
 
 ### Read-Only
 
 - `id` (String) Alert Profile ID
 - `owner` (String) Owner
 
-<a id="nestedblock--alert_profile_config"></a>
-### Nested Schema for `alert_profile_config`
+<a id="nestedblock--policy"></a>
+### Nested Schema for `policy`
+
+Optional:
+
+- `admission` (Block List, Max: 1) Admission audits (see [below for nested schema](#nestedblock--policy--admission))
+- `agentless_app_firewall` (Block List, Max: 1) WAAS Firewall (Agentless) (see [below for nested schema](#nestedblock--policy--agentless_app_firewall))
+- `app_embedded_app_firewall` (Block List, Max: 1) WAAS Firewall (App-Embedded Defender) (see [below for nested schema](#nestedblock--policy--app_embedded_app_firewall))
+- `app_embedded_runtime` (Block List, Max: 1) App-Embedded Defender runtime (see [below for nested schema](#nestedblock--policy--app_embedded_runtime))
+- `cloud_discovery` (Block List, Max: 1) Cloud discovery (see [below for nested schema](#nestedblock--policy--cloud_discovery))
+- `code_repo_vulnerability` (Block List, Max: 1) Code repository vulnerabilities (see [below for nested schema](#nestedblock--policy--code_repo_vulnerability))
+- `container_app_firewall` (Block List, Max: 1) WAAS Firewall (container) (see [below for nested schema](#nestedblock--policy--container_app_firewall))
+- `container_compliance` (Block List, Max: 1) (see [below for nested schema](#nestedblock--policy--container_compliance))
+- `container_compliance_scan` (Block List, Max: 1) Container and image compliance (see [below for nested schema](#nestedblock--policy--container_compliance_scan))
+- `container_runtime` (Block List, Max: 1) Container runtime (see [below for nested schema](#nestedblock--policy--container_runtime))
+- `container_vulnerability` (Block List, Max: 1) Deployed image vulnerabilities (see [below for nested schema](#nestedblock--policy--container_vulnerability))
+- `defender` (Block List, Max: 1) Defender health (see [below for nested schema](#nestedblock--policy--defender))
+- `host_app_firewall` (Block List, Max: 1) WAAS Firewall (host) (see [below for nested schema](#nestedblock--policy--host_app_firewall))
+- `host_compliance` (Block List, Max: 1) (see [below for nested schema](#nestedblock--policy--host_compliance))
+- `host_compliance_scan` (Block List, Max: 1) Host compliance (see [below for nested schema](#nestedblock--policy--host_compliance_scan))
+- `host_runtime` (Block List, Max: 1) Host runtime (see [below for nested schema](#nestedblock--policy--host_runtime))
+- `host_vulnerability` (Block List, Max: 1) Host vulnerabilities (see [below for nested schema](#nestedblock--policy--host_vulnerability))
+- `incident` (Block List, Max: 1) Incidents (see [below for nested schema](#nestedblock--policy--incident))
+- `kubernetes_audit` (Block List, Max: 1) Kubernetes audits (see [below for nested schema](#nestedblock--policy--kubernetes_audit))
+- `network_firewall` (Block List, Max: 1) Cloud Native Network Segmentation (CNNS) (see [below for nested schema](#nestedblock--policy--network_firewall))
+- `registry_vulnerability` (Block List, Max: 1) Registry image vulnerabilities (see [below for nested schema](#nestedblock--policy--registry_vulnerability))
+- `serverless_app_firewall` (Block List, Max: 1) WAAS Firewall (serverless) (see [below for nested schema](#nestedblock--policy--serverless_app_firewall))
+- `serverless_runtime` (Block List, Max: 1) Serverless runtime (see [below for nested schema](#nestedblock--policy--serverless_runtime))
+- `vm_compliance` (Block List, Max: 1) VM images compliance (see [below for nested schema](#nestedblock--policy--vm_compliance))
+- `vm_vulnerability` (Block List, Max: 1) VM images vulnerabilities (see [below for nested schema](#nestedblock--policy--vm_vulnerability))
+- `waas_health` (Block List, Max: 1) WAAS health (see [below for nested schema](#nestedblock--policy--waas_health))
+
+<a id="nestedblock--policy--admission"></a>
+### Nested Schema for `policy.admission`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--agentless_app_firewall"></a>
+### Nested Schema for `policy.agentless_app_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--app_embedded_app_firewall"></a>
+### Nested Schema for `policy.app_embedded_app_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--app_embedded_runtime"></a>
+### Nested Schema for `policy.app_embedded_runtime`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--cloud_discovery"></a>
+### Nested Schema for `policy.cloud_discovery`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--code_repo_vulnerability"></a>
+### Nested Schema for `policy.code_repo_vulnerability`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--container_app_firewall"></a>
+### Nested Schema for `policy.container_app_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--container_compliance"></a>
+### Nested Schema for `policy.container_compliance`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--container_compliance_scan"></a>
+### Nested Schema for `policy.container_compliance_scan`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--container_runtime"></a>
+### Nested Schema for `policy.container_runtime`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--container_vulnerability"></a>
+### Nested Schema for `policy.container_vulnerability`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--defender"></a>
+### Nested Schema for `policy.defender`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--host_app_firewall"></a>
+### Nested Schema for `policy.host_app_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--host_compliance"></a>
+### Nested Schema for `policy.host_compliance`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--host_compliance_scan"></a>
+### Nested Schema for `policy.host_compliance_scan`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--host_runtime"></a>
+### Nested Schema for `policy.host_runtime`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--host_vulnerability"></a>
+### Nested Schema for `policy.host_vulnerability`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--incident"></a>
+### Nested Schema for `policy.incident`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--kubernetes_audit"></a>
+### Nested Schema for `policy.kubernetes_audit`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--network_firewall"></a>
+### Nested Schema for `policy.network_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--registry_vulnerability"></a>
+### Nested Schema for `policy.registry_vulnerability`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--serverless_app_firewall"></a>
+### Nested Schema for `policy.serverless_app_firewall`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--serverless_runtime"></a>
+### Nested Schema for `policy.serverless_runtime`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--vm_compliance"></a>
+### Nested Schema for `policy.vm_compliance`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--vm_vulnerability"></a>
+### Nested Schema for `policy.vm_vulnerability`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+<a id="nestedblock--policy--waas_health"></a>
+### Nested Schema for `policy.waas_health`
+
+Required:
+
+- `all_rules` (Boolean)
+- `enabled` (Boolean)
+
+Optional:
+
+- `rules` (List of String)
+
+
+
+<a id="nestedblock--slack"></a>
+### Nested Schema for `slack`
+
+Optional:
+
+- `webhook_url` (String) Webhook URL
+
+
+<a id="nestedblock--webhook"></a>
+### Nested Schema for `webhook`
 
 Optional:
 
 - `credential_id` (String) Credential ID
 - `custom_ca` (String) Custom CA Cert
 - `custom_json` (String) Custom JSON payload
-- `prisma_cloud_integration_id` (String) ID of the Prisma Cloud Integration
-- `webhook_url` (String) Webhook URL
-
-
-<a id="nestedblock--alert_triggers"></a>
-### Nested Schema for `alert_triggers`
-
-Optional:
-
-- `access` (Block List, Max: 1) Access (Docker) (see [below for nested schema](#nestedblock--alert_triggers--access))
-- `admission` (Block List, Max: 1) Admission audits (see [below for nested schema](#nestedblock--alert_triggers--admission))
-- `app_embedded_defender_runtime` (Block List, Max: 1) App-Embedded Defender runtime (see [below for nested schema](#nestedblock--alert_triggers--app_embedded_defender_runtime))
-- `cloud_native_network_firewall` (Block List, Max: 1) Cloud Native Network Firewall (CNNF) (see [below for nested schema](#nestedblock--alert_triggers--cloud_native_network_firewall))
-- `container_and_image_compliance` (Block List, Max: 1) Container and image compliance (see [below for nested schema](#nestedblock--alert_triggers--container_and_image_compliance))
-- `container_runtime` (Block List, Max: 1) Container runtime (see [below for nested schema](#nestedblock--alert_triggers--container_runtime))
-- `defender_health` (Block List, Max: 1) Defender health (see [below for nested schema](#nestedblock--alert_triggers--defender_health))
-- `host_compliance` (Block List, Max: 1) Host compliance (see [below for nested schema](#nestedblock--alert_triggers--host_compliance))
-- `host_runtime` (Block List, Max: 1) Host runtime (see [below for nested schema](#nestedblock--alert_triggers--host_runtime))
-- `host_vulnerabilities` (Block List, Max: 1) Host vulnerabilities (see [below for nested schema](#nestedblock--alert_triggers--host_vulnerabilities))
-- `image_vulnerabilities` (Block List, Max: 1) Image vulnerabilities (registry and deployed) (see [below for nested schema](#nestedblock--alert_triggers--image_vulnerabilities))
-- `incidents` (Block List, Max: 1) incidents (see [below for nested schema](#nestedblock--alert_triggers--incidents))
-- `kubernetes_audits` (Block List, Max: 1) Kubernetes audits (see [below for nested schema](#nestedblock--alert_triggers--kubernetes_audits))
-- `serverless_runtime` (Block List, Max: 1) Serverless runtime (see [below for nested schema](#nestedblock--alert_triggers--serverless_runtime))
-- `waas_firewall_app_embedded_defender` (Block List, Max: 1) WAAS Firewall (App-Embedded Defender) (see [below for nested schema](#nestedblock--alert_triggers--waas_firewall_app_embedded_defender))
-- `waas_firewall_container` (Block List, Max: 1) WAAS Firewall (container) (see [below for nested schema](#nestedblock--alert_triggers--waas_firewall_container))
-- `waas_firewall_host` (Block List, Max: 1) WAAS Firewall (host) (see [below for nested schema](#nestedblock--alert_triggers--waas_firewall_host))
-- `waas_firewall_serverless` (Block List, Max: 1) WAAS Firewall (serverless) (see [below for nested schema](#nestedblock--alert_triggers--waas_firewall_serverless))
-- `waas_health` (Block List, Max: 1) WAAS health (see [below for nested schema](#nestedblock--alert_triggers--waas_health))
-
-<a id="nestedblock--alert_triggers--access"></a>
-### Nested Schema for `alert_triggers.access`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--admission"></a>
-### Nested Schema for `alert_triggers.admission`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--app_embedded_defender_runtime"></a>
-### Nested Schema for `alert_triggers.app_embedded_defender_runtime`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--cloud_native_network_firewall"></a>
-### Nested Schema for `alert_triggers.cloud_native_network_firewall`
-
-Required:
-
-- `enabled` (Boolean)
-
-
-<a id="nestedblock--alert_triggers--container_and_image_compliance"></a>
-### Nested Schema for `alert_triggers.container_and_image_compliance`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--container_runtime"></a>
-### Nested Schema for `alert_triggers.container_runtime`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--defender_health"></a>
-### Nested Schema for `alert_triggers.defender_health`
-
-Required:
-
-- `enabled` (Boolean)
-
-
-<a id="nestedblock--alert_triggers--host_compliance"></a>
-### Nested Schema for `alert_triggers.host_compliance`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--host_runtime"></a>
-### Nested Schema for `alert_triggers.host_runtime`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--host_vulnerabilities"></a>
-### Nested Schema for `alert_triggers.host_vulnerabilities`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--image_vulnerabilities"></a>
-### Nested Schema for `alert_triggers.image_vulnerabilities`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--incidents"></a>
-### Nested Schema for `alert_triggers.incidents`
-
-Required:
-
-- `enabled` (Boolean)
-
-
-<a id="nestedblock--alert_triggers--kubernetes_audits"></a>
-### Nested Schema for `alert_triggers.kubernetes_audits`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--serverless_runtime"></a>
-### Nested Schema for `alert_triggers.serverless_runtime`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--waas_firewall_app_embedded_defender"></a>
-### Nested Schema for `alert_triggers.waas_firewall_app_embedded_defender`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--waas_firewall_container"></a>
-### Nested Schema for `alert_triggers.waas_firewall_container`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--waas_firewall_host"></a>
-### Nested Schema for `alert_triggers.waas_firewall_host`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--waas_firewall_serverless"></a>
-### Nested Schema for `alert_triggers.waas_firewall_serverless`
-
-Required:
-
-- `all_rules` (Boolean)
-- `enabled` (Boolean)
-
-Optional:
-
-- `rules` (List of String)
-
-
-<a id="nestedblock--alert_triggers--waas_health"></a>
-### Nested Schema for `alert_triggers.waas_health`
-
-Required:
-
-- `enabled` (Boolean)
-
-
+- `url` (String) Webhook URL

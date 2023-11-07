@@ -43,6 +43,22 @@ func resourceAlertprofile() *schema.Resource {
 				Computed:    true,
 				Description: "Owner",
 			},
+			"slack": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MinItems:    1,
+				MaxItems:    1,
+				Description: "Alert Profile configuration, the values depend on the alert profile type",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"webhook_url": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Description: "Webhook URL",
+						},
+					},
+				},
+			},
 			"webhook": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -827,10 +843,16 @@ func readAlertprofile(ctx context.Context, d *schema.ResourceData, meta interfac
 		config["credential_id"] = retrievedAlertProfile.Webhook.CredentialId
 		config["custom_ca"] = retrievedAlertProfile.Webhook.CaCert
 		config["custom_json"] = retrievedAlertProfile.Webhook.Json
+		if err = d.Set("webhook", []interface{}{config}); err != nil {
+			log.Printf("[WARN] Error setting 'webhook' for %s: %s", d.Id(), err)
+		}
 	}
 
-	if err = d.Set("webhook", []interface{}{config}); err != nil {
-		log.Printf("[WARN] Error setting 'webhook' for %s: %s", d.Id(), err)
+	if retrievedAlertProfile.Slack.Enabled {
+		config["webhook_url"] = retrievedAlertProfile.Slack.WebhookUrl
+		if err = d.Set("slack", []interface{}{config}); err != nil {
+			log.Printf("[WARN] Error setting 'slack' for %s: %s", d.Id(), err)
+		}
 	}
 
 	alertTriggerPolicies := convert.AlertProfilePoliciesToSchema(&retrievedAlertProfile.Policy)
