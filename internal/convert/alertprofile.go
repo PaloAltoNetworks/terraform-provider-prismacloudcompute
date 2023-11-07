@@ -7,7 +7,6 @@ import (
 
 // Converts Alertprofile policy object to schema policy
 func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
-
 	alertTriggerPolicies := make(map[string]interface{})
 
 	if d.Admission.Enabled {
@@ -275,7 +274,6 @@ func AlertProfilePoliciesToSchema(d *alertprofile.Policy) interface{} {
 
 // Converts a alertprofile schema to a alertprofile object for SDK compatibility.
 func SchemaToAlertprofile(d *schema.ResourceData) (alertprofile.AlertProfile, error) {
-
 	parsedAlertProfile := alertprofile.AlertProfile{}
 
 	if val, ok := d.GetOk("name"); ok {
@@ -291,15 +289,19 @@ func SchemaToAlertprofile(d *schema.ResourceData) (alertprofile.AlertProfile, er
 	}
 
 	if wc, ok := d.GetOk("webhook"); ok {
+		parsedAlertProfile.Webhook.Enabled = true
 		for _, val := range wc.([]interface{}) {
 			parsedAlertProfile.Webhook.Url = val.(map[string]interface{})["url"].(string)
 			parsedAlertProfile.Webhook.CredentialId = val.(map[string]interface{})["credential_id"].(string)
 			parsedAlertProfile.Webhook.CaCert = val.(map[string]interface{})["custom_ca"].(string)
 			parsedAlertProfile.Webhook.Json = val.(map[string]interface{})["custom_json"].(string)
 		}
+	} else if slack, ok := d.GetOk("slack"); ok {
+		parsedAlertProfile.Slack.Enabled = true
+		for _, val := range slack.([]interface{}) {
+			parsedAlertProfile.Slack.WebhookUrl = val.(map[string]interface{})["webhook_url"].(string)
+		}
 	}
-
-	parsedAlertProfile.Webhook.Enabled = true // Currently only supporting webhook alert profiles
 
 	if alertTriggers, ok := d.GetOk("policy"); ok {
 		for _, alertTrigger := range alertTriggers.([]interface{}) {
