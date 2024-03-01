@@ -99,12 +99,6 @@ type CloudDiscovery struct {
 	Rules    []string `json:"rules,omitempty"`
 }
 
-type CodeRepoVulnerability struct {
-	Enabled  bool     `json:"enabled"`
-	Allrules bool     `json:"allRules"`
-	Rules    []string `json:"rules,omitempty"`
-}
-
 // WAAS Firewall (container)
 type ContainerAppFirewall struct {
 	Enabled  bool     `json:"enabled"`
@@ -257,7 +251,6 @@ type Policy struct {
 	AppEmbeddedAppFirewall  AppEmbeddedAppFirewall  `json:"appEmbeddedAppFirewall,omitempty"`
 	AppEmbeddedRuntime      AppEmbeddedRuntime      `json:"appEmbeddedRuntime,omitempty"`
 	CloudDiscovery          CloudDiscovery          `json:"cloudDiscovery,omitempty"`
-	CodeRepoVulnerability   CodeRepoVulnerability   `json:"codeRepoVulnerability"`
 	ContainerAppFirewall    ContainerAppFirewall    `json:"containerAppFirewall,omitempty"`
 	ContainerCompliance     ContainerCompliance     `json:"containerCompliance,omitempty"`
 	ContainerComplianceScan ContainerComplianceScan `json:"containerComplianceScan,omitempty"`
