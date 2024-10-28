@@ -13,16 +13,16 @@ func SchemaToGroup(d *schema.ResourceData) (auth.Group, error) {
 	if val, ok := d.GetOk("groupid"); ok {
 		parsedGroup.Id = val.(string)
 	}
-	if val, ok := d.GetOk("ldapgroup"); ok {
+	if val, ok := d.GetOk("ldap_group"); ok {
 		parsedGroup.LdapGroup = val.(bool)
 	}
 	if val, ok := d.GetOk("name"); ok {
 		parsedGroup.Name = val.(string)
 	}
-	if val, ok := d.GetOk("oauthgroup"); ok {
+	if val, ok := d.GetOk("oauth_group"); ok {
 		parsedGroup.OauthGroup = val.(bool)
 	}
-	if val, ok := d.GetOk("oidcgroup"); ok {
+	if val, ok := d.GetOk("oidc_group"); ok {
 		parsedGroup.OidcGroup = val.(bool)
 	}
 	if val, ok := d.GetOk("permissions"); ok {
@@ -31,7 +31,7 @@ func SchemaToGroup(d *schema.ResourceData) (auth.Group, error) {
 	if val, ok := d.GetOk("role"); ok {
 		parsedGroup.Role = val.(string)
 	}
-	if val, ok := d.GetOk("samlgroup"); ok {
+	if val, ok := d.GetOk("saml_group"); ok {
 		parsedGroup.SamlGroup = val.(bool)
 	}
 	if val, ok := d.GetOk("users"); ok {
